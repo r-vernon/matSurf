@@ -26,8 +26,11 @@ classdef brainSurf < handle
         % -------------------------------------------------------------
         % surface properties
         
-        surfDet % SUBJECTS_DIR, hemi (lh/rh), surfType (white, inflated)
-        TR % triangulation (needed to display surface)
+        % details about surface (surfName, surfPath, curvPath)
+        surfDet
+        
+        % triangulation (needed to display surface)
+        TR 
         
         % -------------------------------------------------------------
         % overlay properties
@@ -81,39 +84,20 @@ classdef brainSurf < handle
     
     methods
         
-        function obj = brainSurf(varargin)
+        function obj = brainSurf(colMap)
             % Constructor - initialises the object
             %
             % (opt.) colMap, colormap class for overlays, will create a
             %        new instance if not provided
-            % (opt.) SUBJECTS_DIR, path to FreeSurfer subjects directory
-            % (opt.) hemi, which hemi to load (lh or rh)
-            % (opt.) surfType, which surface to load (white,inflated)
             % (set.) obj.colMap, see colMap above
-            % (set.) obj.surfDet, structure containing surface details
-            %        (SUBJECTS_DIR, hemi and surfType)
             % (set.) obj.nOvrlays, number of data overlays
             
-            % -------------------------------------------------------------
-            
-            % create input parser and set optional inputs with defaults for now
-            p = inputParser;
-            addOptional(p,'colMap',cmaps);
-            addOptional(p,'SUBJECTS_DIR',[pwd,'/Data/R3517'])
-            addOptional(p,'hemi','rh');
-            addOptional(p,'surfType','inflated');
-            
-            % parse the input
-            parse(p,varargin{:})
-            
-            % -------------------------------------------------------------
-            
             % save out color map
-            obj.colMap = p.Results.colMap;
-            
-            % save out surf details
-            obj.surfDet = struct('SUBJECTS_DIR',p.Results.SUBJECTS_DIR,...
-                'hemi',p.Results.hemi,'surfType',p.Results.surfType);
+            if nargin < 1
+                obj.colMap = cmaps;
+            else
+                obj.colMap = colMap;
+            end
             
             % save out nOverlays
             obj.nOvrlays = length(obj.dataOvrlay);
@@ -123,14 +107,18 @@ classdef brainSurf < handle
         % =================================================================
         % Surface functions
         
-        surface_load(obj)
+        surface_load(obj,surf2load)
         % function to load in Freesurfer surface
         % sets TR, G, nVert, ROIpts
+        
+        surface_setDetails(obj,surfPath,curvPath,surfName)
+        % function to set surface details
+        % sets surfDet
         
         % =================================================================
         % Overlay functions
         
-        ovrlay_base(obj,sulcusCol,gyrusCol)
+        ovrlay_base(obj,curv2load,sulcusCol,gyrusCol)
         % function to load in base overlay, based upon curvature
         % sets baseOvrlay, currOvrlay
         

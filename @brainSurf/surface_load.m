@@ -8,12 +8,14 @@ function surface_load(obj)
 % =========================================================================
 % load in surface and curvature
 
-% grab surface details
-surfDet = obj.surfDet;
-
-% surface 
-fName = strcat(surfDet.SUBJECTS_DIR,'/surf/',surfDet.hemi,'.',surfDet.surfType);
-[vert, faces] = read_surf(fName);
+% surface
+try
+    [vert, faces] = read_surf(obj.surfDet.surfPath);
+catch ME
+    fprintf('Could not load requested surface\n(%s)\n',...
+        obj.surfDet.curvPath);
+    rethrow(ME);
+end
 
 % add 1 to faces due to FreeSurfer zero indexing, also swapping cols of
 % faces as apparently that fixes normals (according to FreeSurfer script)

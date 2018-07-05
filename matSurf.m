@@ -49,7 +49,9 @@ handles.cmaps = cmaps;
 
 % initialise a brainSurf object, passing it colormaps above
 % this contains/will contain surface, overlays and ROIs
-handles.vol = brainSurf(cmaps);
+% saving it into allVol so can swap volumes around, but only one (in
+% handles) ever operated on
+allVol(1).vol = brainSurf(handles.cmaps);
 
 % set some useful flags
 surfLoaded = false; % true when surface loaded
@@ -85,13 +87,44 @@ set(handles.addSurf,'Callback',@addSurf_callback);
 
     function addSurf_callback(src,event)
         
-        % initialise a surface (TODO - get user input)
+        % get ind of where to save volume
+        if ~surfLoaded
+            ind = 1; % no surface so save to first volume
+        else
+            % get new instance of brainSurf
+            ind = length(allVol) + 1;
+            allVol(ind).vol = brainSurf(handles.cmaps);
+        end
+        
+        % initialise session details (TODO - get user input)
+        SUBJECTS_DIR = [pwd,'/Data'];
+        subject = 'R3517';
+        hemi = 'rh';
+        surfType = 'inflated';
+        
+        % set surfName, plus surf and curv to load
+        surfName = strcat(subject,'_',hemi);
+        fPath = fullfile(SUBJECTS_DIR,subject,'surf',{[hemi,'.',surfType],[hemi,'.curv']});
+        allVol(ind).vol.surface_setDetails(fPath{1},fPath{2},surfName)
+        
+        % initialise a surface
         % contains triangulation (TR), graph (G) and numVertices (nVert)
-        handles.vol.surface_load;
+        allVol(ind).vol.surface_load;
         
         % load the base overlay (curvature information), using default colours
-        handles.vol.ovrlay_base;
+        allVol(ind).vol.ovrlay_base;
         
+        % swap out the main handles.vol with newly loaded vol
+        % (saving out any changes first...)
+        if ~surfLoaded
+            handles.vol = allVol(ind).vol;
+            surfLoaded = true; % set flag
+        else
+            currSurf = get(handles.selSurf,'Value');
+            allVol(currSurf).vol = handles.vol; % update w/ any changes
+            handles.vol = allVol(ind).vol;
+        end
+            
         % make sure all cameras are off
         set([handles.rotCam,handles.panCam,handles.zoomCam],'Value',0);
         
@@ -103,8 +136,9 @@ set(handles.addSurf,'Callback',@addSurf_callback);
         view(handles.brainAx,90,0) % set view to Y-Z
         drawnow;
         
-        % set flag
-        surfLoaded = true;
+        % add it to pop up menu
+        set(handles.selSurf,'String',{allVol(:).vol.surfDet.surfName},'Value',ind);
+
     end
 
 % =========================================================================
@@ -125,10 +159,10 @@ set(handles.addData,'Callback',@addData_callback);
         toLoad = listdlg('ListString',{'Ret','Co'});
         switch toLoad
             case 1
-                toRead = [handles.vol.surfDet.SUBJECTS_DIR,'/data/Phase_RH.nii.gz'];
+                toRead = [pwd,'/Data/R3517/data/Phase_RH.nii.gz'];
                 cmap = 'parula';
             case 2
-                toRead = [handles.vol.surfDet.SUBJECTS_DIR,'/data/Coher_RH.nii.gz'];
+                toRead = [pwd,'/Data/R3517/data/Coher_RH.nii.gz'];
                 cmap = 'heat';
             otherwise, return;
         end

@@ -4,21 +4,31 @@ if nargin <1 || isempty(showFig)
     showFig = true;
 end
 
-% =========================================================================
-% set dimensions and spacings
+%% ========================================================================
 
-% set starting size properties
-figSize = struct('h',800,'w',960); % figure height, width in pixels
-panSp = 20; % default spacing around panels
-butHeight = 24; % button height
-butSp = 1/3 * butHeight; % spacing ratio for buttons, i.e. 1/3 uicontrol height
-axLength = figSize.h - 2*panSp; % axis width/height, 2*defSp for top,bottom
+%  ---------------------- DEFAULT SPACINGS --------------------------------
 
-% =========================================================================
+%  ========================================================================
+% set starting dimensions and spacings (all in pixels, made relative later)
 
-%------------------------ DEFINING FIGURE ---------------------------------
+ % figure height, width
+figSize = struct('h',800,'w',960);
 
-% =========================================================================
+% default spacing around panels
+panSp = 20; 
+
+% button height and spacing ratio for buttons
+butHeight = 24; 
+butSp = 1/3 * butHeight; % set to 1/3 uicontrol height
+
+ % axis length - fig. size minus 2x default panel spacing (for top,bottom)
+axLength = figSize.h - 2*panSp;
+
+%% ========================================================================
+
+%  ---------------------- DEFINING FIGURE ---------------------------------
+
+%  ========================================================================
 % create main figure
 
 % create a figure, hidden for now while being constructed
@@ -27,25 +37,43 @@ handles.matSurfFig = figure('Name','matSurf','Tag','matSurfFig','NumberTitle','o
     'Visible','off','MenuBar','none','DockControls','off');
 figHandle = handles.matSurfFig;
 
-% =========================================================================
+%% ========================================================================
 
-%------------------------ DEFINING PANELS----------------------------------
+%  ---------------------- DEFINING MENUBAR --------------------------------
 
-% =========================================================================
+%  ========================================================================
+% create a menubar to allow additional options under each option
+
+handles.surfMenu = uimenu(figHandle,'Text','&Surface','Tag','surfMenu');
+handles.dataMenu = uimenu(figHandle,'Text','&Data','Tag','dataMenu');
+handles.roiMenu = uimenu(figHandle,'Text','&ROI','Tag','roiMenu');
+handles.camMenu = uimenu(figHandle,'Text','&Camera','Tag','camMenu');
+
+%% ========================================================================
+
+%  ---------------------- SURFACE MENU ------------------------------------
+
+%  ========================================================================
+% menu items for surface
+
+% set lighting properties
+handles.setLight = uimenu(handles.surfMenu,'Text','Set Lighting',...
+    'Tag','setLight');
+
+%% ========================================================================
+
+%  ---------------------- DEFINE PANEL DEFAULTS ---------------------------
+
+%  ========================================================================
 % define panel defaults - come in a 'name', 'value' pair
 
 panelDef.name = {'TitlePosition','FontSize','Units'};
 panelDef.value = {'centertop',11,'pixels'};
 
-% =========================================================================
-
-
-% =========================================================================
 % calculate dimensions and spacings for each panel
-%
-% panWidth/panHeight - width and height of panel
-% panLeft/panBottom - distance from left/bottom edge of parent
-% nVItems - number of 'vertical' items
+% > panWidth/panHeight - width and height of panel
+% > panLeft/panBottom - distance from left/bottom edge of parent
+% > nVItems - number of 'vertical' items
 
 % set defaults
 panWidth = figSize.w - axLength - 3*panSp; % 3*defSp for left,right of panel, and left of axis
@@ -78,14 +106,21 @@ panHeight = calcHeight(nVItems.cam);
 panBottom = panBottom - panSp - panHeight;
 panPos.cam = [panLeft,panBottom,panWidth,panHeight];
 
+% Mode panel
+nVItems.mode = 3; 
+panHeight = calcHeight(nVItems.mode);
+panBottom = panBottom - panSp - panHeight;
+panPos.mode = [panLeft,panBottom,panWidth,panHeight];
+
 % axis panel 
 % - different spacings to rest, 2 padding around axis so axis fits inside
 panPos.axis = [panSp-2, panSp-2, axLength+4, axLength+4];
 
-% =========================================================================
+%% ========================================================================
 
+%  ---------------------- CREATE PANELS -----------------------------------
 
-% =========================================================================
+%  ========================================================================
 % create the panels that will contain/border buttons etc
 
 % axis panel
@@ -112,11 +147,16 @@ handles.camPanel = uipanel(figHandle,panelDef.name,panelDef.value);
 set(handles.camPanel,'Tag','camPanel','Title','Camera',...
     'Position',panPos.cam);
 
-% =========================================================================
+% mode panel
+handles.modePanel = uipanel(figHandle,panelDef.name,panelDef.value);
+set(handles.modePanel,'Tag','modePanel','Title','Mode',...
+    'Position',panPos.mode);
 
-%------------------------ DEFINING AXIS -----------------------------------
+%% ========================================================================
 
-% =========================================================================
+%  ---------------------- DEFINING AXIS -----------------------------------
+
+%  ========================================================================
 % create main axis (where data will be plotted)
 
 % Data and PlotBox AspectRatioMode stops axis reshaping when moving camera
@@ -133,11 +173,11 @@ handles.brainAx = axes(handles.axisPanel,'Tag','brainAx','Units','Pixels',...
 handles.brainPatch = patch(handles.brainAx,'facecolor', 'interp',...
     'edgecolor','none','FaceLighting','gouraud','visible','off');
         
-% =========================================================================
+%% ========================================================================
 
-%------------------------ DEFINING BUTTONS --------------------------------
+%  ---------------------- BUTTON DEFAULTS ---------------------------------
 
-% =========================================================================
+%  ========================================================================
 % calculate dimensions and spacings for each button
 
 % set properties for full button
@@ -151,10 +191,11 @@ h_butWidth = (panWidth - 2.5*f_LPos)/2;
 h_LPos1 = f_LPos;
 h_LPos2 = f_LPos + h_butWidth + f_LPos/2;
 
-% =========================================================================
+%% ========================================================================
 
+%  ---------------------- SURFACE BUTTONS ---------------------------------
 
-% =========================================================================
+%  ========================================================================
 % create surface buttons
 
 % set current height
@@ -162,21 +203,27 @@ currH = (nVItems.surf * butSp) + ((nVItems.surf-1) * butHeight);
 
 % add surface button
 handles.addSurf = uicontrol(handles.surfPanel,'Style','pushbutton',...
-    'String','Add Surface','Tag','addSurf',...
-    'Position',[f_LPos,currH,f_butWidth,butHeight]);
+    'String','Add','Tag','addSurf',...
+    'Position',[h_LPos1,currH,h_butWidth,butHeight]);
+
+% delete surface button
+handles.delSurf = uicontrol(handles.surfPanel,'Style','pushbutton',...
+    'String','Del.','Tag','delSurf',...
+    'Position',[h_LPos2,currH,h_butWidth,butHeight]);
 
 % update current height
-currH = currH - (butHeight + butSp);
+currH = currH - (butHeight + butSp);  
 
-% set lighting
-handles.setLight = uicontrol(handles.surfPanel,'Style','pushbutton',...
-    'String','Set Lighting','Tag','setLight',...
+% select surface menu
+handles.selSurf = uicontrol(handles.surfPanel,'Style','popupmenu',...
+    'String','Select Surface','Tag','selSurf',...
     'Position',[f_LPos,currH,f_butWidth,butHeight]);
 
-% =========================================================================
+%% ========================================================================
 
+%  ---------------------- DATA BUTTONS ------------------------------------
 
-% =========================================================================
+%  ========================================================================
 % create data buttons
 
 % set current height
@@ -224,10 +271,11 @@ handles.togData = uicontrol(handles.dataPanel,'Style','checkbox',...
     'String','Show Data','Tag','togData','Value',1,...
     'Position',[f_LPos,currH,f_butWidth,butHeight]);
 
-% =========================================================================
+%% ========================================================================
 
+%  ---------------------- ROI BUTTONS -------------------------------------
 
-% =========================================================================
+%  ========================================================================
 % create ROI buttons
 
 % set current height
@@ -275,17 +323,13 @@ handles.togROI = uicontrol(handles.roiPanel,'Style','checkbox',...
     'String','Show ROI(s)','Tag','togROI','Value',1,...
     'Position',[f_LPos,currH,f_butWidth,butHeight]);
 
-% =========================================================================
+%% ========================================================================
 
+%  ---------------------- CAMERA BUTTONS ----------------------------------
 
-% =========================================================================
+%  ========================================================================
+
 % create camera buttons
-
-% % calculate button and spacing height in normalised units
-% % panel height saved in panPos.cam(4)
-% butHeight = get_buttonHeight(panPos.cam(4));
-% topHeight = get_topHeight(panPos.cam(4));
-% spHeight = get_spacingHeight(butHeight, nVItems.cam, topHeight);
 
 % set current height
 currH = (nVItems.cam * butSp) + ((nVItems.cam-1) * butHeight);
@@ -316,10 +360,42 @@ handles.resCam = uicontrol(handles.camPanel,'Style','pushbutton',...
     'String','Reset Camera','Tag','resCam',...
     'Position',[f_LPos,currH,f_butWidth,butHeight]);
 
-% =========================================================================
+%% ========================================================================
 
+%  ---------------------- MODE BUTTONS ------------------------------------
 
-% =========================================================================
+%  ========================================================================
+% mode buttons
+
+% set current height
+currH = (nVItems.mode * butSp) + ((nVItems.mode-1) * butHeight);
+
+% Camera mode button
+handles.camMode = uicontrol(handles.modePanel,'Style','radiobutton',...
+    'String','Camera Mode','Tag','camMode',...
+    'Position',[f_LPos,currH,f_butWidth,butHeight]); 
+
+% update current height
+currH = currH - (butHeight + butSp);  
+
+%  Data mode button
+handles.dataMode = uicontrol(handles.modePanel,'Style','radiobutton',...
+    'String','Data Mode','Tag','dataMode','Value',1,...
+    'Position',[f_LPos,currH,f_butWidth,butHeight]);
+
+% update current height
+currH = currH - (butHeight + butSp);  
+
+% ROI mode button
+handles.roiMode = uicontrol(handles.modePanel,'Style','radiobutton',...
+    'String','ROI Mode','Tag','roiMode',...
+    'Position',[f_LPos,currH,f_butWidth,butHeight]);
+
+%% ========================================================================
+
+%  ---------------------- FINAL PROPERTIES --------------------------------
+
+%  ========================================================================
 % finish up
 
 % grab all handles

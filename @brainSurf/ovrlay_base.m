@@ -35,8 +35,13 @@ if numel(gyrusCol)==1, gyrusCol = repmat(gyrusCol,1,3); end
 % load in curvature information
 
 % corresponding curvature information (casting to single for memory purposes)
-fName = strcat(obj.surfDet.SUBJECTS_DIR,'/surf/',obj.surfDet.hemi,'.curv');
-curv = single(read_curv(fName));
+try
+    curv = single(read_curv(obj.surfDet.curvPath));
+catch ME
+    fprintf('Could not load curvature information\n(%s)\n',...
+        obj.surfDet.curvPath);
+    rethrow(ME);
+end
 
 %==========================================================================
 
