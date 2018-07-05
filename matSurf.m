@@ -4,15 +4,42 @@ function [figHandle,handles] = matSurf()
 % initialisation
 
 % make sure everything needed is on path
-if ~exist('read_surf','file') % freesurfer
-    addpath('/usr/local/freesurfer/matlab');
+allPaths = {};
+pathsToAdd = '';
+
+% work out where the freesurfer directory is...
+fsPaths = {'/usr/lib/freesurfer-6.0/matlab',...
+    '/usr/local/freesurfer/matlab',...
+    strcat(getenv('FREESURFER_HOME'),'/matlab')};
+for currPath = length(fsPaths):-1:1
+    if ~exist(fsPaths{currPath},'file'), fsPaths(currPath) = []; end
 end
-if ~exist('load_fsSurface','file') % TODO - change this!
-    % miscellaneous figures
-    addpath('/storage/Matlab_Visualisation/V2/misc_fig');
-    % miscellaneous functions
-    addpath('/storage/Matlab_Visualisation/V2/misc_fn');
+if isempty(fsPaths)
+    fsPaths{1} = input('Enter path to FreeSurfer matlab dir\n','s');
 end
+
+% create cell of all required paths
+allPaths{1} = [fsPaths{1},pathsep];      % FreeSurfer matlab dir
+allPaths{2} = [pwd,'/misc_fig',pathsep]; % misc. figures
+allPaths{3} = [pwd,'/misc_fn',pathsep];  % misc. functions
+
+% work out which paths need adding
+for currPath = 1:length(allPaths)
+    if ~contains(path,allPaths{currPath})
+        pathsToAdd = strcat(pathsToAdd,allPaths{currPath});
+    end
+end
+
+% add them (doing all in one go should be faster than individually)
+if ~isempty(pathsToAdd)
+    addpath(pathsToAdd);
+    fprintf(['\nAdding following to Matlab path: \n',strrep(pathsToAdd,':','\n'),'\n']);
+end
+
+% also just make sure TMPDIR set appropriately for FreeSurfer
+if isempty(getenv('TMPDIR')), setenv('TMPDIR','/tmp'); end
+
+% -------------------------------------------------------------------------
 
 % create the figure and associated handles
 [figHandle,handles] = matSurf_createFig(0);
@@ -25,9 +52,9 @@ handles.cmaps = cmaps;
 handles.vol = brainSurf(cmaps);
 
 % set some useful flags
-surfLoaded = false;
-dataLoaded = false;
-ROILoaded = false;
+surfLoaded = false; % true when surface loaded
+dataLoaded = false; % true when any data overlays loaded
+ROILoaded = false; % true when any ROIs added
 
 % show the figure
 set(figHandle,'Visible','on');

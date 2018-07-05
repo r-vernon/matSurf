@@ -99,7 +99,7 @@ classdef brainSurf < handle
             % create input parser and set optional inputs with defaults for now
             p = inputParser;
             addOptional(p,'colMap',cmaps);
-            addOptional(p,'SUBJECTS_DIR','/home/richard/storage/Matlab_Visualisation/Data/R3517')
+            addOptional(p,'SUBJECTS_DIR',[pwd,'/Data/R3517'])
             addOptional(p,'hemi','rh');
             addOptional(p,'surfType','inflated');
             
