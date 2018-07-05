@@ -52,3 +52,4 @@ Will be implemented in *three* (?) specific modes:
 - [ ] Implement data view callbacks
 - [ ] Make colormaps perceptuall linear (currently using Matlab defaults)
 - [ ] Make sure e.g. brainSurf class is deleted properly when figure closed, to avoid memory leaks
+- [ ] Write test functions to make sure any changes don't break functionality
