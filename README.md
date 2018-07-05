@@ -12,6 +12,7 @@ Developing this tool to get some UI programming experience in Matlab, main aims:
 
 More generally...
 - Want to minimise the use of external toolboxes and keep it as 'core' Matlab as possible
+  - Currently just required image processing toolbox
 - Want to create good synergy between Matlab and 'matSurf', so can e.g. try analysing data in Matlab then quickly view the results on the surface, rinse and repeat
 - In accordance with above, aiming for efficient code that tries to minimise memory usage, e.g. by passing around handles to a surface rather than the surface data itself, and casts to single or uint32 where possible
 
