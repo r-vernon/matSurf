@@ -44,10 +44,13 @@ figHandle = handles.matSurfFig;
 %  ========================================================================
 % create a menubar to allow additional options under each option
 
-handles.surfMenu = uimenu(figHandle,'Text','&Surface','Tag','surfMenu');
-handles.dataMenu = uimenu(figHandle,'Text','&Data','Tag','dataMenu');
-handles.roiMenu = uimenu(figHandle,'Text','&ROI','Tag','roiMenu');
-handles.camMenu = uimenu(figHandle,'Text','&Camera','Tag','camMenu');
+% new versions of Matlab use 'Text', older use 'Label', set accordingly
+if isprop(uimenu,'Text'),Text = 'Text'; else, Text = 'Label'; end
+
+handles.surfMenu = uimenu(figHandle,Text,'&Surface','Tag','surfMenu');
+handles.dataMenu = uimenu(figHandle,Text,'&Data','Tag','dataMenu');
+handles.roiMenu = uimenu(figHandle,Text,'&ROI','Tag','roiMenu');
+handles.camMenu = uimenu(figHandle,Text,'&Camera','Tag','camMenu');
 
 %% ========================================================================
 
@@ -57,7 +60,7 @@ handles.camMenu = uimenu(figHandle,'Text','&Camera','Tag','camMenu');
 % menu items for surface
 
 % set lighting properties
-handles.setLight = uimenu(handles.surfMenu,'Text','Set Lighting',...
+handles.setLight = uimenu(handles.surfMenu,Text,'Set Lighting',...
     'Tag','setLight');
 
 %% ========================================================================
