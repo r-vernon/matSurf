@@ -3,8 +3,6 @@ function surface_load(obj)
 %
 % (set.) TR, triangulation from faces and vertices
 % (set.) nVert, total number of vertices
-% (set.) ROI_lineInd, (preallocating) indices associated with an ROI
-% (set.) ROI_markInd, (preallocating) manually selected ROI indices
 % (set.) G, weighted graph from edges
 
 % =========================================================================
@@ -29,7 +27,7 @@ faces = faces(:,[1 3 2]) + 1;
 %--------------------------------------------------------------------------
 % count number of vertices
 
-obj.nVert = uint32(size(vert,1));
+obj.nVert = single(size(vert,1));
   
 %--------------------------------------------------------------------------
 % triangulation
@@ -49,10 +47,6 @@ vertNorm = vertexNormal(obj.TR);
 
 % calculate set of points ROIs will be plotted over
 obj.ROIpts = single(bsxfun(@plus,vert,dist2add*vertNorm));
-
-%  also use nVert to preallocate line/marker indices for ROIs
-obj.ROI_lineInd = zeros(obj.nVert,1,'uint32');
-obj.ROI_markInd = false(obj.nVert,1);
 
 %--------------------------------------------------------------------------
 % graph

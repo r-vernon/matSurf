@@ -15,7 +15,7 @@ More generally...
   - Currently just requires image processing toolbox
 - Want to create good synergy between Matlab and 'matSurf', so can e.g. try analysing data in Matlab then quickly view the results on the surface, rinse and repeat
   - Means that all functions should be accessible programmatically, rather than just through GUI, e.g. should be possible to create a startup script that loads say a surface, all required colormaps and sets masking appropriately
-- In accordance with above, aiming for efficient code that tries to minimise memory usage, e.g. by passing around handles to a surface rather than the surface data itself, and casts to single or uint32 where possible
+- In accordance with above, aiming for efficient code that tries to minimise memory usage, e.g. by passing around handles to a surface rather than the surface data itself, and casts to single where possible
 
 Will be implemented in *three* (?) specific modes:
 1) Camera mode - rotate, pan, zoom camera around surface, no surface interaction

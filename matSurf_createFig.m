@@ -59,6 +59,10 @@ handles.camMenu = uimenu(figHandle,Text,'&Camera','Tag','camMenu');
 %  ========================================================================
 % menu items for surface
 
+% save surface
+handles.saveSurf = uimenu(handles.surfMenu,Text,'Save Surface',...
+    'Tag','saveSurf');
+
 % set lighting properties
 handles.setLight = uimenu(handles.surfMenu,Text,'Set Lighting',...
     'Tag','setLight');
@@ -420,7 +424,7 @@ for currHandle = 1:length(allHandles)
 end
 
 % Move the window to the center of the screen.
-movegui(handles.matSurfFig,'center')
+movegui(handles.matSurfFig,'center');
 
 % Make the UI visible.
 if showFig

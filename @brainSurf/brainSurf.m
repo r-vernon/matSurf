@@ -41,8 +41,8 @@ classdef brainSurf < handle
         currOvrlay  = struct('name','','data',[],'colData',[],'mask',[],...
             'addInfo',struct('cmap','','dLim',[],'cLim',[],'altBase',[]));
         
-        ovrlayNames % cell array of all overlays loaded
-        nOvrlays    % number of overlays
+        ovrlayNames  % cell array of all overlays loaded
+        nOvrlays = 0 % number of overlays
         
         % -------------------------------------------------------------
         % ROI properties
@@ -50,8 +50,8 @@ classdef brainSurf < handle
         % main overlay structure
         ROIs = struct('name','','selVert',[],'allVert',[]);
         
-        ROIcol % ROI color
-        nROIs  % number of ROIs
+        ROIcol = [0,0,0] % ROI color
+        nROIs  = 0       % number of ROIs
 
     end
     
@@ -94,8 +94,8 @@ classdef brainSurf < handle
 
         % lineInd - NaN delimited array, with vertices for all ROIs
         % markInd - notes manually clicked points to mark with marker
-        ROI_lineInd
-        ROI_markInd
+        ROI_lineInd = zeros(1e4,1,'single') % single to allow NaNs
+        ROI_markInd = zeros(100,1,'single')
         
         % Shortest path data for all vertices to clicked vertex
         ROI_shortestPaths
@@ -112,9 +112,6 @@ classdef brainSurf < handle
             % (opt.) colMap, colormap class for overlays, will create a
             %        new instance if not provided
             % (set.) obj.colMap, see colMap above
-            % (set.) obj.nOvrlays, number of data overlays
-            % (set.) obj.ROIcol, ROI color
-            % (set.) obj.nROIs, number of ROIs
             
             % save out color map
             if nargin < 1
@@ -122,14 +119,7 @@ classdef brainSurf < handle
             else
                 obj.colMap = colMap;
             end
-            
-            % save out nOverlays
-            obj.nOvrlays = 0;
-            
-            % save out ROI color, nROIs
-            obj.ROIcol = [0,0,0];
-            obj.nROIs = 0;
-            
+
         end
         
         % =================================================================
@@ -138,7 +128,7 @@ classdef brainSurf < handle
         surface_load(obj,surf2load)
         % function to load in Freesurfer surface
         % gets surfDet
-        % sets TR, nVert, ROIpts, ROI_lineInd, ROI_markInd, G
+        % sets TR, nVert, ROIpts, G
         
         surface_setDetails(obj,surfPath,curvPath,surfName)
         % function to set surface details

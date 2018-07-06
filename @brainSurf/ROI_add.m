@@ -3,7 +3,7 @@ function [vPts,markInd,ind] = ROI_add(obj,ptClicked)
 %--------------------------------------------------------------------------
 % first, just get index and coord Pts of nearest vertex to the click
 
-vInd = uint32(nearestNeighbor(obj.TR,ptClicked));
+vInd = single(nearestNeighbor(obj.TR,ptClicked));
 
 %--------------------------------------------------------------------------
 % work out whether starting new ROI, or resuming old one
@@ -31,6 +31,9 @@ else
     % e.g. if stPos = 1, nnz = 4, [1,2,3,4,0,0,...], new stPos = 5
 end
 
+% test if we need to expand or and marker arrays
+
+
 %--------------------------------------------------------------------------
 % deal with new ROIs
 
@@ -47,7 +50,7 @@ if newROI
     % set public details
     
     obj.ROIs(ind).name = ROIname;   % ROI name
-    vRec = zeros(100,1,'uint32');   % Preallocating space for 100 vertices
+    vRec = zeros(100,1,'single');   % Preallocating space for 100 vertices
     vRec(1) = vInd;                 %  (Will shrink when finished)
     obj.ROIs(ind).selVert = vRec;   % selected vertex
     obj.ROIs(ind).allVert = vRec;   % all vertices
@@ -96,7 +99,7 @@ ROIbreaks = isnan(allVert);
 
 vPts = zeros(length(allVert),3);
 vPts = obj.ROIpts(clInd,:);
-markInd = uint32(1);
+markInd = single(1);
 
     
     
