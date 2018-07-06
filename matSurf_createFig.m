@@ -175,7 +175,13 @@ handles.brainAx = axes(handles.axisPanel,'Tag','brainAx','Units','Pixels',...
 % create corresponding patch with default properties for now
 handles.brainPatch = patch(handles.brainAx,'facecolor', 'interp',...
     'edgecolor','none','FaceLighting','gouraud','visible','off');
-        
+
+% create corresponding line for ROI plots -  'PickableParts' particularly
+% important, setting to 'none' means can't be clicked
+handles.brainROI = line(handles.brainAx,'Color','black','MarkerFaceColor','black',...
+    'Marker','o','MarkerSize',3,'PickableParts','none',...
+    'LineStyle','-','LineWidth',1.5,'visible','off');
+
 %% ========================================================================
 
 %  ---------------------- BUTTON DEFAULTS ---------------------------------

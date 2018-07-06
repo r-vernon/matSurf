@@ -114,13 +114,9 @@ success = true;
 %==========================================================================
 % find index to store new overlay in
 
-% get current length of dataOvrlay
+% get current length of dataOvrlays and increment
 ind = obj.nOvrlays;
-
-% if it's empty we'll store it there, else add on new entry
-if obj.nOvrlays == 0 || ~isempty(obj.dataOvrlay(ind).name)
-    ind = ind + 1;
-end
+ind = ind + 1;
 
 %==========================================================================
 % get mask for overlay

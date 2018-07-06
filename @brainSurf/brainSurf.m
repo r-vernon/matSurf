@@ -18,6 +18,11 @@ classdef brainSurf < handle
     %   colData, colour values for the overlay
     %   mask,    transparency mask for overlay
     %   addInfo, any additional info, see ovrlay_add for details
+    %
+    % ROIs properties:
+    %   name,    name of ROI
+    %   data,    data in overlay, one value for each surface vertex
+    %   colData, colour values for the overlay
     
     % =====================================================================
     
@@ -25,12 +30,9 @@ classdef brainSurf < handle
         
         % -------------------------------------------------------------
         % surface properties
-        
-        % details about surface (surfName, surfPath, curvPath)
-        surfDet
-        
-        % triangulation (needed to display surface)
-        TR 
+
+        surfDet % details about surface (surfName, surfPath, curvPath)
+        TR      % triangulation (needed to display surface)
         
         % -------------------------------------------------------------
         % overlay properties
@@ -38,15 +40,19 @@ classdef brainSurf < handle
         % current overlay
         currOvrlay  = struct('name','','data',[],'colData',[],'mask',[],...
             'addInfo',struct('cmap','','dLim',[],'cLim',[],'altBase',[]));
+        
         ovrlayNames % cell array of all overlays loaded
-        nOvrlays % number of overlays
+        nOvrlays    % number of overlays
         
         % -------------------------------------------------------------
         % ROI properties
         
-        % set of points ROIs will be plotted on (floating just above surface)
-        ROIpts
+        % main overlay structure
+        ROIs = struct('name','','selVert',[],'allVert',[]);
         
+        ROIcol % ROI color
+        nROIs  % number of ROIs
+
     end
     
     % =====================================================================
@@ -61,8 +67,8 @@ classdef brainSurf < handle
         % -------------------------------------------------------------
         % surface properties
         
-        G % graph
-        nVert % number of vertices
+        G       % graph
+        nVert   % number of vertices
         
         % -------------------------------------------------------------
         % overlay properties
@@ -78,6 +84,22 @@ classdef brainSurf < handle
         % -------------------------------------------------------------
         % ROI properties
         
+        % private ROI structure to map onto ROI_lineInd and ROI_markInd
+        % stPos/endPos will contain start/end position for each ROI
+        pROIs = struct('name','','stPos',[],'endPos',[]);
+        
+        % set of points ROIs will be plotted on (floating just above surface)
+        % calculated by moving set distance from vertex along vertex normal
+        ROIpts
+
+        % lineInd - NaN delimited array, with vertices for all ROIs
+        % markInd - notes manually clicked points to mark with marker
+        ROI_lineInd
+        ROI_markInd
+        
+        % Shortest path data for all vertices to clicked vertex
+        ROI_shortestPaths
+        
     end
     
     % =====================================================================
@@ -91,6 +113,8 @@ classdef brainSurf < handle
             %        new instance if not provided
             % (set.) obj.colMap, see colMap above
             % (set.) obj.nOvrlays, number of data overlays
+            % (set.) obj.ROIcol, ROI color
+            % (set.) obj.nROIs, number of ROIs
             
             % save out color map
             if nargin < 1
@@ -100,7 +124,11 @@ classdef brainSurf < handle
             end
             
             % save out nOverlays
-            obj.nOvrlays = length(obj.dataOvrlay);
+            obj.nOvrlays = 0;
+            
+            % save out ROI color, nROIs
+            obj.ROIcol = [0,0,0];
+            obj.nROIs = 0;
             
         end
         
@@ -109,7 +137,8 @@ classdef brainSurf < handle
         
         surface_load(obj,surf2load)
         % function to load in Freesurfer surface
-        % sets TR, G, nVert, ROIpts
+        % gets surfDet
+        % sets TR, nVert, ROIpts, ROI_lineInd, ROI_markInd, G
         
         surface_setDetails(obj,surfPath,curvPath,surfName)
         % function to set surface details
@@ -120,18 +149,21 @@ classdef brainSurf < handle
         
         ovrlay_base(obj,curv2load,sulcusCol,gyrusCol)
         % function to load in base overlay, based upon curvature
+        % gets colMap, surfDet, nVert
         % sets baseOvrlay, currOvrlay
         
         % -----------------------------------------------------------------
         
         [success,ind] = ovrlay_add(obj,newOvrlay,varargin)
         % function to add an additional overlay to the surface
+        % gets nVert, nOvrlays, colMap, baseOvrlay
         % sets dataOvrlay, ovrlayNames, currOvrlay, nOvrlays
         
         % -----------------------------------------------------------------
         
         [success, ind] = ovrlay_remove(obj,ovrlay)
         % function to remove overlay
+        % gets obj.nOvrlays
         % sets dataOvrlay, ovrlayNames, currOvrlay, nOvrlays
         
         % -----------------------------------------------------------------
@@ -158,6 +190,7 @@ classdef brainSurf < handle
         
         ovrlayInd = ovrlay_find(obj,ovrlay)
         % function to return overlay index corresponding to overlay
+        % gets nOvrlays, dataOvrlay, baseOvrlay
         
     end % private, hidden methods
     

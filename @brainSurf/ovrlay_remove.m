@@ -52,13 +52,4 @@ obj.nOvrlays = length(obj.dataOvrlay);
 
 success = true; % yay
 
-%==========================================================================
-
-    function dispOvrlay
-        % function just to show details about the overlay if errors occur
-        
-        disp('Overlay requested was: ');
-        whos ovrlay;
-    end
-
 end

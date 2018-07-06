@@ -23,8 +23,7 @@ if iscell(ovrlay)
 end
 
 % make sure there's available overlays to get!
-if (obj.nOvrlays == 0 || isempty(obj.dataOvrlay(1).name)) && ...
-        (ovrlay ~= 0 || ~strcmpi(obj.baseOvrlay.name,ovrlay))
+if obj.nOvrlays == 0 && (ovrlay ~= 0 || ~strcmpi(obj.baseOvrlay.name,ovrlay))
     warning("No overlays available");
     return
 end
