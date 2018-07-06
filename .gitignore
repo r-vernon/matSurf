@@ -1,1 +1,6 @@
+
+# ignore Data directory
 Data/
+
+# ignore temporary matlab files
+*.m~
