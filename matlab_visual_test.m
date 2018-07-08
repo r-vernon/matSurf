@@ -2,7 +2,7 @@
 %% ------------------------------------------------------------------------
 
 %set subjects directory
-SUBJECTS_DIR='/home/richard/storage/Matlab_Visualisation/Data/R3517';
+SUBJECTS_DIR=[pwd,'/Data/R3517'];
 
 % make sure freesurfer on the path
 if ~exist('read_surf','file')

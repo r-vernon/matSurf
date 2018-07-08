@@ -4,10 +4,10 @@ function [success,ind] = ovrlay_remove(obj,ovrlay)
 % (req.) ovrlay, overlay to remove either as an index, or as a string
 % (ret.) success, true if overlay removed successfully
 % (ret.) ind, index of overlay to show next (0 if base)
-% (set.) obj.dataOvrlay, updates it now ovrlay removed
+% (set.) dataOvrlay, updates it now ovrlay removed
 % (set.) ovrlayNames, cell array containing names of all loaded data overlays
 % (set.) nOvrlays, number of overlays
-% (set.) obj.currOvrlay, sets current overlay to previous overlay, next
+% (set.) currOvrlay, sets current overlay to previous overlay, next
 %        overlay or base overlay in order of preference
 
 % preset sucess to false and ind to empty

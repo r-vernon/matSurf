@@ -141,6 +141,19 @@ set(handles.addSurf,'Callback',@addSurf_callback);
 
     end
 
+% save surface
+set(handles.saveSurf,'Callback',@saveSurf_callback);
+
+    function saveSurf_callback(~,~)
+        
+        % open up save dialogue with default details
+        tmpFig = UI_saveData(handles.vol,handles.vol.surfDet.surfName);
+        
+        % wait until finished saving
+        uiwait(tmpFig);
+        
+    end
+
 % =========================================================================
 
 

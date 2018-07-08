@@ -48,7 +48,7 @@ classdef brainSurf < handle
         % ROI properties
         
         % main overlay structure
-        ROIs = struct('name','','selVert',[],'allVert',[]);
+        ROIs = struct('name','','allVert',[],'selVert',[],'visible',true);
         
         ROIcol = [0,0,0] % ROI color
         nROIs  = 0       % number of ROIs
@@ -94,11 +94,11 @@ classdef brainSurf < handle
 
         % lineInd - NaN delimited array, with vertices for all ROIs
         % markInd - notes manually clicked points to mark with marker
-        ROI_lineInd = zeros(1e4,1,'single') % single to allow NaNs
-        ROI_markInd = zeros(100,1,'single')
+        ROI_lineInd = zeros(1e5,1,'single') % single to allow NaNs
+        ROI_markInd = zeros(1e3,1,'single')
         
         % Shortest path data for all vertices to clicked vertex
-        ROI_shortestPaths
+        ROI_sPaths
         
     end
     

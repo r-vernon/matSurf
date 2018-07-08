@@ -1,6 +1,6 @@
 function spTime = shortestPath_timeTest(fs)
 
-mIter = 10;
+mIter = 1;
 nIter = 100;
 
 spTime = zeros(mIter,3);
