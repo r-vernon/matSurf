@@ -132,32 +132,38 @@ panPos.axis = [panSp-2, panSp-2, axLength+4, axLength+4];
 
 % axis panel
 handles.axisPanel = uipanel(figHandle,panelDef.name,panelDef.value);
-set(handles.axisPanel,'Tag','axisPanel','Position',panPos.axis);
+handles.axisPanel.Tag = 'axisPanel';
+handles.axisPanel.Position = panPos.axis;
 
 % surface panel
 handles.surfPanel = uipanel(figHandle,panelDef.name,panelDef.value);
-set(handles.surfPanel,'Tag','surfPanel','Title','Surface',...
-    'Position',panPos.surf);
+handles.surfPanel.Tag = 'surfPanel';
+handles.surfPanel.Title = 'Surface';
+handles.surfPanel.Position = panPos.surf;
 
 % data panel
 handles.dataPanel = uipanel(figHandle,panelDef.name,panelDef.value);
-set(handles.dataPanel,'Tag','dataPanel','Title','Data',...
-    'Position',panPos.data);
+handles.dataPanel.Tag = 'dataPanel';
+handles.dataPanel.Title = 'Data';
+handles.dataPanel.Position = panPos.data;
 
 % ROI panel
 handles.roiPanel = uipanel(figHandle,panelDef.name,panelDef.value);
-set(handles.roiPanel,'Tag','roiPanel','Title','ROI',...
-    'Position',panPos.ROI);
+handles.roiPanel.Tag = 'roiPanel';
+handles.roiPanel.Title = 'ROI';
+handles.roiPanel.Position = panPos.ROI;
 
 % camera panel
 handles.camPanel = uipanel(figHandle,panelDef.name,panelDef.value);
-set(handles.camPanel,'Tag','camPanel','Title','Camera',...
-    'Position',panPos.cam);
+handles.camPanel.Tag = 'camPanel';
+handles.camPanel.Title = 'Camera';
+handles.camPanel.Position = panPos.cam;
 
 % mode panel
 handles.modePanel = uipanel(figHandle,panelDef.name,panelDef.value);
-set(handles.modePanel,'Tag','modePanel','Title','Mode',...
-    'Position',panPos.mode);
+handles.modePanel.Tag = 'modePanel';
+handles.modePanel.Title = 'Mode';
+handles.modePanel.Position = panPos.mode;
 
 %% ========================================================================
 
@@ -417,7 +423,7 @@ allHandles = fieldnames(handles);
 % set all units to 'normalized' to allow resizing
 for currHandle = 1:length(allHandles)
     try
-        set(handles.(allHandles{currHandle}),'Units','normalized');
+        handles.(allHandles{currHandle}).Units = 'normalized';
     catch
         % handle doesn't have units property so can't set
     end
@@ -428,7 +434,7 @@ movegui(handles.matSurfFig,'center');
 
 % Make the UI visible.
 if showFig
-    set(handles.matSurfFig,'Visible','on');
+    handles.matSurfFig.Visible = 'on';
 end
 
 end

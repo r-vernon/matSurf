@@ -69,24 +69,24 @@ strUI = uicontrol(tmpTxtFig,'Style','text','String',' ','Units','pixels',...
     'Tag','strUI','Visible','off');
 
 % set font name and size if using
-if ~isempty(FontName), set(strUI,'FontName',FontName); end
-if ~isempty(FontSize), set(strUI,'FontSize',FontSize); end
+if ~isempty(FontName), strUI.FontName = FontName; end
+if ~isempty(FontSize), strUI.FontSize = FontSize; end
 
 %--------------------------------------------------------------------------
 % get text length
 
 if numTxt == 1
     
-    set(strUI,'String',txt);      % set strUI string to text for measuring
-    Extent = get(strUI,'Extent'); % get the resulting extent ([0,0,w,h])
-    txtSize(1,:) = Extent(3:4);   % set width, height
+    strUI.String = txt;         % set strUI string to text for measuring
+    Extent = strUI.Extent;      % get the resulting extent ([0,0,w,h])
+    txtSize(1,:) = Extent(3:4); % set width, height
     
 else    
     for currTxt = 1:numTxt
         
         % as above...
-        set(strUI,'String',txt{currTxt});
-        Extent = get(strUI,'Extent');
+        strUI.String = txt{currTxt};
+        Extent = strUI.Extent;
         txtSize(currTxt,:) = Extent(3:4);
         
     end

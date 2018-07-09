@@ -59,7 +59,7 @@ dataLoaded = false; % true when any data overlays loaded
 ROILoaded = false; % true when any ROIs added
 
 % show the figure
-set(figHandle,'Visible','on');
+figHandle.Visible = 'on';
 
 % =========================================================================
 
@@ -74,7 +74,7 @@ set(figHandle,'Visible','on');
         if nargin < 1, force = false; end
         
         if force || handles.togData.Value == 1
-            set(handles.brainPatch,'FaceVertexCData',handles.vol.currOvrlay.colData);
+            handles.brainPatch.FaceVertexCData = handles.vol.currOvrlay.colData;
             drawnow;
         end
     end
@@ -83,9 +83,9 @@ set(figHandle,'Visible','on');
 % surface button callbacks
 
 % load surface
-set(handles.addSurf,'Callback',@addSurf_callback);
+handles.addSurf.Callback = @addSurf_callback;
 
-    function addSurf_callback(src,event)
+    function addSurf_callback(~,~)
         
         % get ind of where to save volume
         if ~surfLoaded
@@ -120,13 +120,15 @@ set(handles.addSurf,'Callback',@addSurf_callback);
             handles.vol = allVol(ind).vol;
             surfLoaded = true; % set flag
         else
-            currSurf = get(handles.selSurf,'Value');
+            currSurf = handles.selSurf.Value;
             allVol(currSurf).vol = handles.vol; % update w/ any changes
             handles.vol = allVol(ind).vol;
         end
             
         % make sure all cameras are off
-        set([handles.rotCam,handles.panCam,handles.zoomCam],'Value',0);
+        handles.rotCam.Value  = 0;
+        handles.panCam.Value  = 0;
+        handles.zoomCam.Value = 0;
         
         % display it
         set(handles.brainPatch,'vertices',handles.vol.TR.Points,...
@@ -137,12 +139,13 @@ set(handles.addSurf,'Callback',@addSurf_callback);
         drawnow;
         
         % add it to pop up menu
-        set(handles.selSurf,'String',{allVol(:).vol.surfDet.surfName},'Value',ind);
+        handles.selSurf.String = {allVol(:).vol.surfDet.surfName};
+        handles.selSurf.Value = ind;
 
     end
 
 % save surface
-set(handles.saveSurf,'Callback',@saveSurf_callback);
+handles.saveSurf.Callback = @saveSurf_callback;
 
     function saveSurf_callback(~,~)
         
@@ -161,9 +164,9 @@ set(handles.saveSurf,'Callback',@saveSurf_callback);
 % data button callbacks
 
 % load data
-set(handles.addData,'Callback',@addData_callback);
+handles.addData.Callback = @addData_callback;
 
-    function addData_callback(src,event)
+    function addData_callback(~,~)
         
         if ~surfLoaded, return; end
         
@@ -184,7 +187,8 @@ set(handles.addData,'Callback',@addData_callback);
         [success,ind] = handles.vol.ovrlay_add(toRead,'cmap',cmap);
         
         if success % update popupmenu and surface, plus flag
-            set(handles.selData,'String',handles.vol.ovrlayNames,'Value',ind);
+            handles.selData.String = handles.vol.ovrlayNames;
+            handles.selData.Value = ind;
             updateSurface;
             dataLoaded = true;
         end
@@ -193,9 +197,9 @@ set(handles.addData,'Callback',@addData_callback);
 % -------------------------------------------------------------------------
 
 % select data
-set(handles.selData,'Callback',@selData_callback);
+handles.selData.Callback = @selData_callback;
 
-    function selData_callback(src,event)
+    function selData_callback(src,~)
         
         if ~dataLoaded, return; end
         
@@ -208,25 +212,27 @@ set(handles.selData,'Callback',@selData_callback);
 % -------------------------------------------------------------------------
 
 % delete data
-set(handles.delData,'Callback',@delData_callback);
+handles.delData.Callback = @delData_callback;
 
-    function delData_callback(src,event)
+    function delData_callback(~,~)
         
         if ~dataLoaded, return; end
         
         % grab index of data to remove
-        toDel = get(handles.selData,'Value');
+        toDel = handles.selData.Value;
         
         % try to delete selected overlay
         [success,ind] = handles.vol.ovrlay_remove(toDel);
         
         if success % update popupmenu and surface
             if ind == 0
-                set(handles.selData,'String','Select Data','Value',1);
+                handles.selData.String = 'Select Data';
+                handles.selData.Value = 1;
                 updateSurface(1); % forcing update by sending '1'
                 dataLoaded = false;
             else
-                set(handles.selData,'String',handles.vol.ovrlayNames,'Value',ind);
+                handles.selData.String = handles.vol.ovrlayNames;
+                handles.selData.Value = ind;
                 updateSurface;
             end
         end        
@@ -235,9 +241,9 @@ set(handles.delData,'Callback',@delData_callback);
 % -------------------------------------------------------------------------
 
 % display data toggle
-set(handles.togData,'Callback',@togData_callback);
+handles.togData.Callback = @togData_callback;
 
-    function togData_callback(src,event)
+    function togData_callback(src,~)
         
         if ~dataLoaded, return; end
         
@@ -259,10 +265,11 @@ set(handles.togData,'Callback',@togData_callback);
 % =========================================================================
 % camera button callbacks
 
-set([handles.rotCam,handles.panCam,handles.zoomCam],...
-    'Callback',@cam_callback);
+handles.rotCam.Callback  = @cam_callback;
+handles.panCam.Callback  = @cam_callback;
+handles.zoomCam.Callback = @cam_callback;
 
-    function cam_callback(src,event)
+    function cam_callback(src,~)
         
         if ~surfLoaded, return; end
         
@@ -270,11 +277,16 @@ set([handles.rotCam,handles.panCam,handles.zoomCam],...
             switch src.String
                 case 'Rot.'
                     camMode = 'orbit';
-                    set([handles.panCam,handles.zoomCam],'Value',0);
-                case 'Pan', camMode = 'pan';
-                    set([handles.rotCam,handles.zoomCam],'Value',0);
-                case 'Zoom', camMode = 'zoom';
-                    set([handles.rotCam,handles.panCam],'Value',0);
+                    handles.panCam.Value  = 0;
+                    handles.zoomCam.Value = 0;
+                case 'Pan'
+                    camMode = 'pan';
+                    handles.rotCam.Value  = 0;
+                    handles.zoomCam.Value = 0;
+                case 'Zoom'
+                    camMode = 'zoom';
+                    handles.rotCam.Value = 0;
+                    handles.panCam.Value = 0;
                 otherwise, camMode = 'nomode';
             end
             cameratoolbar(handles.matSurfFig,'SetMode',camMode);
@@ -283,14 +295,16 @@ set([handles.rotCam,handles.panCam,handles.zoomCam],...
         end
     end
 
-set(handles.resCam,'Callback',@resCam_callback);
+handles.resCam.Callback = @resCam_callback;
 
-    function resCam_callback(src,event)
+    function resCam_callback(~,~)
         
         if ~surfLoaded, return; end
         
         % turn off all current cameras and make sure no mode is selected
-        set([handles.rotCam,handles.panCam,handles.zoomCam],'Value',0);
+        handles.rotCam.Value  = 0;
+        handles.panCam.Value  = 0;
+        handles.zoomCam.Value = 0;
         cameratoolbar(handles.matSurfFig,'SetMode','nomode');
         
         % reset the camera

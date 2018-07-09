@@ -78,9 +78,9 @@ saveVar = uicontrol(savePanel,'Style','radiobutton','String','Var',...
 
 % set starting button, depending on mode
 if currMode == 1
-    set(savePanel,'SelectedObject',saveFile);
+    savePanel.SelectedObject = saveFile;
 else
-    set(savePanel,'SelectedObject',saveVar); 
+    savePanel.SelectedObject = saveVar; 
 end
 
 %  ========================================================================
@@ -93,8 +93,8 @@ nameTxt = uicontrol(saveDataFig,'Style','edit','Tag','nameTxt',...
 
 % if default name okay, initialise text with save possibility
 if currMode == 1 
-    if defOK(1), set(nameTxt,'String',[pwd,'/',defName,'.mat']); end
-elseif defOK(2), set(nameTxt,'String',defName); 
+    if defOK(1), nameTxt.String = [pwd,'/',defName,'.mat']; end
+elseif defOK(2), nameTxt.String = defName; 
 end
 
 % browse for folder
@@ -102,7 +102,7 @@ browseBut = uicontrol(saveDataFig,'Style','pushbutton','String','...',...
     'Tag','browseBut','Position',[425,72,25,25],'Callback',@browseCallback);
 
 % disable browse button if in variable mode
-if currMode == 2, set(browseBut,'Enable','off'); end
+if currMode == 2, browseBut.Enable = 'off'; end
     
 % guide text
 guideTxt = uicontrol(saveDataFig,'Style','text','String',usageTxt{currMode},...
@@ -142,7 +142,7 @@ movegui(saveDataFig,'center');
 [~] = checkStatus;
 
 % make visible
-set(saveDataFig,'Visible','on');
+saveDataFig.Visible = 'on';
 
 % =========================================================================
 
@@ -153,20 +153,20 @@ set(saveDataFig,'Visible','on');
     function modeCallback(~,event)
         
         % wipe txt (will insert defName if possible shortly)
-        set(nameTxt,'String','');
+        nameTxt.String = '';
         
         % work out which mode we're in and set default text if possible
         switch event.NewValue.String
             case 'File'
                 currMode = 1;
-                if defOK(1), set(nameTxt,'String',[pwd,'/',defName,'.mat']); end
+                if defOK(1), nameTxt.String = [pwd,'/',defName,'.mat']; end
             otherwise
                 currMode = 2;
-                if defOK(2), set(nameTxt,'String',defName); end
+                if defOK(2), nameTxt.String = defName; end
         end
         
         % set guide text
-        set(guideTxt,'String',usageTxt{currMode});
+        guideTxt.String = usageTxt{currMode};
         
         % check status
         [~] = checkStatus;
@@ -190,10 +190,10 @@ set(saveDataFig,'Visible','on');
             
             if defOK(1)
                 selPath = fullfile(selPath,[defName,'.mat']);
-                set(nameTxt,'String',selPath);
+                nameTxt.String = selPath;
                 [~] = checkStatus;
             else
-                set(nameTxt,'String',selPath);
+                nameTxt.String = selPath;
             end
             
         else % if in variable mode, select base variable to overwrite
@@ -230,8 +230,8 @@ set(saveDataFig,'Visible','on');
             if didSel && ~isempty(baseVar)
                 
                 % set variable name and allow overwriting
-                set(nameTxt,'String',baseVar(selVar).name);
-                set(ovrWrBut,'Value',1);
+                nameTxt.String = baseVar(selVar).name;
+                ovrWrBut.Value = 1;
                 
                 % check status
                 [~] = checkStatus;
@@ -256,7 +256,7 @@ set(saveDataFig,'Visible','on');
         
         % seems like we can save, so might as well do so!
         % get path or name to save to
-        currTxt = get(nameTxt,'String'); 
+        currTxt = nameTxt.String; 
         
         if currMode == 1
             % make sure filename ends with .mat
@@ -301,10 +301,10 @@ set(saveDataFig,'Visible','on');
         currErr = '';
         
         % get current text to validate
-        currTxt = get(nameTxt,'String'); 
+        currTxt = nameTxt.String; 
         
         % get status of overwriting
-        canOvrWrite(1) = get(ovrWrBut,'Value');
+        canOvrWrite(1) = ovrWrBut.Value;
         
         %  ----------------------------------------------------------------
         % check if can save, depending on mode
@@ -372,18 +372,19 @@ set(saveDataFig,'Visible','on');
         % update UI based on findings
 
         % update warning text 
-        % (visibility - on/off, string - any errors, txt color - red/black)
-        set(warnTxt,'Visible',butOpt{butVal(1)},'String',currErr,...
-            'ForegroundColor',txtCol);
+        % (string - any errors, txt color - red/black, visibility - on/off)
+        warnTxt.String = currErr;
+        warnTxt.ForegroundColor = txtCol;
+        warnTxt.Visible = butOpt{butVal(1)};
         
         % update overwrite button (visibility - on/off)
-        set(ovrWrBut,'Visible',butOpt{butVal(2)}); 
+        ovrWrBut.Visible = butOpt{butVal(2)}; 
         
         % if turning overwrite button off, also reset it
-        if butVal(2) == 1, set(ovrWrBut,'Value',0); end
+        if butVal(2) == 1, ovrWrBut.Value = 0; end
         
         % update save button (enable - on/off)
-        set(saveBut,'Enable',butOpt{butVal(3)});
+        saveBut.Enable = butOpt{butVal(3)};
         
     end
 
