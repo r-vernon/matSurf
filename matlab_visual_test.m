@@ -101,7 +101,7 @@ cm.coherCol(showRet,:) = cm.coherCol(showRet,:) + ...
 % set as overlay colormap (keeping original two around in case needed)
 cm.olayCol = cm.retCol;
 
-p.FaceVertexCData = cm.retCol;
+% p.FaceVertexCData = cm.retCol;
 
 %% ------------------------------------------------------------------------
 % set the properties that will be used for drawing an ROI (plot3)
@@ -109,17 +109,24 @@ p.FaceVertexCData = cm.retCol;
 % 'PickableParts' particularly important, setting to 'none' means can't be
 % clicked
 
-% plotProp(1) will be markers
-ROI.plotProp(1).NameArray = ...
-    {'Color','LineStyle','LineWidth',...
-    'MarkerFaceColor','Marker','MarkerSize',...
-    'PickableParts'};
-ROI.plotProp(1).ValueArray = {'black','none',1.5,'black','o',3,'none'};
+% % plotProp(1) will be markers
+% ROI.plotProp(1).NameArray = ...
+%     {'Color','LineStyle','LineWidth',...
+%     'MarkerFaceColor','Marker','MarkerSize',...
+%     'PickableParts'};
+% ROI.plotProp(1).ValueArray = {'black','none',1.5,'black','o',3,'none'};
+% 
+% % plotProp(2) will be line
+% ROI.plotProp(2) = ROI.plotProp(1);
+% ROI.plotProp(2).ValueArray{2} = '-'; % set linestyle to '-'
+% ROI.plotProp(2).ValueArray{5} = 'none'; % set Marker to none
 
-% plotProp(2) will be line
-ROI.plotProp(2) = ROI.plotProp(1);
-ROI.plotProp(2).ValueArray{2} = '-'; % set linestyle to '-'
-ROI.plotProp(2).ValueArray{5} = 'none'; % set Marker to none
+% alternative for surface
+ROI.plotProp(1).NameArray = ...
+    {'FaceColor','EdgeColor','LineWidth',...
+    'MarkerEdgeColor','MarkerFaceColor','PickableParts'};
+ROI.plotProp(1).ValueArray = {'none','black',3,...
+    'none','none','none'};
 
 % preallocate space for ROI vertices
 % will store both manually picked vertices, and all (picked + intermediate)
@@ -150,7 +157,7 @@ hold(ax,'on');
 cameratoolbar;
 
 % p.ButtonDownFcn = @testCall;
-
+% p.ButtonDownFcn = @testCall_surface;
 
 
 

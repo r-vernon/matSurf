@@ -104,10 +104,16 @@ panLeft = axLength + 2*panSp;
 % set height calculator
 calcHeight = @(nVItems) (nVItems*butHeight) + (nVItems*butSp) + panSp;
 
+% Mode panel
+nVItems.mode = 3; 
+panHeight = calcHeight(nVItems.mode);
+panBottom = figSize.h - panSp - panHeight;
+panPos.mode = [panLeft,panBottom,panWidth,panHeight];
+
 % surface panel
 nVItems.surf = 2;
 panHeight = calcHeight(nVItems.surf);
-panBottom = figSize.h - panSp - panHeight;
+panBottom = panBottom - panSp - panHeight;
 panPos.surf = [panLeft,panBottom,panWidth,panHeight];
 
 % data panel
@@ -127,12 +133,6 @@ nVItems.cam = 3;
 panHeight = calcHeight(nVItems.cam);
 panBottom = panBottom - panSp - panHeight;
 panPos.cam = [panLeft,panBottom,panWidth,panHeight];
-
-% Mode panel
-nVItems.mode = 3; 
-panHeight = calcHeight(nVItems.mode);
-panBottom = panBottom - panSp - panHeight;
-panPos.mode = [panLeft,panBottom,panWidth,panHeight];
 
 % axis panel 
 % - different spacings to rest, 2 padding around axis so axis fits inside
@@ -234,6 +234,37 @@ f_LPos = (1 - f_Sz)/2 * panWidth;
 h_butWidth = (panWidth - 2.5*f_LPos)/2;  
 h_LPos1 = f_LPos;
 h_LPos2 = f_LPos + h_butWidth + f_LPos/2;
+
+%% ========================================================================
+
+%  ---------------------- MODE BUTTONS ------------------------------------
+
+%  ========================================================================
+% mode buttons
+
+% set current height
+currH = (nVItems.mode * butSp) + ((nVItems.mode-1) * butHeight);
+
+% Camera mode button
+handles.camMode = uicontrol(handles.modePanel,'Style','radiobutton',...
+    'String','Camera Mode','Tag','camMode',...
+    'Position',[f_LPos,currH,f_butWidth,butHeight]); 
+
+% update current height
+currH = currH - (butHeight + butSp);  
+
+%  Data mode button
+handles.dataMode = uicontrol(handles.modePanel,'Style','radiobutton',...
+    'String','Data Mode','Tag','dataMode','Value',1,...
+    'Position',[f_LPos,currH,f_butWidth,butHeight]);
+
+% update current height
+currH = currH - (butHeight + butSp);  
+
+% ROI mode button
+handles.roiMode = uicontrol(handles.modePanel,'Style','radiobutton',...
+    'String','ROI Mode','Tag','roiMode',...
+    'Position',[f_LPos,currH,f_butWidth,butHeight]);
 
 %% ========================================================================
 
@@ -402,37 +433,6 @@ currH = currH - (butHeight + butSp);
 % reset camera button
 handles.resCam = uicontrol(handles.camPanel,'Style','pushbutton',...
     'String','Reset Camera','Tag','resCam',...
-    'Position',[f_LPos,currH,f_butWidth,butHeight]);
-
-%% ========================================================================
-
-%  ---------------------- MODE BUTTONS ------------------------------------
-
-%  ========================================================================
-% mode buttons
-
-% set current height
-currH = (nVItems.mode * butSp) + ((nVItems.mode-1) * butHeight);
-
-% Camera mode button
-handles.camMode = uicontrol(handles.modePanel,'Style','radiobutton',...
-    'String','Camera Mode','Tag','camMode',...
-    'Position',[f_LPos,currH,f_butWidth,butHeight]); 
-
-% update current height
-currH = currH - (butHeight + butSp);  
-
-%  Data mode button
-handles.dataMode = uicontrol(handles.modePanel,'Style','radiobutton',...
-    'String','Data Mode','Tag','dataMode','Value',1,...
-    'Position',[f_LPos,currH,f_butWidth,butHeight]);
-
-% update current height
-currH = currH - (butHeight + butSp);  
-
-% ROI mode button
-handles.roiMode = uicontrol(handles.modePanel,'Style','radiobutton',...
-    'String','ROI Mode','Tag','roiMode',...
     'Position',[f_LPos,currH,f_butWidth,butHeight]);
 
 %% ========================================================================

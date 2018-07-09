@@ -1,4 +1,4 @@
-function [handles] = matSurf()
+function [figHandle] = matSurf()
 
 % TODO - make it so matSurf can take in brainSurf class as input, then can
 % interact with volume programtically and call update functions to update
