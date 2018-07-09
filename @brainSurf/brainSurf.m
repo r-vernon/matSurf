@@ -26,7 +26,7 @@ classdef brainSurf < handle
     
     % =====================================================================
     
-    properties (SetAccess = private) % visible (but not setable) outside class
+    properties (SetAccess = private) % visible (but not *set*able) outside class
         
         % -------------------------------------------------------------
         % surface properties

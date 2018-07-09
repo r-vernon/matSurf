@@ -1,10 +1,11 @@
-function [saveDataFig,success] = UI_saveData(data,defName,saveAsVar)
+function [saveDataFig,success] = UI_saveData(data,defName,startMode,varOnly)
 % function to allow saving data, either in .mat file or in workspace
 %
 % (req.) data, data to save
 % (opt.) defName, default name to save data as
-% (opt.) saveAsVar, if true, initialises to saving as variable rather than
-%        file
+% (opt.) startMode, if 1, initialises to saving as file, if 2, initialises
+%        to saving as var
+% (opt.) varOnly, if true, can only save as variable, not file
 % (ret.) saveDataFig, figure handle to main figure
 % (ret.) success, true if saved successfully
 
@@ -13,8 +14,17 @@ success = false;
 %  ------------------------------------------------------------------------
 % parse inputs
 
-if nargin < 2, defName = ''; end      % will deal with defName shortly
-if nargin < 3, saveAsVar = false; end % by default save as file
+if nargin < 2, defName = ''; end % will deal with defName shortly
+
+if nargin < 3 || isempty(startMode) || (startMode ~= 1 || startMode ~= 2)
+    startMode = 1; % by default save as file
+end     
+
+if nargin < 4 || isempty(varOnly)
+    varOnly = false; 
+elseif varOnly
+    startMode = 2; % overwrite start mode
+end
 
 % get backup name (note: inputname(1) gets var name of 'data')
 altName = inputname(1);
@@ -42,7 +52,7 @@ if ~isempty(defName)
 end
 
 % keep track of current modes (1 - File (default), 2 - Var)
-if saveAsVar, currMode = uint8(2); else, currMode = uint8(1); end
+currMode = uint8(startMode);
 canOvrWrite = false; % whether can overwrite or not
 
 % set some default text options
@@ -72,6 +82,9 @@ savePanel = uibuttongroup(saveDataFig,'Tag','savePanel','Title','Save as',...
 saveFile = uicontrol(savePanel,'Style','radiobutton','String','File',...
     'Tag','saveFile','Position',[10 40 60 24]);
 
+% disable if varOnly
+if varOnly, saveFile.Enable = 'off'; end
+
 % save as var button
 saveVar = uicontrol(savePanel,'Style','radiobutton','String','Var',...
     'Tag','saveVar','Position',[10 10 60 24]);
@@ -98,11 +111,8 @@ elseif defOK(2), nameTxt.String = defName;
 end
 
 % browse for folder
-browseBut = uicontrol(saveDataFig,'Style','pushbutton','String','...',...
+uicontrol(saveDataFig,'Style','pushbutton','String','...',...
     'Tag','browseBut','Position',[425,72,25,25],'Callback',@browseCallback);
-
-% disable browse button if in variable mode
-if currMode == 2, browseBut.Enable = 'off'; end
     
 % guide text
 guideTxt = uicontrol(saveDataFig,'Style','text','String',usageTxt{currMode},...
@@ -123,7 +133,7 @@ saveBut = uicontrol(saveDataFig,'Style','pushbutton','String','Save',...
     'BackgroundColor',[46,204,113]/255,'Callback',@saveCallback);
 
 % cancel button
-cancBut = uicontrol(saveDataFig,'Style','pushbutton','String','Cancel',...
+uicontrol(saveDataFig,'Style','pushbutton','String','Cancel',...
     'Tag','cancBut','Position',[280,15,80,25],...
     'BackgroundColor',[231,76,60]/255,'Callback',@cancCallback);
 
@@ -143,6 +153,7 @@ movegui(saveDataFig,'center');
 
 % make visible
 saveDataFig.Visible = 'on';
+drawnow;
 
 % =========================================================================
 
@@ -386,6 +397,7 @@ saveDataFig.Visible = 'on';
         % update save button (enable - on/off)
         saveBut.Enable = butOpt{butVal(3)};
         
+        drawnow;
     end
 
 end

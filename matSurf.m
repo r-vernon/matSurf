@@ -1,4 +1,8 @@
-function [figHandle,handles] = matSurf()
+function [handles] = matSurf()
+
+% TODO - make it so matSurf can take in brainSurf class as input, then can
+% interact with volume programtically and call update functions to update
+% GUI
 
 % =========================================================================
 % initialisation
@@ -60,6 +64,7 @@ ROILoaded = false; % true when any ROIs added
 
 % show the figure
 figHandle.Visible = 'on';
+drawnow;
 
 % =========================================================================
 
@@ -86,6 +91,11 @@ figHandle.Visible = 'on';
 handles.addSurf.Callback = @addSurf_callback;
 
     function addSurf_callback(~,~)
+        
+        % make sure all axis limits are on auto
+        handles.brainAx.XLimMode = 'auto';
+        handles.brainAx.YLimMode = 'auto';
+        handles.brainAx.ZLimMode = 'auto';
         
         % get ind of where to save volume
         if ~surfLoaded
@@ -131,9 +141,12 @@ handles.addSurf.Callback = @addSurf_callback;
         handles.zoomCam.Value = 0;
         
         % display it
-        set(handles.brainPatch,'vertices',handles.vol.TR.Points,...
-            'faces',handles.vol.TR.ConnectivityList,...
+        set(handles.brainPatch,...
+            'vertices',single(handles.vol.TR.Points),...
+            'faces',single(handles.vol.TR.ConnectivityList),...
             'FaceVertexCData',handles.vol.currOvrlay.colData,...
+            'VertexNormals',single(vertexNormal(handles.vol.TR)),...
+            'FaceNormals',single(faceNormal(handles.vol.TR)),...
             'visible','on');
         view(handles.brainAx,90,0) % set view to Y-Z
         drawnow;
@@ -142,6 +155,11 @@ handles.addSurf.Callback = @addSurf_callback;
         handles.selSurf.String = {allVol(:).vol.surfDet.surfName};
         handles.selSurf.Value = ind;
 
+        % set the limits back to manual so doesn't have to recompute
+        handles.brainAx.XLimMode = 'manual';
+        handles.brainAx.YLimMode = 'manual';
+        handles.brainAx.ZLimMode = 'manual';
+        
     end
 
 % save surface
@@ -315,4 +333,20 @@ handles.resCam.Callback = @resCam_callback;
 
 % =========================================================================
 
+
+% =========================================================================
+% misc. menu callbacks
+
+% save handles
+handles.saveHndls.Callback = @saveHndls_callback;
+
+    function saveHndls_callback(~,~)
+        
+        % open up save dialogue with default details
+        tmpFig = UI_saveData(handles,'handles',[],1);
+        
+        % wait until finished saving
+        uiwait(tmpFig);
+        
+    end
 end

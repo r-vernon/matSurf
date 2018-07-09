@@ -45,12 +45,16 @@ figHandle = handles.matSurfFig;
 % create a menubar to allow additional options under each option
 
 % new versions of Matlab use 'Text', older use 'Label', set accordingly
-if isprop(uimenu,'Text'),Text = 'Text'; else, Text = 'Label'; end
+tmpMenu = uimenu;
+if isprop(tmpMenu,'Text'),Text = 'Text'; else, Text = 'Label'; end
+delete(tmpMenu);
 
-handles.surfMenu = uimenu(figHandle,Text,'&Surface','Tag','surfMenu');
-handles.dataMenu = uimenu(figHandle,Text,'&Data','Tag','dataMenu');
-handles.roiMenu = uimenu(figHandle,Text,'&ROI','Tag','roiMenu');
-handles.camMenu = uimenu(figHandle,Text,'&Camera','Tag','camMenu');
+handles.surfMenu  = uimenu(figHandle,Text,'&Surface', 'Tag', 'surfMenu');
+handles.dataMenu  = uimenu(figHandle,Text,'&Data',    'Tag', 'dataMenu');
+handles.roiMenu   = uimenu(figHandle,Text,'&ROI',     'Tag', 'roiMenu');
+handles.camMenu   = uimenu(figHandle,Text,'&Camera',  'Tag', 'camMenu');
+handles.miscMenu  = uimenu(figHandle,Text,'&Misc',    'Tag', 'miscMenu');
+handles.udateMenu = uimenu(figHandle,Text,'&Update',  'Tag', 'udateMenu');
 
 %% ========================================================================
 
@@ -66,6 +70,17 @@ handles.saveSurf = uimenu(handles.surfMenu,Text,'Save Surface',...
 % set lighting properties
 handles.setLight = uimenu(handles.surfMenu,Text,'Set Lighting',...
     'Tag','setLight');
+
+%% ========================================================================
+
+%  ---------------------- MISC MENU ---------------------------------------
+
+%  ========================================================================
+% misc. menu items
+
+% save handles
+handles.saveHndls = uimenu(handles.miscMenu,Text,'Save Graphics Handles',...
+    'Tag','saveHndls');
 
 %% ========================================================================
 
@@ -176,15 +191,25 @@ handles.modePanel.Position = panPos.mode;
 % Setting [XYZ]Color and Color to 'none' means the axis won't be visible
 % Setting NextPlot to 'add' is like 'hold on'
 
-handles.brainAx = axes(handles.axisPanel,'Tag','brainAx','Units','Pixels',...
-    'Position',[4, 4, axLength-8, axLength-8],...
+% also setting every 'auto' property to 'manual' so matlab doesn't have to
+% recompute if axis changes
+
+handles.brainAx = axes(handles.axisPanel,'Tag','brainAx'...
+    ,'Units','Pixels','Position',[4, 4, axLength-8, axLength-8],...
     'DataAspectRatioMode','manual','PlotBoxAspectRatioMode','manual',...
     'XColor','none','YColor','none','ZColor','none','Color','none',...
-    'NextPlot','add');
+    'NextPlot','add',...
+    'FontSizeMode','manual','CLimMode','manual','ALimMode','manual',...
+    'TickDirMode','manual','XTickMode','manual','YTickMode','manual','ZTickMode','manual',...
+    'XTickLabelMode','manual','YTickLabelMode','manual','ZTickLabelMode','manual',...
+    'XColorMode','manual','YColorMode','manual','ZColorMode','manual',...
+    'GridColorMode','manual','GridAlphaMode','manual',...
+    'MinorGridColorMode','manual','MinorGridAlphaMode','manual');
 
 % create corresponding patch with default properties for now
 handles.brainPatch = patch(handles.brainAx,'facecolor', 'interp',...
-    'edgecolor','none','FaceLighting','gouraud','visible','off');
+    'edgecolor','none','MarkerEdgeColor','none','FaceLighting','gouraud',...
+    'visible','off');
 
 % create corresponding line for ROI plots -  'PickableParts' particularly
 % important, setting to 'none' means can't be clicked
