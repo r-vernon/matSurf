@@ -201,7 +201,9 @@ handles.modePanel.Position = panPos.mode;
 % Data and PlotBox AspectRatioMode stops axis reshaping when moving camera
 % Setting [XYZ]Color and Color to 'none' means the axis won't be visible
 % Setting NextPlot to 'add' is like 'hold on'
-
+% Setting projection to perspective means things further away look smaller,
+% using as we're representing 3d Volume not graph so want to look 'natural'
+%
 % also setting every 'auto' property to 'manual' so matlab doesn't have to
 % recompute if axis changes
 
@@ -209,7 +211,7 @@ handles.brainAx = axes(handles.axisPanel,'Tag','brainAx'...
     ,'Units','Pixels','Position',[4, 4, axLength-8, axLength-8],...
     'DataAspectRatioMode','manual','PlotBoxAspectRatioMode','manual',...
     'XColor','none','YColor','none','ZColor','none','Color','none',...
-    'NextPlot','add',...
+    'NextPlot','add','Projection','perspective',...
     'FontSizeMode','manual','CLimMode','manual','ALimMode','manual',...
     'TickDirMode','manual','XTickMode','manual','YTickMode','manual','ZTickMode','manual',...
     'XTickLabelMode','manual','YTickLabelMode','manual','ZTickLabelMode','manual',...
@@ -447,6 +449,23 @@ currH = currH - (butHeight + butSp);
 handles.resCam = uicontrol(handles.camPanel,'Style','pushbutton',...
     'String','Reset Camera','Tag','resCam',...
     'Position',[f_LPos,currH,f_butWidth,butHeight]);
+
+%% ========================================================================
+
+%  ---------------------- POINTER MANAGER ---------------------------------
+
+%  ========================================================================
+
+% find handles want to show 'hand' over (popupmenus don't work...)
+clickObj = findall(figHandle,'Style','radiobutton','-or',...
+    'Style','checkbox','-or','Style','pushbutton');
+
+% whenever text hovers over button, change to hand
+enterFcn = @(fig, currentPoint) set(fig, 'Pointer', 'hand');
+iptSetPointerBehavior(clickObj, enterFcn);
+
+% create a pointer manager
+iptPointerManager(figHandle);
 
 %% ========================================================================
 

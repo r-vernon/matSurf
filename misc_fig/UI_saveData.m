@@ -111,7 +111,7 @@ elseif defOK(2), nameTxt.String = defName;
 end
 
 % browse for folder
-uicontrol(saveDataFig,'Style','pushbutton','String','...',...
+browseBut = uicontrol(saveDataFig,'Style','pushbutton','String','...',...
     'Tag','browseBut','Position',[425,72,25,25],'Callback',@browseCallback);
     
 % guide text
@@ -133,7 +133,7 @@ saveBut = uicontrol(saveDataFig,'Style','pushbutton','String','Save',...
     'BackgroundColor',[46,204,113]/255,'Callback',@saveCallback);
 
 % cancel button
-uicontrol(saveDataFig,'Style','pushbutton','String','Cancel',...
+cancBut = uicontrol(saveDataFig,'Style','pushbutton','String','Cancel',...
     'Tag','cancBut','Position',[280,15,80,25],...
     'BackgroundColor',[231,76,60]/255,'Callback',@cancCallback);
 
@@ -141,6 +141,21 @@ uicontrol(saveDataFig,'Style','pushbutton','String','Cancel',...
 ovrWrBut = uicontrol(saveDataFig,'Style','checkbox','String','Overwrite?',...
     'Tag','ovrWrBut','FontSize',9,'Position',[101,26,100,15],...
     'Callback',@ovrWrCallback,'Visible','off');
+
+%  ========================================================================
+%  ---------------------- POINTER MANAGER ---------------------------------
+
+% whenever mouse hovers over text entry, change to ibeam
+txtEnterFcn = @(fig, currentPoint) set(fig, 'Pointer', 'ibeam');
+iptSetPointerBehavior(nameTxt, txtEnterFcn);
+
+% whenever text hovers over button, change to hand
+butEnterFcn = @(fig, currentPoint) set(fig, 'Pointer', 'hand');
+iptSetPointerBehavior([saveFile,saveVar,browseBut,saveBut,cancBut,ovrWrBut],...
+    butEnterFcn);
+
+% create a pointer manager
+iptPointerManager(saveDataFig);
 
 %  ========================================================================
 %  ---------------------- FINAL PROPERTIES --------------------------------
