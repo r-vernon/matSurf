@@ -50,8 +50,8 @@ classdef brainSurf < handle
         % main overlay structure
         ROIs = struct('name','','allVert',[],'selVert',[],'visible',true);
         
-        ROIcol = [0,0,0] % ROI color
-        nROIs  = 0       % number of ROIs
+        roiNames   % cell array of all ROIs loaded
+        nROIs  = 0 % number of ROIs
 
     end
     
@@ -92,8 +92,9 @@ classdef brainSurf < handle
         % calculated by moving set distance from vertex along vertex normal
         ROIpts
 
-        % lineInd - NaN delimited array, with vertices for all ROIs
-        % markInd - notes manually clicked points to mark with marker
+        % lineInd - array with vertices for all ROIs, delimited by index 
+        %           to 'NaN' in ROIpts
+        % markInd - stores manually clicked points to mark with marker
         ROI_lineInd = zeros(1e5,1,'single') % single to allow NaNs
         ROI_markInd = zeros(1e3,1,'single')
         
@@ -170,6 +171,12 @@ classdef brainSurf < handle
         % =================================================================
         % ROI functions
         
+        [vCoords,markInd,ind,newROI] = ROI_add(obj,ptClicked,finalPt)
+        % function to ROI points
+        % gets nROIs, ROIs, ROI_lineInd, ROI_markInd, pROIs, roiNames,
+        % ROI_sPaths
+        % sets ROIs, pROIs, roiNames, nROIs, ROI_lineInd, ROI_markInd,
+        % ROI_sPaths
         
     end
     

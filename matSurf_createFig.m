@@ -73,6 +73,17 @@ handles.setLight = uimenu(handles.surfMenu,Text,'Set Lighting',...
 
 %% ========================================================================
 
+%  ---------------------- ROI MENU ----------------------------------------
+
+%  ========================================================================
+% menu items for ROIs
+
+% finish ROI
+handles.finROI = uimenu(handles.roiMenu,Text,'Finish ROI',...
+    'Tag','finROI');
+
+%% ========================================================================
+
 %  ---------------------- MISC MENU ---------------------------------------
 
 %  ========================================================================
@@ -213,9 +224,11 @@ handles.brainPatch = patch(handles.brainAx,'facecolor', 'interp',...
 
 % create corresponding line for ROI plots -  'PickableParts' particularly
 % important, setting to 'none' means can't be clicked
+% [NOTE: limitation of line is all ROIs are same colour, possibly switch to
+%  making patch object if want different coloured ROIs at cost of memory]
 handles.brainROI = line(handles.brainAx,'Color','black','MarkerFaceColor','black',...
     'Marker','o','MarkerSize',3,'PickableParts','none',...
-    'LineStyle','-','LineWidth',1.5,'visible','off');
+    'LineStyle','-','LineWidth',3,'visible','off');
 
 %% ========================================================================
 

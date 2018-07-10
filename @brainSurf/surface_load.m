@@ -40,13 +40,16 @@ obj.TR = triangulation(faces,vert);
 % normals for plotting ROIs
 
 % plot ROI 0.1mm above surface
-dist2add = 0.1;
+dist2add = 0;
 
 % calculate vertex normals
 vertNorm = vertexNormal(obj.TR);
 
 % calculate set of points ROIs will be plotted over
-obj.ROIpts = single(bsxfun(@plus,vert,dist2add*vertNorm));
+obj.ROIpts = single(bsxfun(@minus,vert,dist2add*vertNorm));
+
+% append a nan at very end, so can index it to show line finished
+obj.ROIpts(obj.nVert+1,:) = nan;
 
 %--------------------------------------------------------------------------
 % graph

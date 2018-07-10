@@ -281,6 +281,64 @@ handles.togData.Callback = @togData_callback;
 
 
 % =========================================================================
+% ROI button callbacks
+
+% add ROI, finish ROI
+handles.addROI.Callback = @addROI_callback;
+handles.finROI.Callback = {@addROIpnt_callback,true};
+
+    function addROI_callback(~,~)
+        handles.brainPatch.ButtonDownFcn = {@addROIpnt_callback,false}; end
+
+    function addROIpnt_callback(~,event,finalPt)
+        
+        if ~surfLoaded, return; end
+        if finalPt && ~strcmp(handles.addROI.String,'Cont'), return; end
+        
+        % get point clicked, if not final point
+        ptClicked = [];
+        if ~finalPt, ptClicked = event.IntersectionPoint; end
+        
+        % call ROI_add with the point clicked
+        [vCoords,markInd,ind,newROI] = handles.vol.ROI_add(ptClicked,finalPt);
+        
+        % display it
+        set(handles.brainROI,...
+            'XData',vCoords(:,1),...
+            'YData',vCoords(:,2),...
+            'ZData',vCoords(:,3),...
+            'MarkerIndices',markInd);
+        
+        % if first ROI, make sure ROI object is visible
+        if ~ROILoaded
+            handles.brainROI.Visible = 'on'; 
+            ROILoaded = true;
+        end
+
+        % update popup menu if needed
+        if newROI
+            handles.selROI.String = handles.vol.roiNames;
+            handles.selROI.Value = ind;
+        end
+        
+        % change ROI add button to continue if drawing, or back to 'add' if
+        % finished. Disable select ROI option whilst drawing
+        if finalPt
+            handles.selROI.Enable = 'on';
+            handles.addROI.String = 'Add';
+            handles.brainPatch.ButtonDownFcn = '';
+        else
+            handles.selROI.Enable = 'off';
+            handles.addROI.String = 'Cont'; 
+        end
+
+        drawnow;
+        
+    end
+
+
+
+% =========================================================================
 % camera button callbacks
 
 handles.rotCam.Callback  = @cam_callback;
