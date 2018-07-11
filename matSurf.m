@@ -135,10 +135,11 @@ handles.addSurf.Callback = @addSurf_callback;
             handles.vol = allVol(ind).vol;
         end
             
-        % make sure all cameras are off
+        % make sure all cameras are off and set camera target to centroid
         handles.rotCam.Value  = 0;
         handles.panCam.Value  = 0;
         handles.zoomCam.Value = 0;
+        handles.brainAx.CameraTarget = handles.vol.centroid;
         
         % display it
         set(handles.brainPatch,...
@@ -384,8 +385,11 @@ handles.resCam.Callback = @resCam_callback;
         cameratoolbar(handles.matSurfFig,'SetMode','nomode');
         
         % reset the camera
-        cameratoolbar(handles.matSurfFig,'ResetCameraAndSceneLight');
         view(handles.brainAx,90,0) % set view to Y-Z
+        
+        % set target to centroid
+        handles.brainAx.CameraTarget = handles.vol.centroid;
+        
         drawnow;
     end
 

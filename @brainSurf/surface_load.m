@@ -30,11 +30,14 @@ faces = faces(:,[1 3 2]) + 1;
 obj.nVert = single(size(vert,1));
   
 %--------------------------------------------------------------------------
-% triangulation
+% triangulation and centroid
 
 % convert faces and vertices to triangulation TR
 % (e.g. nearestNeighbor(TR,P) - find closes vertex to point P)
 obj.TR = triangulation(faces,vert);
+
+% set centroid
+obj.calcCentroid;
 
 %--------------------------------------------------------------------------
 % normals for plotting ROIs

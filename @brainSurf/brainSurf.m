@@ -31,8 +31,9 @@ classdef brainSurf < handle
         % -------------------------------------------------------------
         % surface properties
 
-        surfDet % details about surface (surfName, surfPath, curvPath)
-        TR      % triangulation (needed to display surface)
+        surfDet  % details about surface (surfName, surfPath, curvPath)
+        TR       % triangulation (needed to display surface)
+        centroid % surface centroid
         
         % -------------------------------------------------------------
         % overlay properties
@@ -189,6 +190,10 @@ classdef brainSurf < handle
         % function to return overlay index corresponding to overlay
         % gets nOvrlays, dataOvrlay, baseOvrlay
         
+        [centroid] = calcCentroid(obj)
+        % function to calculate the centroid of a volume
+        % sets centroid
+
     end % private, hidden methods
-    
+        
 end
