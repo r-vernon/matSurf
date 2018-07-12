@@ -1,4 +1,4 @@
-function data_add_cBack(src)
+function cBack_data_add(src)
 
 % make sure volumes loaded
 f_h = getFigHandle(src);

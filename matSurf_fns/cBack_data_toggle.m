@@ -1,4 +1,4 @@
-function data_toggle_cBack(src)
+function cBack_data_toggle(src)
 
 % get data
 f_h = getFigHandle(src);

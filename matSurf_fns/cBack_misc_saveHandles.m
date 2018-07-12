@@ -1,4 +1,4 @@
-function misc_saveHandles_cBack(src)
+function cBack_misc_saveHandles(src)
 
 % get data
 f_h = getFigHandle(src);

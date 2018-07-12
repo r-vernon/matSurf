@@ -1,4 +1,4 @@
-classdef volStore < handle
+classdef mS_volStore < handle
     % class to store handles to surfaces, so can swap them out if needed
     %
     % all functions will set all properties

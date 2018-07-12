@@ -1,4 +1,4 @@
-function [figHandle,handles] = create_mS_fig(showFig)
+function [figHandle,handles] = mS_create_fig(showFig)
 
 if nargin <1 || isempty(showFig)
     showFig = true;

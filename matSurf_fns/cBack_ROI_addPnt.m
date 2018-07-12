@@ -1,4 +1,4 @@
-function ROI_addPnt_cBack(src,event,finalPt)
+function cBack_ROI_addPnt(src,event,finalPt)
 
 % make sure volumes loaded
 f_h = getFigHandle(src);

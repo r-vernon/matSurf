@@ -1,4 +1,4 @@
-function surf_save_cBack(src)
+function cBack_surf_save(src)
 
 % get current volume
 f_h = getFigHandle(src);

@@ -1,4 +1,4 @@
-function cam_swMode_cBack(src)
+function cBack_cam_swMode(src)
 
 % make sure volumes loaded
 f_h = getFigHandle(src);

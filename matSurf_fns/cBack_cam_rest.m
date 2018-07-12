@@ -1,4 +1,4 @@
-function cam_rest_cBack(src)
+function cBack_cam_rest(src)
 
 % make sure volumes loaded
 f_h = getFigHandle(src);

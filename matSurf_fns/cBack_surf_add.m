@@ -1,4 +1,4 @@
-function surf_add_cBack(src)
+function cBack_surf_add(src)
 
 % get data
 f_h = getFigHandle(src);

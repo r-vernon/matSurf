@@ -1,4 +1,4 @@
-function data_select_cBack(src)
+function cBack_data_select(src)
 
 % get data
 f_h = getFigHandle(src);
