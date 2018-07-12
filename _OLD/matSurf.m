@@ -22,7 +22,7 @@ function varargout = matSurf(varargin)
 
 % Edit the above text to modify the response to help matSurf
 
-% Last Modified by GUIDE v2.5 19-Jun-2018 20:29:55
+% Last Modified by GUIDE v2.5 12-Jul-2018 10:02:06
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -208,3 +208,10 @@ function camZoom_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of camZoom
+
+
+% --- Executes on mouse press over axes background.
+function brainSurface_ButtonDownFcn(hObject, eventdata, handles)
+% hObject    handle to brainSurface (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)

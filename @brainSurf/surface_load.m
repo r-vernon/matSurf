@@ -8,6 +8,8 @@ function surface_load(obj)
 % =========================================================================
 % load in surface and curvature
 
+setStatusTxt('loading surface and calculating centroid');
+
 % surface
 try
     [vert, faces] = read_surf(obj.surfDet.surfPath);
@@ -62,5 +64,7 @@ obj.ROIpts(obj.nVert+1,:) = nan;
 st = edges(obj.TR);
 w = sqrt(sum(bsxfun(@minus,vert(st(:,1),:),vert(st(:,2),:)).^2,2));
 obj.G = graph(st(:,1),st(:,2),w);
+
+setStatusTxt('surface loaded');
 
 end

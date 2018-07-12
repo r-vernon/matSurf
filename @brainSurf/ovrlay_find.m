@@ -36,7 +36,7 @@ if isnumeric(ovrlay) % if provided as index
     % if it's numeric, treat it as an index, should be simple!
     
     % make sure only one index and within usable range
-    if ~isscalar(ovrlay) || ovrlay < 0 || ovrlay > obj.nOvrlays
+    if ~isscalar(ovrlay) || ~isinteger(ovrlay) || ovrlay < 0 || ovrlay > obj.nOvrlays
         errorMsg
         return
     else

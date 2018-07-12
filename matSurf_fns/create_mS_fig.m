@@ -1,4 +1,4 @@
-function [figHandle,handles] = matSurf_createFig(showFig)
+function [figHandle,handles] = create_mS_fig(showFig)
 
 if nargin <1 || isempty(showFig)
     showFig = true;
@@ -36,6 +36,12 @@ handles.matSurfFig = figure('Name','matSurf','Tag','matSurfFig','NumberTitle','o
     'FileName','matSurf.fig','Position',[100, 100, figSize.w, figSize.h],...
     'Visible','off','MenuBar','none','DockControls','off');
 figHandle = handles.matSurfFig;
+
+% create a status text entry in lower left corner
+handles.statTxt = uicontrol(figHandle,'Style','text','Tag','statTxt',...
+    'String','- no data loaded -','HorizontalAlignment','right',...
+    'FontSize',8,'FontAngle','italic','ForegroundColor',[0.35,0.35,0.35],...
+    'Position',[axLength+panSp-300,1,300,15]);
 
 %% ========================================================================
 
@@ -486,6 +492,9 @@ for currHandle = 1:length(allHandles)
         % handle doesn't have units property so can't set
     end
 end
+
+% assign handles to app data
+setappdata(figHandle,'handles',handles);
 
 % Move the window to the center of the screen.
 movegui(handles.matSurfFig,'center');

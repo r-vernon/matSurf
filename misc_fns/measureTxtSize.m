@@ -15,7 +15,7 @@ txtSize = nan(numTxt,2,'single');
 % parse inputs
 
 % make sure valid fontname
-if nargin < 2
+if nargin < 2 || isempty(FontName)
     FontName = '';
 elseif ~ischar(FontName) || ~any(strcmpi(listfonts,FontName))
     warning('Invalid font name, using default');
@@ -23,7 +23,7 @@ elseif ~ischar(FontName) || ~any(strcmpi(listfonts,FontName))
 end
 
 % make sure valid fontsize
-if nargin < 3 
+if nargin < 3 || isempty(FontSize)
     FontSize = '';
 elseif ~isnumeric(FontSize) || ~isscalar(FontSize) || FontSize <= 0
     warning('Invalid font size, using default');
@@ -68,9 +68,11 @@ tmpTxtFig  = figure('Tag','tmpTxtFig','Units','pixels','Visible','off');
 strUI = uicontrol(tmpTxtFig,'Style','text','String',' ','Units','pixels',...
     'Tag','strUI','Visible','off');
 
-% set font name and size if using
-if ~isempty(FontName), strUI.FontName = FontName; end
-if ~isempty(FontSize), strUI.FontSize = FontSize; end
+% set font name and size if using, othrewise save out values used
+if ~isempty(FontName), strUI.FontName = FontName; 
+else,      FontName =  strUI.FontName; end
+if ~isempty(FontSize), strUI.FontSize = FontSize; 
+else,       FontSize = strUI.FontSize; end
 
 %--------------------------------------------------------------------------
 % get text length
@@ -81,7 +83,7 @@ if numTxt == 1
     Extent = strUI.Extent;      % get the resulting extent ([0,0,w,h])
     txtSize(1,:) = Extent(3:4); % set width, height
     
-else    
+else
     for currTxt = 1:numTxt
         
         % as above...
@@ -96,6 +98,17 @@ end
 
 % delete the figure
 delete(tmpTxtFig);
+
+% if nargout is 0, and only one entry tested print to terminal
+if nargout == 0 && ~iscell(txt)
+    if length(txt) >= 10
+        fmtTxt = ': \n''%s''\nIs ';
+    else
+        fmtTxt = ' ''%s'' is ';
+    end
+    fprintf(['Text',fmtTxt,'%d x %d pixels (H x W; Font: %s, Fontsize: %d)\n'],...
+        txt,txtSize(2),txtSize(1),FontName,FontSize);
+end
 
 end
     

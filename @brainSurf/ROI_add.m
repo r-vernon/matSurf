@@ -88,8 +88,8 @@ if newROI
     %--------------------------
     % update roiNames and nROIs
     
-    obj.roiNames = {obj.ROIs(:).name};
-    obj.nROIs = length(obj.ROIs);
+    obj.roiNames{ind} = ROIname;
+    obj.nROIs = ind;
     
     %-------------------------------------
     % make sure arrays can hold new pointsa
@@ -182,6 +182,19 @@ else
         % vertices to draw markers on
         obj.ROI_markInd(mStPos) = lEndPos;       
     end
+    
+    %-----------------------------
+    % if final point, update names
+    
+    % remove edit symbol from ROI ([e])
+    if finalPt
+        obj.ROIs(ind).name = erase(obj.ROIs(ind).name,'[e] ');
+        obj.pROIs(ind).name = obj.ROIs(ind).name;
+    end
+    
+    % update ROI names list
+    obj.roiNames{ind} = obj.ROIs(ind).name;
+    
 end
 
 %--------------------------------------------------------------------------

@@ -22,7 +22,7 @@ function varargout = matSurf_test(varargin)
 
 % Edit the above text to modify the response to help matSurf_test
 
-% Last Modified by GUIDE v2.5 24-Jun-2018 17:08:45
+% Last Modified by GUIDE v2.5 12-Jul-2018 11:28:47
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -270,3 +270,10 @@ function radiobutton4_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of radiobutton4
+
+
+% --- Executes on mouse press over axes background.
+function brainSurface_ButtonDownFcn(hObject, eventdata, handles)
+% hObject    handle to brainSurface (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
