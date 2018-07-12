@@ -1,5 +1,7 @@
-function mS_setup_paths
+function matSurf_pathSetup(baseDir)
 % function to setup all necessary paths for matSurf
+%
+% (req.) baseDir, base directory of matsurf
 
 allPaths = {};
 pathsToAdd = '';
@@ -35,10 +37,10 @@ end
 % add all remaining paths to matlab path
 
 % create cell of all required paths
-allPaths{1} = [fsPaths{1},          pathsep]; % FreeSurfer matlab dir
-allPaths{2} = [pwd, '/matSurf_fns', pathsep]; % matSurf callback fns
-allPaths{3} = [pwd, '/misc_figs',   pathsep]; % misc. figures
-allPaths{4} = [pwd, '/misc_fns',    pathsep]; % misc. functions
+allPaths{1} = [fsPaths{1},              pathsep]; % FreeSurfer matlab dir
+allPaths{2} = [baseDir, '/matSurf_fns', pathsep]; % matSurf callback fns
+allPaths{3} = [baseDir, '/misc_figs',   pathsep]; % misc. figures
+allPaths{4} = [baseDir, '/misc_fns',    pathsep]; % misc. functions
 
 % work out which paths need adding
 for currPath = 1:length(allPaths)

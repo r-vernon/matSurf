@@ -7,7 +7,8 @@ function [mS_f] = matSurf()
 % =========================================================================
 
 % set all paths and make sure freesurfer is available
-mS_setup_paths;
+[baseDir,~,~] = fileparts(mfilename('fullpath'));
+matSurf_pathSetup(baseDir);
 
 % create the figure and associated handles
 [mS_f,handles] = mS_create_fig(0);
