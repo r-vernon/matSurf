@@ -12,7 +12,7 @@
 % Copyright 2012, The MathWorks, Inc.
 
 % Create the figure.
-figure(1)
+figure(2)
 clf();
 
 % Draw some stuff.

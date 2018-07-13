@@ -4,12 +4,11 @@ function cBack_surf_add(src)
 f_h = getFigHandle(src);
 allVol = getappdata(f_h,'allVol');
 cmaps = getappdata(f_h,'cmaps');
+camCont = getappdata(f_h,'camCont');
 handles = getappdata(f_h,'handles');
 
 % set all axis limits to auto
-handles.brainAx.XLimMode = 'auto';
-handles.brainAx.YLimMode = 'auto';
-handles.brainAx.ZLimMode = 'auto';
+set(handles.brainAx,'XLimMode','auto','YLimMode','auto','ZLimMode','auto');
 
 % add a new volume and copy out as 'current'
 currVol = allVol.addVol(brainSurf(cmaps));
@@ -49,14 +48,16 @@ set(handles.brainPatch,...
 view(handles.brainAx,90,0) % set view to Y-Z
 drawnow;
 
+% set default view and initialise callbacks
+camCont.setDefState;
+handles.brainPatch.ButtonDownFcn = @(src,event) camCont.bDownFcn(src,event);
+
 % add it to pop up menu
 handles.selSurf.String = allVol.vNames;
 handles.selSurf.Value =  allVol.cVol;
 
 % set the limits back to manual so doesn't have to recompute
-handles.brainAx.XLimMode = 'manual';
-handles.brainAx.YLimMode = 'manual';
-handles.brainAx.ZLimMode = 'manual';
+set(handles.brainAx,'XLimMode','manual','YLimMode','manual','ZLimMode','manual');
 
 % save out updated data
 setappdata(f_h,'currVol',currVol); 

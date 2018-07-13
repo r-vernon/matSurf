@@ -20,6 +20,9 @@ setappdata(mS_f,'cmaps',cmaps);
 % loaded, so can swap between them
 setappdata(mS_f,'allVol',mS_volStore);
 
+% initialise camera control
+setappdata(mS_f,'camCont',camControl(handles.brainAx));
+
 % show the figure
 mS_f.Visible = 'on';
 drawnow;
