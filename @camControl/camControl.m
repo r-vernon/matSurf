@@ -169,8 +169,7 @@ classdef camControl < handle
             dXY = newPos - obj.mPos;... % delta xy - width/height
             obj.mPos = newPos;
             
-            % flip dXY as mouse left should move camera right, and scale
-            % so not as fast
+            % flip dXY as mouse left should move camera right
             dXY = -dXY;
             
             if strcmp(obj.mState,'extend') % if in pan state

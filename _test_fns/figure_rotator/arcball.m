@@ -7,6 +7,7 @@ function arcball()
 
 clc, clear, close all;
 
+
 % draw some dummy data
 [x,y,z] = sphere(50);
 H = figure;
