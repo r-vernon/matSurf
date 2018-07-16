@@ -3,6 +3,7 @@ function surface_load(obj)
 %
 % (set.) TR, triangulation from faces and vertices
 % (set.) nVert, total number of vertices
+% (set.) xyzLim, necessary axis limits to contain surface
 % (set.) G, weighted graph from edges
 
 % =========================================================================
@@ -26,20 +27,22 @@ faces = faces(:,[1 3 2]) + 1;
 % =========================================================================
 % calculate additional things from surface and return
 
-%--------------------------------------------------------------------------
 % count number of vertices
-
 obj.nVert = single(size(vert,1));
-  
+
+% calculate centroid, then centre volume on it so centroid = origin (0,0,0)
+obj.calcCentroid(vert);
+vert = bsxfun(@minus,vert,obj.centroid);
+
+% set necessary axis limits
+obj.xyzLim = ceil(max(abs(vert(:)))) + 1;
+
 %--------------------------------------------------------------------------
-% triangulation and centroid
+% triangulation
 
 % convert faces and vertices to triangulation TR
 % (e.g. nearestNeighbor(TR,P) - find closes vertex to point P)
 obj.TR = triangulation(faces,vert);
-
-% set centroid
-obj.calcCentroid;
 
 %--------------------------------------------------------------------------
 % normals for plotting ROIs

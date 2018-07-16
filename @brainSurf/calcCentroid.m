@@ -1,11 +1,12 @@
-function calcCentroid(obj)
+function calcCentroid(obj,vert)
 % function to calculate the centroid of a volume
 %
+% (req.) vert, set of vertices for volume
 % (set.) centroid, centroid of the volume
 
 % make copy of vertices, appending mean point so ensure volume is filled
 % (may not be nessary, but shouldn't hurt...)
-vert = [obj.TR.Points;mean(obj.TR.Points)];
+vert = [vert;mean(vert)];
 
 % split the volume into tetrahedrons (pyramids)
 T = uint32(delaunay(vert));
@@ -27,7 +28,5 @@ vols = abs(dot(...
 
 % centroid is volume weighted sum of tetrahedroin centroids
 obj.centroid = sum(centroids.*vols)./sum(vols);
-
-disp(obj.centroid);
 
 end

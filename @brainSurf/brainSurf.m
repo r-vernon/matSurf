@@ -34,6 +34,7 @@ classdef brainSurf < handle
         surfDet  % details about surface (surfName, surfPath, curvPath)
         TR       % triangulation (needed to display surface)
         centroid % surface centroid
+        xyzLim   % max xyz limited needed for plotting
         
         % -------------------------------------------------------------
         % overlay properties
@@ -130,7 +131,7 @@ classdef brainSurf < handle
         surface_load(obj,surf2load)
         % function to load in Freesurfer surface
         % gets surfDet
-        % sets TR, nVert, ROIpts, G
+        % sets TR, nVert, xyzLim, ROIpts, G
         
         surface_setDetails(obj,surfPath,curvPath,surfName)
         % function to set surface details
@@ -190,7 +191,7 @@ classdef brainSurf < handle
         % function to return overlay index corresponding to overlay
         % gets nOvrlays, dataOvrlay, baseOvrlay
         
-        [centroid] = calcCentroid(obj)
+        calcCentroid(obj,vert)
         % function to calculate the centroid of a volume
         % sets centroid
 

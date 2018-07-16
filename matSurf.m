@@ -21,7 +21,8 @@ setappdata(mS_f,'cmaps',cmaps);
 setappdata(mS_f,'allVol',mS_volStore);
 
 % initialise camera control
-setappdata(mS_f,'camCont',camControl(handles.brainAx));
+camCont = camControl(handles.xForm);
+setappdata(mS_f,'camCont',camCont);
 
 % show the figure
 mS_f.Visible = 'on';
@@ -67,7 +68,7 @@ handles.rotCam.Callback  = @(src,~) cBack_cam_swMode(src);
 handles.panCam.Callback  = @(src,~) cBack_cam_swMode(src);
 handles.zoomCam.Callback = @(src,~) cBack_cam_swMode(src);
 
-handles.resCam.Callback = @(src,~) cBack_cam_rest(src);
+handles.resCam.Callback = @(~,~) camCont.resetState;
 
 % =========================================================================
 % misc. menu callbacks

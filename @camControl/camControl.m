@@ -5,43 +5,55 @@ classdef camControl < handle
     % partially based upon 'FigureRotator.m'
     % https://uk.mathworks.com/matlabcentral/fileexchange/39558-figure-rotator
     
-%     https://gamedev.stackexchange.com/questions/20758/how-can-i-orbit-a-camera-about-its-target-point
-% http://courses.cms.caltech.edu/cs171/assignments/hw3/hw3-notes/notes-hw3.html
-
+    %     https://gamedev.stackexchange.com/questions/20758/how-can-i-orbit-a-camera-about-its-target-point
+    % http://courses.cms.caltech.edu/cs171/assignments/hw3/hw3-notes/notes-hw3.html
+    
     properties
         
         % store function that will be called if no mouse movement
         clickFn = ''
         
+        % store xyz axis limits
+        xyzLim
+        
+        % store sensitivity for rotation, panning and zooming
+        rSens = 1.5
+        pSens = 1.0
+        zSens = 1.0
+        
     end
     
     properties (Access = private)
         
-        % figure handle, size,  axis handle, light handle
+        % figure handle/size, axis handle, transform handle
         f_h
         f_s
         a_h
-        l_h
+        t_h
         
-        % structure to hold original camera state of object
-        % stores: camera position (camPos), camera target (camTar)
-        %         camera view angle (camVA), camera up vector (camUV)
-        oState = struct('camPos',[],'camTar',[],'camVA',[],'camUV',[]);
-        
-        % at click, store state of callback when clicked
-        clickSt
+        % store initial camera position  and view angle for resetting camera
+        initCamPos
+        initCamVA
         
         % for mouse store:
         % - flag to check if moved or not during click
         % - state when clicked, e.g. 'normal', 'alt', 'extend'
-        % - position
+        % - previous position for axis and figure
         mMoved = false
         mState
-        mPos
+        a_mPos1
+        f_mPos1
         
-        % principal axis (none, x, y, z (def.))
-        princAx = 'z';
-        pAxVal = single([0,0,1]);
+        % store whether clicked patch (1) or axis (0)
+        % if did click patch, also store intersection point
+        clPatch = false
+        ip
+        
+        % store current rotation as quaternion 1
+        qForm1 = [1,0,0,0]
+        
+        % store time stamp
+        tStmp
         
     end
     
@@ -55,102 +67,97 @@ classdef camControl < handle
     
     methods
         
-        function obj = camControl(ax_handle)
+        function obj = camControl(xform_handle)
             % class constructor
             
-            % set axis handle and get figure handle
-            obj.a_h = ax_handle;
-            obj.f_h = getFigHandle(ax_handle);
-            
-            % get figure handle in pixels
-            obj.f_s = feval(@(x) x(3:4), getpixelposition(obj.f_h));
-            
-            % store original state
-            obj.oState.camPos = ax_handle.CameraPosition;
-            obj.oState.camTar = ax_handle.CameraTarget;
-            obj.oState.camVA =  ax_handle.CameraViewAngle;
-            obj.oState.camUV =  ax_handle.CameraUpVector;
+            % set transform handle, get figure and axis handle
+            obj.t_h = xform_handle;
+            obj.a_h = xform_handle.Parent;
+            obj.f_h = getFigHandle(obj.a_h);
+            obj.f_s = obj.f_h.Position(3:4);
             
         end
         
-        function updatePrincAx(obj,newPA)
-            % updates principal axis
+        function setDefState(obj)
+            % stores current state as default state of camera position
             
-            if nargin < 2, newPA = 'z';
-            else, newPA = lower(newPA(1));
-            end
-            
-            if any(strcmp(newPA,{'n','x','y','z'}))
-                obj.princAx = newPA;
-                obj.pAxVal(:) = 0;
-                switch newPA
-                    case 'n'   % do nothing
-                    case 'x',  obj.pAxVal(1) = 1;
-                    case 'y',  obj.pAxVal(2) = 1;
-                    otherwise, obj.pAxVal(3) = 1; % default to 'z'
-                end
-            end
+            obj.initCamPos = obj.a_h.CameraPosition;
+            obj.initCamVA =  obj.a_h.CameraViewAngle;
             
         end
         
-        function setDefState(obj,mode)
-            % sets/updates default state of camera position and
-            % (optionally) mode
+        function resetState(obj)
+            % sets default state as current state of camera position
+
+            set(obj.a_h,...
+                'CameraPosition',  obj.initCamPos, 'CameraTarget',   [0,0,0],...
+                'CameraViewAngle', obj.initCamVA,  'CameraUpVector', [0,0,1]);
+            obj.qForm1 = [1,0,0,0];
+            obj.t_h.Matrix = obj.qRotMat(obj.qForm1);
             
-            % update figure handle in pixels
-            obj.f_s = feval(@(x) x(3:4), getpixelposition(obj.f_h));
-            
-            % store current state as original state
-            obj.oState.camPos = obj.a_h.CameraPosition;
-            obj.oState.camTar = obj.a_h.CameraTarget;
-            obj.oState.camVA =  obj.a_h.CameraViewAngle;
-            obj.oState.camUV =  obj.a_h.CameraUpVector;
-            
-            % update mode if passed
-            if nargin == 2
-                obj.updatePrincAx(mode);
-            end
+            setStatusTxt('camera reset');
+            drawnow;
             
         end
         
         function cV = get.customView(obj)
             % function to return current camera position for saved axis
-            % same format as oState, except additional field for name
+            % with additional field for name
             
             cV = struct(...
                 'name','',...
                 'camPos',obj.a_h.CameraPosition,...
                 'camTar',obj.a_h.CameraTarget,...
                 'camVA', obj.a_h.CameraViewAngle,...
-                'camUV', obj.a_h.CameraUpVector...
+                'camUV', obj.a_h.CameraUpVector,...
+                'xform', obj.qForm1...
                 );
             
         end
         
-        function bDownFcn(obj,src,event,varargin)
+        function bDownFcn(obj,src,event)
             % function called when patch button down callback triggered
             
-            % save out the callback
-            obj.clickSt = {src,event,varargin(:)'};
-            
-            % update figure size in case it's changed
-            obj.f_s = feval(@(x) x(3:4), getpixelposition(obj.f_h));
-            
-            % get state of mouse at last click
+            % get state of mouse at click
             obj.mState = obj.f_h.SelectionType;
+            obj.tStmp = clock;
             
-            % get mouse position in pixels
-            obj.mPos = obj.getCurrPos;
+            % set mouse movement function if relevant button press
+            % (normal - LClick, alt - RClick, extend - ScrollClick/LRClick)
+            % only using normal (rotate) and extend (pan) currently
+            
+            switch obj.mState(1)
+                case 'n'  % normal, rotate (or possible click)
+                    
+                    % work out where the callback came from
+                    if strcmp(src.Tag,'brainAx') % axis click
+                        obj.clPatch = false;
+                    else
+                        % was a patch click, store intersection point
+                        obj.clPatch = true;
+                        
+                        % must *undo* current quat. rotation, use q' = r*q*inv(r)
+                        % but actually want inv. rotmat, so doing inv(r)*q*r...
+                        obj.ip = obj.qMul([0,event.IntersectionPoint],obj.qForm1);
+                        obj.ip = obj.qMul(obj.qInv(obj.qForm1),obj.ip);
+                        obj.ip = obj.ip(2:4);
+                    end
+                    
+                    obj.a_mPos1 = obj.getCurrPos;       % get mouse pos on 'sphere'
+                    obj.f_h.WindowButtonMotionFcn = @(~,~) obj.mMoveFcn_rot();
+                    
+                case 'e'  % extend, pan
+                    
+                    obj.f_mPos1 = obj.f_h.CurrentPoint; % get mouse pos on figure
+                    obj.f_s = obj.f_h.Position(3:4);    % get current figure size
+                    obj.f_h.WindowButtonMotionFcn = @(~,~) obj.mMoveFcn_pan();
+                    
+                otherwise % alt, do nothing
+                    obj.f_h.WindowButtonMotionFcn = '';
+            end
             
             % set button up function
-            obj.f_h.WindowButtonUpFcn     = @(~,~) obj.bUpFcn();
-            
-            % set movement function if relevant button press
-            % (normal - LClick, alt - RClick, extend - ScrollClick/LRClick)
-            % will use normal for rotate, extend for pan
-            if strcmp(obj.mState,'normal') || strcmp(obj.mState,'extend')
-                obj.f_h.WindowButtonMotionFcn = @(~,~) obj.mMoveFcn();
-            end
+            obj.f_h.WindowButtonUpFcn = @(src,~) obj.bUpFcn(src);
             
         end
         
@@ -158,79 +165,88 @@ classdef camControl < handle
     
     methods (Hidden = true)
         
-        function mMoveFcn(obj)
+        function mMoveFcn_rot(obj)
             % function to call for mouse movement
             
-            % set mouse moved flag
+            % get new position and time
+            mPos2 = obj.getCurrPos;
+            cTime = clock;
+            
+            % make sure we've moved reasonable amount...
+            % (doing this before scaling so don't magnify false +ves)
+            if norm(mPos2-obj.a_mPos1) < 0.01 || etime(cTime,obj.tStmp) < 1/24
+                return; 
+            end
             obj.mMoved = true;
+            obj.tStmp = cTime;
             
-            % calculate distance moved, then update mPos
-            newPos = obj.getCurrPos;
-            dXY = newPos - obj.mPos;... % delta xy - width/height
-            obj.mPos = newPos;
+            % calculate unit vector (u), and angle of rotation (theta, th)
+            u = cross(obj.a_mPos1,mPos2);             % calc vector
+            normU = norm(u);                          % calc vector norm
+            th = atan2(normU,dot(obj.a_mPos1,mPos2)); % calc theta
+            u = u/normU;                              % make unit vector
             
-            % flip dXY as mouse left should move camera right
-            dXY = -dXY;
+            % scale theta by sensitivity
+            th = th*obj.rSens;
             
-            if strcmp(obj.mState,'extend') % if in pan state
-                dXY = dXY * obj.a_h.CameraViewAngle/500;
-            end
+            % convert to unit quaternion and multiply by previous rotation
+            qForm2 = [cos(th/2),sin(th/2)*u];
+            qForm2 = obj.qMul(qForm2,obj.qForm1);
             
-            tmpAxVal = obj.pAxVal;
-            if ~strcmp(obj.princAx,'n')
-                
-                % check if we're upside down
-                currCamUV = obj.a_h.CameraUpVector;
-                upsidedown = (currCamUV(tmpAxVal==1) < 0);
-                if upsidedown
-                    dXY(1) = -dXY(1);
-                    tmpAxVal = -tmpAxVal;
-                end
-                
-                % if camera up vector not parallel with view direction, set up
-                % vector
-                if any(obj.crossSimple(tmpAxVal,obj.a_h.CameraPosition-obj.a_h.CameraTarget))
-                    obj.a_h.CameraUpVector = tmpAxVal;
-                end
-                
-                switch obj.mState
-                    case 'normal' % normal left click - rotate
-                        camorbit(obj.a_h,dXY(1),dXY(2),'data',obj.princAx);
-                    case 'extend'
-                        campan(obj.a_h,dXY(1),dXY(2),'data',obj.princAx);
-                end          
-            else
-                switch obj.mState
-                    case 'normal' % normal left click - rotate
-                        camorbit(obj.a_h,dXY(1),dXY(2),ob.princAx);
-                    case 'extend'
-                        campan(obj.a_h,dXY(1),dXY(2),obj.princAx);
-                end
-            end
+            % convert to rotation matrix to pass for rendering
+            qForm2_R = obj.qRotMat(qForm2);
             
-            % TODO  update light source
-            drawnow;
+            % set the rotation
+            obj.t_h.Matrix = qForm2_R;
+            
+            % update mouse position, rotation qForm to latest values
+            obj.a_mPos1 = mPos2;
+            obj.qForm1  = qForm2;
             
         end
         
-        %function wMoveFcn(obj,src,event)
+        function mMoveFcn_pan(obj)
+            % function to call for mouse movement
+
+            % get new position
+            mPos2 = obj.f_h.CurrentPoint;
+            cTime = clock;
+            
+            % calculate distance moved (dWH - delta width, height)
+            dWH = zeros(1,3);
+            dWH([1,3]) = (mPos2 - obj.f_mPos1)./obj.f_s;
+            
+            % make sure we've moved reasonable amount...
+            % (doing this before scaling so don't magnify false +ves)
+            if hypot(dWH(1),dWH(3)) < 0.01 || etime(cTime,obj.tStmp) < 1/24
+                return
+            end
+            
+            % set moved flag, then update last clicked point
+            obj.mMoved = true;
+            obj.f_mPos1 = mPos2;
+            obj.tStmp = cTime;
+            
+            % scale by sensitivity, then update camera position and target
+            dWH = dWH * 100 * obj.pSens;
+            set(obj.a_h,...
+                'CameraPosition', obj.a_h.CameraPosition - dWH,...
+                'CameraTarget',   obj.a_h.CameraTarget   - dWH);
+        end
         
-        
-        function bUpFcn(obj)
+        function bUpFcn(obj,src)
             % function called when mouse button released on figure
             
             % if no mouse movement, just a click, then aim was to run
             % callback, if mouse movement, then aim was to move surface so
             % already taken care of with mMoveFcn
             
-            if strcmp(obj.mState,'alt')
-                % right click detected, for now do nothing...
-                return;
-            end
+            % if right click detected, for now do nothing...
+            if strcmp(obj.mState,'alt'), return; end
             
-            if ~obj.mMoved && ~isempty(obj.clickFn)
+            if ~obj.mMoved && obj.clPatch && ~isempty(obj.clickFn)
                 % execute the original callback
-                obj.clickFn(obj.clickSt{:});
+                obj.clickFn(src,obj.ip);
             end
             
             % reset status and callbacks
@@ -245,29 +261,56 @@ classdef camControl < handle
     methods (Access = private, Hidden = true)
         
         function [currPos] = getCurrPos(obj)
-            % function to get CurrentPos (last clicked mouse position) in
-            % pixels
+            % function to get current mouse position as a function of set
+            % axis limits (where 0 = centre, 1 = at limits)
             
-            % get current units and last clicked position
-            currUnits =  obj.f_h.Units;
-            currPos =    obj.f_h.CurrentPoint;
+            currPos = zeros(1,3);
             
-            if strcmp(currUnits,'normalised')
-                currPos = currPos./obj.f_s;
-            elseif ~strcmp(currUnits,'pixels')
-                obj.f_h.Units = 'pixels';        % set to pixels
-                currPos = obj.f_h.CurrentPoint;  % get point
-                obj.f_h.Units = currUnits;       % reset to orig. units
+            % grab x (1, hor.), z (3, ver.), dividing by axis limits
+            % y (2, depth) will just be set to far front of axis, useless
+            currPos([1,3]) = obj.a_h.CurrentPoint(1,[1,3])/obj.xyzLim;
+            
+            % if sum of squares > 1, outside axis limits, leave depth (y)
+            % as 0, otherwise use basic pythag. to set depth as if on sphere
+            currPos_SSq = sum(currPos.^2);
+            if currPos_SSq <= 1
+                currPos(2) = -sqrt(1-currPos_SSq);
             end
         end
         
     end % private methods
     
     methods (Static)
-        function c=crossSimple(a,b)
-            c(1) = b(3)*a(2) - b(2)*a(3);
-            c(2) = b(1)*a(3) - b(3)*a(1);
-            c(3) = b(2)*a(1) - b(1)*a(2);
+        
+        function [q2] = qInv(q1)
+            % returns inverse of unit quaternian
+            % if r = [s,v], inv(r) = [s,-v], where v = (x,y,z)
+            q2 = [q1(1),-q1(2:4)];
         end
+        
+        function [q3] = qMul(q1,q2)
+            % multiplies two quaternions
+            q3 = [q1(1)*q2(1) - dot(q1(2:4),q2(2:4)),...
+                q1(1)*q2(2:4) + q2(1)*q1(2:4) + cross(q1(2:4),q2(2:4))];
+        end
+        
+        function [qR] = qRotMat(q1)
+            % get rotation matrix from quaternion
+            % quat. format - [s, v] (where v is x,y,z)
+            
+            % renormalise quaternion
+            % (to avoid accumulation of floating point errors)
+            q1 = q1/norm(q1);
+            
+            % x,y,z at 2:4, so e.g. q2(1,1:4) will be qxqs, qxqx, qxqy, qxqz
+            q2 = bsxfun(@times,q1,q1(2:4)');
+            
+            qR = [...
+                1-2*q2(2,3)-2*q2(3,4),  2*(q2(1,3)-q2(3,1)),    2*(q2(1,4)+q2(2,1)),    0; ...
+                2*(q2(1,3)+q2(3,1)),    1-2*q2(1,2)-2*q2(3,4),  2*(q2(2,4)-q2(1,1)),    0; ...
+                2*(q2(1,4)-q2(2,1)),    2*(q2(2,4)+q2(1,1)),    1-2*q2(1,2)-2*q2(2,3),  0; ...
+                0,                      0,                      0,                      1];
+        end
+        
     end
 end
