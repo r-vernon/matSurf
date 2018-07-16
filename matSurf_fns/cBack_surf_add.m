@@ -1,4 +1,4 @@
-function cBack_surf_add(src)
+function cBack_surf_add(src,~)
 
 % get data
 f_h = getFigHandle(src);
@@ -52,12 +52,22 @@ set(handles.brainPatch,...
     'VertexNormals',single(vertexNormal(currVol.TR)),...
     'FaceNormals',single(faceNormal(currVol.TR)),...
     'visible','on');
+
+% set lights on
+light_d2m = sqrt(3)/3 * abs(handles.brainAx.CameraPosition(2));
+handles.llLight.Position = [-light_d2m, -2.5*currVol.xyzLim, -light_d2m];
+handles.lrLight.Position = [ light_d2m, -2.5*currVol.xyzLim, -light_d2m];
+handles.ulLight.Position = [-light_d2m, -2.5*currVol.xyzLim,  light_d2m];
+handles.urLight.Position = [ light_d2m, -2.5*currVol.xyzLim,  light_d2m];
+handles.aLights.Visible = 'on';
+
+% draw it
 drawnow;
 
 % set default view and initialise callbacks
 camCont.setDefState;
-handles.brainAx.ButtonDownFcn    = @(src,event) camCont.bDownFcn(src,event);
-handles.brainPatch.ButtonDownFcn = @(src,event) camCont.bDownFcn(src,event);
+handles.brainAx.ButtonDownFcn    = @camCont.bDownFcn;
+handles.brainPatch.ButtonDownFcn = @camCont.bDownFcn;
 camCont.clickFn = @(~,ip) disp(ip);
 
 % add it to pop up menu

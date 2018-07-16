@@ -24,7 +24,7 @@ end
 
 % make sure there's available overlays to get!
 if obj.nOvrlays == 0 && (ovrlay ~= 0 || ~strcmpi(obj.baseOvrlay.name,ovrlay))
-    warning("No overlays available");
+    warning('No overlays available');
     return
 end
 
@@ -36,12 +36,12 @@ if isnumeric(ovrlay) % if provided as index
     % if it's numeric, treat it as an index, should be simple!
     
     % make sure only one index and within usable range
-    if ~isscalar(ovrlay) || ~isinteger(ovrlay) || ovrlay < 0 || ovrlay > obj.nOvrlays
+    if ~isscalar(ovrlay) || ~isnumeric(ovrlay) || ovrlay < 0 || ovrlay > obj.nOvrlays
         errorMsg
         return
     else
         % seems to be valid!
-        ovrlayInd = ovrlay;
+        ovrlayInd = uint32(ovrlay);
     end
     
     %----------------------------------------------------------------------
@@ -76,7 +76,7 @@ end
 
     function errorMsg
         % function just to show details about the overlay if errors occur
-        warning("Couldn't find or process overlay");
+        warning('Couldn''t find or process overlay');
         disp('Overlay requested was: ');
         whos ovrlay;
         fprintf(["Overlay should be either: \n",...

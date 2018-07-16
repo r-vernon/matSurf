@@ -9,6 +9,13 @@ function surface_load(obj)
 % =========================================================================
 % load in surface and curvature
 
+%{
+note in freesurfer_readsurf it suggests swapping cols of faces when reading
+into matlab (i.e. faces = faces(:,[1 3 2])) to fix normals, however as
+we're using triangulation that doesn't seem to be true, so not doing it.
+Can double check if necessary with 'verifyNormals' script
+%}
+
 setStatusTxt('loading surface and calculating centroid');
 
 % surface
@@ -19,10 +26,6 @@ catch ME
         obj.surfDet.curvPath);
     rethrow(ME);
 end
-
-% add 1 to faces due to FreeSurfer zero indexing, also swapping cols of
-% faces as apparently that fixes normals (according to FreeSurfer script)
-faces = faces(:,[1 3 2]) + 1;
 
 % =========================================================================
 % calculate additional things from surface and return
@@ -41,8 +44,9 @@ obj.xyzLim = ceil(max(abs(vert(:)))) + 1;
 % triangulation
 
 % convert faces and vertices to triangulation TR
-% (e.g. nearestNeighbor(TR,P) - find closes vertex to point P)
-obj.TR = triangulation(faces,vert);
+% (add 1 to faces due to FreeSurfer zero indexing)
+% allows e.g. nearestNeighbor(TR,P) - find closes vertex to point P
+obj.TR = triangulation(faces+1,vert);
 
 %--------------------------------------------------------------------------
 % normals for plotting ROIs
@@ -63,7 +67,7 @@ obj.ROIpts(obj.nVert+1,:) = nan;
 % graph
 
 % use triangulation to created weighted (w) graph G
-% (e.g. shortestpath(G,s,t) - find path between vertices s and t)
+% allows e.g. shortestpath(G,s,t) - find path between vertices s and t
 st = edges(obj.TR);
 w = sqrt(sum(bsxfun(@minus,vert(st(:,1),:),vert(st(:,2),:)).^2,2));
 obj.G = graph(st(:,1),st(:,2),w);

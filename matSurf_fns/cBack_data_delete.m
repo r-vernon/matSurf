@@ -1,4 +1,4 @@
-function cBack_data_delete(src)
+function cBack_data_delete(src,~)
 
 % get data
 f_h = getFigHandle(src);

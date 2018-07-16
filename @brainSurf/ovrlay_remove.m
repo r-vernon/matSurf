@@ -21,7 +21,7 @@ ovrlayInd = obj.ovrlay_find(ovrlay);
 
 % make sure haven't requested base overlay
 if ovrlayInd == 0 || isempty(ovrlayInd)
-    warning("Can't remove selected overlay");
+    warning('Can''t remove selected overlay');
     return;
 end
     

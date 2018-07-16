@@ -1,4 +1,4 @@
-function [saveDataFig,success] = UI_saveData(data,defName,startMode,varOnly)
+function [saveDataFig,success] = UI_saveData(data,defName,startMode,varOnly,canOvrWrite)
 % function to allow saving data, either in .mat file or in workspace
 %
 % (req.) data, data to save
@@ -6,6 +6,7 @@ function [saveDataFig,success] = UI_saveData(data,defName,startMode,varOnly)
 % (opt.) startMode, if 1, initialises to saving as file, if 2, initialises
 %        to saving as var
 % (opt.) varOnly, if true, can only save as variable, not file
+% (opt.) canOvrWrite, if true, allows overwriting from start
 % (ret.) saveDataFig, figure handle to main figure
 % (ret.) success, true if saved successfully
 
@@ -24,6 +25,13 @@ if nargin < 4 || isempty(varOnly)
     varOnly = false; 
 elseif varOnly
     startMode = 2; % overwrite start mode
+end
+
+% set whether can overwrite or not
+if nargin == 5 && canOvrWrite == 1
+    canOvrWrite = true;
+else
+    canOvrWrite = false;
 end
 
 % get backup name (note: inputname(1) gets var name of 'data')
@@ -47,13 +55,16 @@ end
 % check if can use default name
 defOK = false(2,1);
 if ~isempty(defName)
-    if ~exist([pwd,'/',defName,'.mat'],'file'), defOK(1) = 1; end
-    if evalin('base',['~exist(''',defName,''',''var'')']), defOK(2) = 1; end
+    if ~exist([pwd,'/',defName,'.mat'],'file')
+        defOK(1) = 1;
+    end
+    if canOvrWrite || evalin('base',['~exist(''',defName,''',''var'')'])
+        defOK(2) = 1; 
+    end
 end
 
 % keep track of current modes (1 - File (default), 2 - Var)
 currMode = uint8(startMode);
-canOvrWrite = false; % whether can overwrite or not
 
 % set some default text options
 usageTxt  = {'Enter file path'     , 'Enter var name'    };
@@ -140,7 +151,8 @@ cancBut = uicontrol(saveDataFig,'Style','pushbutton','String','Cancel',...
 % overwrite toggle
 ovrWrBut = uicontrol(saveDataFig,'Style','checkbox','String','Overwrite?',...
     'Tag','ovrWrBut','FontSize',9,'Position',[101,26,100,15],...
-    'Callback',@ovrWrCallback,'Visible','off');
+    'Value',canOvrWrite,'Callback',@ovrWrCallback);
+if canOvrWrite, ovrWrBut.Visible = 'on'; else, ovrWrBut.Visible = 'off'; end
 
 %  ========================================================================
 %  ---------------------- POINTER MANAGER ---------------------------------
@@ -291,11 +303,13 @@ drawnow;
                 currTxt = strcat(currName,'.mat'); 
             end
             save(currTxt,'data','-mat');
-            fprintf('Saved %s to %s\n',altName,currTxt);
+            prStr = sprintf('Saved %s to %s',altName,currTxt); 
         else
             assignin('base',currTxt,data);
-            fprintf('Saved %s to workspace as %s\n',altName,currTxt);
+            prStr = sprintf('Saved %s to workspace as %s',altName,currTxt);
         end
+        
+        setStatusTxt(prStr,'',1);
         
         % delete the figure
         success = true;

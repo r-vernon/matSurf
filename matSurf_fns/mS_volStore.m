@@ -58,12 +58,13 @@ classdef mS_volStore < handle
             
             % make sure it's a valid ind (unpacking cell first if req.)
             if iscell(ind), ind = ind{:}; end
-            if isempty(ind) || ~iscalar(ind) || ~isinteger(ind) || ...
+            if isempty(ind) || ~iscalar(ind) || ~isnumeric(ind) || ...
                     ind < 1 || ind > obj.nVol
                 warning('Index not valid, not deleting volume');
                 return
             end
             
+            ind = uint32(ind);              % make sure integer
             obj.vol(ind) = [];              % delete brainSurf class in vol
             obj.vNames(ind) = [];           % delete corresponding name
             obj.nVol = obj.nVol - 1;        % dec. num volumes

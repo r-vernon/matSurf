@@ -78,15 +78,11 @@ classdef camControl < handle
             
         end
         
-        function setDefState(obj)
-            % stores current state as default state of camera position
-            
-            obj.initCamPos = obj.a_h.CameraPosition;
-            obj.initCamVA =  obj.a_h.CameraViewAngle;
-            
-        end
+        setDefState(obj)
+        % stores current state as default state of camera position
+        % sets initCamPos, initCamVA
         
-        function resetState(obj)
+        function resetState(obj,~,~)
             % sets default state as current state of camera position
 
             set(obj.a_h,...
@@ -144,20 +140,20 @@ classdef camControl < handle
                     end
                     
                     obj.a_mPos1 = obj.getCurrPos;       % get mouse pos on 'sphere'
-                    obj.f_h.WindowButtonMotionFcn = @(~,~) obj.mMoveFcn_rot();
+                    obj.f_h.WindowButtonMotionFcn = @obj.mMoveFcn_rot;
                     
                 case 'e'  % extend, pan
                     
                     obj.f_mPos1 = obj.f_h.CurrentPoint; % get mouse pos on figure
                     obj.f_s = obj.f_h.Position(3:4);    % get current figure size
-                    obj.f_h.WindowButtonMotionFcn = @(~,~) obj.mMoveFcn_pan();
+                    obj.f_h.WindowButtonMotionFcn = @obj.mMoveFcn_pan;
                     
                 otherwise % alt, do nothing
                     obj.f_h.WindowButtonMotionFcn = '';
             end
             
             % set button up function
-            obj.f_h.WindowButtonUpFcn = @(src,~) obj.bUpFcn(src);
+            obj.f_h.WindowButtonUpFcn = @obj.bUpFcn;
             
         end
         
@@ -165,7 +161,7 @@ classdef camControl < handle
     
     methods (Hidden = true)
         
-        function mMoveFcn_rot(obj)
+        function mMoveFcn_rot(obj,~,~)
             % function to call for mouse movement
             
             % get new position and time
@@ -205,7 +201,7 @@ classdef camControl < handle
             
         end
         
-        function mMoveFcn_pan(obj)
+        function mMoveFcn_pan(obj,~,~)
             % function to call for mouse movement
 
             % get new position
@@ -234,7 +230,7 @@ classdef camControl < handle
                 'CameraTarget',   obj.a_h.CameraTarget   - dWH);
         end
         
-        function bUpFcn(obj,src)
+        function bUpFcn(obj,src,~)
             % function called when mouse button released on figure
             
             % if no mouse movement, just a click, then aim was to run
@@ -254,63 +250,30 @@ classdef camControl < handle
             obj.f_h.WindowButtonMotionFcn = '';
             obj.f_h.WindowButtonUpFcn     = '';
             
+            % make sure everything is up to date...
+            drawnow;
+            
         end
         
     end % hidden methods
     
     methods (Access = private, Hidden = true)
         
-        function [currPos] = getCurrPos(obj)
-            % function to get current mouse position as a function of set
-            % axis limits (where 0 = centre, 1 = at limits)
-            
-            currPos = zeros(1,3);
-            
-            % grab x (1, hor.), z (3, ver.), dividing by axis limits
-            % y (2, depth) will just be set to far front of axis, useless
-            currPos([1,3]) = obj.a_h.CurrentPoint(1,[1,3])/obj.xyzLim;
-            
-            % if sum of squares > 1, outside axis limits, leave depth (y)
-            % as 0, otherwise use basic pythag. to set depth as if on sphere
-            currPos_SSq = sum(currPos.^2);
-            if currPos_SSq <= 1
-                currPos(2) = -sqrt(1-currPos_SSq);
-            end
-        end
+        [currPos] = getCurrPos(obj)
+        % function to get current mouse position
         
-    end % private methods
+    end 
     
     methods (Static)
         
-        function [q2] = qInv(q1)
-            % returns inverse of unit quaternian
-            % if r = [s,v], inv(r) = [s,-v], where v = (x,y,z)
-            q2 = [q1(1),-q1(2:4)];
-        end
+        [q2] = qInv(q1)
+        % returns inverse of unit quaternian
+ 
+        [q3] = qMul(q1,q2)
+        % multiplies two quaternions
         
-        function [q3] = qMul(q1,q2)
-            % multiplies two quaternions
-            q3 = [q1(1)*q2(1) - dot(q1(2:4),q2(2:4)),...
-                q1(1)*q2(2:4) + q2(1)*q1(2:4) + cross(q1(2:4),q2(2:4))];
-        end
-        
-        function [qR] = qRotMat(q1)
-            % get rotation matrix from quaternion
-            % quat. format - [s, v] (where v is x,y,z)
-            
-            % renormalise quaternion
-            % (to avoid accumulation of floating point errors)
-            q1 = q1/norm(q1);
-            
-            % x,y,z at 2:4, so e.g. q2(1,1:4) will be qxqs, qxqx, qxqy, qxqz
-            q2 = bsxfun(@times,q1,q1(2:4)');
-            
-            qR = [...
-                1-2*q2(2,3)-2*q2(3,4),  2*(q2(1,3)-q2(3,1)),    2*(q2(1,4)+q2(2,1)),    0; ...
-                2*(q2(1,3)+q2(3,1)),    1-2*q2(1,2)-2*q2(3,4),  2*(q2(2,4)-q2(1,1)),    0; ...
-                2*(q2(1,4)-q2(2,1)),    2*(q2(2,4)+q2(1,1)),    1-2*q2(1,2)-2*q2(2,3),  0; ...
-                0,                      0,                      0,                      1];
-        end
+        [qR] = qRotMat(q1)
+        % get rotation matrix from quaternion
         
     end
 end

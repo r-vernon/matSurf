@@ -42,7 +42,7 @@ currRange = currMax - currMin;
 if useOldRange
     
     if currMin < oldMin || currMax > oldMax
-        warning("Data lies outside specified old range, ignoring old range as not valid");
+        warning('Data lies outside specified old range, ignoring old range as not valid');
     else
         % oldRange is valid so update current min and range with provided values
         currMin = oldMin;
@@ -52,7 +52,7 @@ if useOldRange
 elseif currRange == 0
     
     % not using old range, so make sure currData has valid range (i.e. not 0)
-    warning("Range of provided data is 0 so can't rescale - returning mean of new range");
+    warning('Range of provided data is 0 so can''t rescale - returning mean of new range');
     newData = mean(trgMinMax);
     return
     

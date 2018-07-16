@@ -1,4 +1,4 @@
-function cBack_ROI_addPnt(src,event,finalPt)
+function cBack_ROI_addPnt(src,event)
 
 % make sure volumes loaded
 f_h = getFigHandle(src);
@@ -8,17 +8,20 @@ if ~isappdata(f_h,'currVol'), return; end
 currVol = getappdata(f_h,'currVol'); 
 handles = getappdata(f_h,'handles');
 
+%--------------------------------------------------------------------------
+
+% work out if final point or not (get point clicked if not)
+if isprop(event,'IntersectionPoint')
+    finalPt   = false;
+    ptClicked = event.IntersectionPoint; 
+else
+    finalPt   = true;
+    ptClicked = [];
+end
+
 % if called 'final point' but not  continuing ROI, return
 if finalPt && ~strcmp(handles.addROI.String,'Cont')
     return; 
-end
-
-%--------------------------------------------------------------------------
-
-% get point clicked, if not final point
-ptClicked = [];
-if ~finalPt
-    ptClicked = event.IntersectionPoint; 
 end
 
 % call ROI_add with the point clicked

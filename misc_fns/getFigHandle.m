@@ -6,9 +6,15 @@ function [h] = getFigHandle(h)
 % (ret.) h, handle to parent figure of graphics object h
 
 if isscalar(h) && ishghandle(h)
+    
+    % find the handle
     while ~isempty(h) && ~strcmp('figure', h.Type)
         h = h.Parent;
     end
+    
+    % update timestamp
+    h.UserData = now;
+
 else
     warning('Invalid figure handle provided');
     h = [];

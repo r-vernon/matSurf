@@ -32,48 +32,42 @@ drawnow;
 % surface button callbacks
 
 % load surface
-handles.addSurf.Callback = @(src,~) cBack_surf_add(src);
+handles.addSurf.Callback = @cBack_surf_add;
+
+% reset camera
+handles.resCam.Callback = @camCont.resetState;
 
 % save surface
-handles.saveSurf.Callback = @(src,~) cBack_surf_save(src);
+handles.saveSurf.Callback = @cBack_surf_save;
 
 % =========================================================================
 % data button callbacks
 
 % load data
-handles.addData.Callback = @(src,~) cBack_data_add(src);
+handles.addData.Callback = @cBack_data_add;
 
 % select data
-handles.selData.Callback = @(src,~) cBack_data_select(src);
+handles.selData.Callback = @cBack_data_select;
 
 % delete data
-handles.delData.Callback = @(src,~) cBack_data_delete(src);
+handles.delData.Callback = @cBack_data_delete;
 
 % display data toggle
-handles.togData.Callback = @(src,~) cBack_data_toggle(src);
+handles.togData.Callback = @cBack_data_toggle;
 
 % =========================================================================
 % ROI button callbacks
 
 % add ROI
-handles.addROI.Callback = @(src,~) cBack_setMode(src);
+handles.addROI.Callback = @cBack_setMode;
 
 % finish ROI
-handles.finROI.Callback = @(src,event) cBack_ROI_addPnt(src,event,true);
-
-% =========================================================================
-% camera button callbacks
-
-handles.rotCam.Callback  = @(src,~) cBack_cam_swMode(src);
-handles.panCam.Callback  = @(src,~) cBack_cam_swMode(src);
-handles.zoomCam.Callback = @(src,~) cBack_cam_swMode(src);
-
-handles.resCam.Callback = @(~,~) camCont.resetState;
+handles.finROI.Callback = @cBack_ROI_addPnt;
 
 % =========================================================================
 % misc. menu callbacks
 
 % save handles
-handles.saveHndls.Callback = @(src,~) cBack_misc_saveHandles(src); 
+handles.saveHndls.Callback = @cBack_misc_saveHandles; 
 
 end
