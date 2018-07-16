@@ -267,7 +267,7 @@ classdef camControl < handle
     methods (Static)
         
         [q2] = qInv(q1)
-        % returns inverse of unit quaternian
+        % returns inverse of unit quaternion
  
         [q3] = qMul(q1,q2)
         % multiplies two quaternions

@@ -25,7 +25,7 @@ classdef brainSurf < handle
     %   colData, colour values for the overlay
     
     % =====================================================================
-    
+
     properties (SetAccess = private) % visible (but not *set*able) outside class
         
         % -------------------------------------------------------------
@@ -34,7 +34,6 @@ classdef brainSurf < handle
         surfDet  % details about surface (surfName, surfPath, curvPath)
         TR       % triangulation (needed to display surface)
         centroid % surface centroid
-        xyzLim   % max xyz limited needed for plotting
         
         % -------------------------------------------------------------
         % overlay properties
@@ -54,7 +53,24 @@ classdef brainSurf < handle
         
         roiNames   % cell array of all ROIs loaded
         nROIs  = 0 % number of ROIs
-
+        
+        % -------------------------------------------------------------
+        % camera properties
+        
+        % max xyz limited needed for plotting
+        xyzLim
+        
+        % structure with camera properties:
+        % NA - name array for corresponding value arrays
+        % VA_def/q_def - value array and quaternion for default view
+        % VA_cur/q_cur - value array and quaternion for current view
+        cam = struct('NA',{},'VA_def',{},'VA_cur',{},'q_def',[],'q_cur',[]);
+            
+        % additional structure for saved views
+        viewStore = struct('name','','VA_cur',{});
+        viewNames     % cell array of all views saved
+        nViews    = 0 % number of saved views
+        
     end
     
     % =====================================================================
@@ -122,7 +138,14 @@ classdef brainSurf < handle
             else
                 obj.colMap = colMap;
             end
-
+            
+            % initialise cam
+            obj.cam(1).NA = {'CameraPosition','CameraTarget','CameraViewAngle','CameraUpVector'};
+            obj.cam(1).VA_def = {[],zeros(1,3,'single'),single(45),single([0,0,1])};
+            obj.cam(1).VA_cur = {[],zeros(1,3,'single'),single(45),single([0,0,1])};
+            obj.cam(1).q_def  = [1,0,0,0];
+            obj.cam(1).q_cur  = [1,0,0,0];
+            
         end
         
         % =================================================================
@@ -131,7 +154,7 @@ classdef brainSurf < handle
         surface_load(obj,surf2load)
         % function to load in Freesurfer surface
         % gets surfDet
-        % sets TR, nVert, xyzLim, ROIpts, G
+        % sets TR, nVert, xyzLim, cam, ROIpts, G
         
         surface_setDetails(obj,surfPath,curvPath,surfName)
         % function to set surface details
@@ -179,6 +202,17 @@ classdef brainSurf < handle
         % ROI_sPaths
         % sets ROIs, pROIs, roiNames, nROIs, ROI_lineInd, ROI_markInd,
         % ROI_sPaths
+        
+        % =================================================================
+        % camera functions
+        
+        cam_setCurr(obj,varargin)
+        % function to set current camera view
+        % sets cam
+        
+        cam_reset(obj)
+        % resets camera to default state
+        % sets cam
         
     end
     

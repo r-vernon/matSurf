@@ -4,6 +4,7 @@ function surface_load(obj)
 % (set.) TR, triangulation from faces and vertices
 % (set.) nVert, total number of vertices
 % (set.) xyzLim, necessary axis limits to contain surface
+% (set.) obj.cam, sets default/current camera position in cam structure
 % (set.) G, weighted graph from edges
 
 % =========================================================================
@@ -37,8 +38,19 @@ obj.nVert = single(size(vert,1));
 obj.calcCentroid(vert);
 vert = bsxfun(@minus,vert,obj.centroid);
 
+%--------------------------------------------------------------------------
+% camera details
+
 % set necessary axis limits
 obj.xyzLim = ceil(max(abs(vert(:)))) + 1;
+
+% use that to calculate camera position
+%{
+% using x - hor. right, z - ver. up, y - depth into screen
+% camera target (0,0,0) (centroid), want to 'pull back' on y to show scene
+%}
+obj.cam.VA_def{1} = single([0,-2.5*obj.xyzLim,0]);
+obj.cam.VA_cur{1} = obj.cam.VA_def{1}; % current = default at start...
 
 %--------------------------------------------------------------------------
 % triangulation

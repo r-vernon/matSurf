@@ -2,7 +2,7 @@ function [qR] = qRotMat(q1)
 % get rotation matrix from quaternion
 % quat. format - [s, v] (where v is x,y,z)
 %
-% (req.) q1, quaternian to generate rotation matrix from
+% (req.) q1, quaternion to generate rotation matrix from
 % (ret.) qR, 4x4 rotation matrix
 
 % renormalise quaternion

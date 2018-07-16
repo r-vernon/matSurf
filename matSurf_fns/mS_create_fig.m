@@ -165,38 +165,27 @@ panPos.axis = [panSp-2, panSp-2, axLength+4, axLength+4];
 
 % axis panel
 handles.axisPanel = uipanel(figHandle,panelDef.name,panelDef.value);
-handles.axisPanel.Tag = 'axisPanel';
-handles.axisPanel.Position = panPos.axis;
+set(handles.axisPanel,'Tag','axisPanel','Position',panPos.axis);
 
 % surface panel
 handles.surfPanel = uipanel(figHandle,panelDef.name,panelDef.value);
-handles.surfPanel.Tag = 'surfPanel';
-handles.surfPanel.Title = 'Surface';
-handles.surfPanel.Position = panPos.surf;
+set(handles.surfPanel,'Tag','surfPanel','Title','Surface','Position',panPos.surf);
 
 % data panel
 handles.dataPanel = uipanel(figHandle,panelDef.name,panelDef.value);
-handles.dataPanel.Tag = 'dataPanel';
-handles.dataPanel.Title = 'Data';
-handles.dataPanel.Position = panPos.data;
+set(handles.dataPanel,'Tag','dataPanel','Title','Data','Position',panPos.data);
 
 % ROI panel
 handles.roiPanel = uipanel(figHandle,panelDef.name,panelDef.value);
-handles.roiPanel.Tag = 'roiPanel';
-handles.roiPanel.Title = 'ROI';
-handles.roiPanel.Position = panPos.ROI;
+set(handles.roiPanel,'Tag','roiPanel','Title','ROI','Position',panPos.ROI);
 
 % camera panel
 handles.camPanel = uipanel(figHandle,panelDef.name,panelDef.value);
-handles.camPanel.Tag = 'camPanel';
-handles.camPanel.Title = 'Camera';
-handles.camPanel.Position = panPos.cam;
+set(handles.camPanel,'Tag','camPanel','Title','Camera','Position',panPos.cam);
 
 % mode panel
 handles.modePanel = uipanel(figHandle,panelDef.name,panelDef.value);
-handles.modePanel.Tag = 'modePanel';
-handles.modePanel.Title = 'Mode';
-handles.modePanel.Position = panPos.mode;
+set(handles.modePanel,'Tag','modePanel','Title','Mode','Position',panPos.mode);
 
 %% ========================================================================
 
@@ -208,6 +197,7 @@ handles.modePanel.Position = panPos.mode;
 % Data and PlotBox AspectRatioMode stops axis reshaping when moving camera
 % Setting [XYZ]Color and Color to 'none' means the axis won't be visible
 % Setting all camera modes to manual for custom control
+% Setting cameraUpVector to z up (so x hor. and y depth)
 % Setting NextPlot to 'add' is like 'hold on'
 
 handles.brainAx = axes(handles.axisPanel,'Tag','brainAx',...
@@ -223,18 +213,18 @@ handles.brainAx = axes(handles.axisPanel,'Tag','brainAx',...
 handles.xForm = hgtransform('Parent',handles.brainAx,'Tag','xForm');
 
 % create corresponding patch with default properties for now
-handles.brainPatch = patch(handles.brainAx,'Parent',handles.xForm ,...
+handles.brainPatch = patch(handles.brainAx,'Tag','brainPatch',...
     'facecolor', 'interp','edgecolor','none','MarkerEdgeColor','none',...
     'FaceLighting','gouraud','BackFaceLighting','unlit',...
     'AmbientStrength',0.15,'DiffuseStrength',0.45,...
     'SpecularStrength',0,'SpecularExponent',10,...
-    'visible','off');
+    'Parent',handles.xForm,'visible','off');
 
 % create corresponding line for ROI plots -  'PickableParts' particularly
 % important, setting to 'none' means can't be clicked
 % [NOTE: limitation of line is all ROIs are same colour, possibly switch to
 %  making patch object if want different coloured ROIs at cost of memory]
-handles.brainROI = line(handles.brainAx,'Parent',handles.xForm ,...
+handles.brainROI = line(handles.brainAx,'Tag','brainROI','Parent',handles.xForm ,...
     'Color','black','MarkerFaceColor','black',...
     'Marker','o','MarkerSize',3,'PickableParts','none',...
     'LineStyle','-','LineWidth',3,'visible','off');

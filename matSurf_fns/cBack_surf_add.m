@@ -32,17 +32,18 @@ currVol.ovrlay_base;
 
 %--------------------------------------------------------------------------
 
-% set xyz limits for both camera control, and axis
-camCont.xyzLim =  currVol.xyzLim;
+% set xyz limits for axis
 xyzLim = [-1,1] * currVol.xyzLim;
 set(handles.brainAx,'XLim',xyzLim,'YLim',xyzLim,'ZLim',xyzLim);
 
-% set the camera position
-% using x - hor. right, z - ver. up, y - depth into screen
-% camera target (0,0,0) (centroid), want to 'pull back' on y to show scene
-% camDist = (0.8*(2*currVol.xyzLim))/2 / tand(45/2);
-set(handles.brainAx,'CameraPosition',[0,-2.5*currVol.xyzLim,0],'CameraTarget',[0,0,0],...
-    'CameraUpVector',[0,0,1],'CameraViewAngle',45);
+% set the camera position to default
+set(handles.brainAx,currVol.cam.NA,currVol.cam.VA_def);
+handles.xForm.Matrix = qRotMat(currVol.cam.q_def);
+
+% make sure camCont is in 'reset' state
+camCont.mMoved = false;
+camCont.clPatch = false;
+camCont.qForm = currVol.cam.q_def;
 
 % display it
 set(handles.brainPatch,...
@@ -54,7 +55,7 @@ set(handles.brainPatch,...
     'visible','on');
 
 % set lights on
-light_d2m = sqrt(3)/3 * abs(handles.brainAx.CameraPosition(2));
+light_d2m = atand(30) * abs(handles.brainAx.CameraPosition(2));
 handles.llLight.Position = [-light_d2m, -2.5*currVol.xyzLim, -light_d2m];
 handles.lrLight.Position = [ light_d2m, -2.5*currVol.xyzLim, -light_d2m];
 handles.ulLight.Position = [-light_d2m, -2.5*currVol.xyzLim,  light_d2m];
@@ -65,10 +66,8 @@ handles.aLights.Visible = 'on';
 drawnow;
 
 % set default view and initialise callbacks
-camCont.setDefState;
-handles.brainAx.ButtonDownFcn    = @camCont.bDownFcn;
-handles.brainPatch.ButtonDownFcn = @camCont.bDownFcn;
-camCont.clickFn = @(~,ip) disp(ip);
+handles.brainAx.ButtonDownFcn    = @cam_bDownFcn;
+handles.brainPatch.ButtonDownFcn = @cam_bDownFcn;
 
 % add it to pop up menu
 handles.selSurf.String = allVol.vNames;
@@ -76,5 +75,6 @@ handles.selSurf.Value =  allVol.cVol;
 
 % save out updated data
 setappdata(f_h,'currVol',currVol); 
+setappdata(f_h,'camCont',camCont); 
 
 end
