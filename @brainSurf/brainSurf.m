@@ -26,6 +26,16 @@ classdef brainSurf < handle
     
     % =====================================================================
 
+    properties
+        
+        % structure with camera properties:
+        % NA - name array for corresponding value arrays
+        % VA_def/q_def - value array and quaternion for default view
+        % VA_cur/q_cur - value array and quaternion for current view
+        cam = struct('NA',{},'VA_def',{},'VA_cur',{},'q_def',[],'q_cur',[]);
+        
+    end
+    
     properties (SetAccess = private) % visible (but not *set*able) outside class
         
         % -------------------------------------------------------------
@@ -59,17 +69,11 @@ classdef brainSurf < handle
         
         % max xyz limited needed for plotting
         xyzLim
-        
-        % structure with camera properties:
-        % NA - name array for corresponding value arrays
-        % VA_def/q_def - value array and quaternion for default view
-        % VA_cur/q_cur - value array and quaternion for current view
-        cam = struct('NA',{},'VA_def',{},'VA_cur',{},'q_def',[],'q_cur',[]);
-            
+
         % additional structure for saved views
         viewStore = struct('name','','VA_cur',{});
-        viewNames     % cell array of all views saved
         nViews    = 0 % number of saved views
+        viewNames     % cell array of all views saved
         
     end
     
@@ -141,8 +145,8 @@ classdef brainSurf < handle
             
             % initialise cam
             obj.cam(1).NA = {'CameraPosition','CameraTarget','CameraViewAngle','CameraUpVector'};
-            obj.cam(1).VA_def = {[],zeros(1,3,'single'),single(45),single([0,0,1])};
-            obj.cam(1).VA_cur = {[],zeros(1,3,'single'),single(45),single([0,0,1])};
+            obj.cam(1).VA_def = {[],zeros(1,3,'single'),single(10),single([0,0,1])};
+            obj.cam(1).VA_cur = {[],zeros(1,3,'single'),single(10),single([0,0,1])};
             obj.cam(1).q_def  = [1,0,0,0];
             obj.cam(1).q_cur  = [1,0,0,0];
             

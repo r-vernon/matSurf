@@ -49,7 +49,7 @@ obj.xyzLim = ceil(max(abs(vert(:)))) + 1;
 % using x - hor. right, z - ver. up, y - depth into screen
 % camera target (0,0,0) (centroid), want to 'pull back' on y to show scene
 %}
-obj.cam.VA_def{1} = single([0,-2.5*obj.xyzLim,0]);
+obj.cam.VA_def{1} = single([0,-10*obj.xyzLim,0]);
 obj.cam.VA_cur{1} = obj.cam.VA_def{1}; % current = default at start...
 
 %--------------------------------------------------------------------------

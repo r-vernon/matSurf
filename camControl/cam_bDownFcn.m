@@ -1,5 +1,5 @@
 function cam_bDownFcn(src,event)
-% function called when patch or axis button down callback triggered
+% function called when patch, panel or axis button down callback triggered
 
 % get data
 f_h = getFigHandle(src);

@@ -446,7 +446,7 @@ for currHandle = 1:length(allHandles)
     catch % handle doesn't have units property so can't set
     end
     try handles.(allHandles{currHandle}).Interruptible = 'off';
-    catch % handle doesn't have Interruptible property so can't set
+    catch % handle doesn't have interruptible property so can't set
     end
 end
 
