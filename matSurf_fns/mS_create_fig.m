@@ -123,13 +123,13 @@ panLeft = axLength + 2*panSp;
 calcHeight = @(nVItems) (nVItems*butHeight) + (nVItems*butSp) + panSp;
 
 % Mode panel
-nVItems.mode = 3; 
+nVItems.mode = 2; 
 panHeight = calcHeight(nVItems.mode);
 panBottom = figSize.h - panSp - panHeight;
 panPos.mode = [panLeft,panBottom,panWidth,panHeight];
 
 % surface panel
-nVItems.surf = 2;
+nVItems.surf = 3;
 panHeight = calcHeight(nVItems.surf);
 panBottom = panBottom - panSp - panHeight;
 panPos.surf = [panLeft,panBottom,panWidth,panHeight];
@@ -146,12 +146,6 @@ panHeight = calcHeight(nVItems.ROI);
 panBottom = panBottom - panSp - panHeight;
 panPos.ROI = [panLeft,panBottom,panWidth,panHeight];
 
-% Cam panel
-nVItems.cam = 3; 
-panHeight = calcHeight(nVItems.cam);
-panBottom = panBottom - panSp - panHeight;
-panPos.cam = [panLeft,panBottom,panWidth,panHeight];
-
 % axis panel 
 % - different spacings to rest, 2 padding around axis so axis fits inside
 panPos.axis = [panSp-2, panSp-2, axLength+4, axLength+4];
@@ -167,6 +161,10 @@ panPos.axis = [panSp-2, panSp-2, axLength+4, axLength+4];
 handles.axisPanel = uipanel(figHandle,panelDef.name,panelDef.value);
 set(handles.axisPanel,'Tag','axisPanel','Position',panPos.axis);
 
+% mode panel
+handles.modePanel = uipanel(figHandle,panelDef.name,panelDef.value);
+set(handles.modePanel,'Tag','modePanel','Title','Mode','Position',panPos.mode);
+
 % surface panel
 handles.surfPanel = uipanel(figHandle,panelDef.name,panelDef.value);
 set(handles.surfPanel,'Tag','surfPanel','Title','Surface','Position',panPos.surf);
@@ -179,13 +177,7 @@ set(handles.dataPanel,'Tag','dataPanel','Title','Data','Position',panPos.data);
 handles.roiPanel = uipanel(figHandle,panelDef.name,panelDef.value);
 set(handles.roiPanel,'Tag','roiPanel','Title','ROI','Position',panPos.ROI);
 
-% camera panel
-handles.camPanel = uipanel(figHandle,panelDef.name,panelDef.value);
-set(handles.camPanel,'Tag','camPanel','Title','Camera','Position',panPos.cam);
 
-% mode panel
-handles.modePanel = uipanel(figHandle,panelDef.name,panelDef.value);
-set(handles.modePanel,'Tag','modePanel','Title','Mode','Position',panPos.mode);
 
 %% ========================================================================
 
@@ -213,32 +205,32 @@ handles.brainAx = axes(handles.axisPanel,'Tag','brainAx',...
 handles.xForm = hgtransform('Parent',handles.brainAx,'Tag','xForm');
 
 % create corresponding patch with default properties for now
-handles.brainPatch = patch(handles.brainAx,'Tag','brainPatch',...
+handles.brainPatch = patch(handles.xForm,'Tag','brainPatch',...
     'facecolor', 'interp','edgecolor','none','MarkerEdgeColor','none',...
-    'FaceLighting','gouraud','BackFaceLighting','unlit',...
-    'AmbientStrength',0.15,'DiffuseStrength',0.45,...
-    'SpecularStrength',0,'SpecularExponent',10,...
-    'Parent',handles.xForm,'visible','off');
+    'FaceLighting','gouraud','BackFaceLighting','lit',...
+    'AmbientStrength',0.6,'DiffuseStrength',0.15,...
+    'SpecularStrength',0.1,'SpecularExponent',25,...
+    'visible','off');
 
 % create corresponding line for ROI plots -  'PickableParts' particularly
 % important, setting to 'none' means can't be clicked
 % [NOTE: limitation of line is all ROIs are same colour, possibly switch to
 %  making patch object if want different coloured ROIs at cost of memory]
-handles.brainROI = line(handles.brainAx,'Tag','brainROI','Parent',handles.xForm ,...
+handles.brainROI = line(handles.xForm,'Tag','brainROI',...
     'Color','black','MarkerFaceColor','black',...
     'Marker','o','MarkerSize',3,'PickableParts','none',...
     'LineStyle','-','LineWidth',3,'visible','off');
 
 % create lights
 handles.aLights = hggroup(handles.brainAx,'Visible','off');
-handles.llLight = light('Style','infinite','Tag','llLight',...
-    'Color',[0.5,0.5,0.5],'Parent',handles.aLights);
-handles.lrLight = light('Style','infinite','Tag','lrLight',...
-    'Color',[0.5,0.5,0.5],'Parent',handles.aLights);
-handles.ulLight = light('Style','infinite','Tag','ulLight',...
-    'Color',[0.5,0.5,0.5],'Parent',handles.aLights);
-handles.urLight = light('Style','infinite','Tag','urLight',...
-    'Color',[0.5,0.5,0.5],'Parent',handles.aLights);
+handles.llLight = light('Style','local','Tag','llLight',...
+    'Color',[1,1,1],'Parent',handles.aLights);
+handles.lrLight = light('Style','local','Tag','lrLight',...
+    'Color',[1,1,1],'Parent',handles.aLights);
+handles.ulLight = light('Style','local','Tag','ulLight',...
+    'Color',[1,1,1],'Parent',handles.aLights);
+handles.urLight = light('Style','local','Tag','urLight',...
+    'Color',[1,1,1],'Parent',handles.aLights);
 
 %% ========================================================================
 
@@ -267,14 +259,6 @@ h_LPos2 = f_LPos + h_butWidth + f_LPos/2;
 
 % set current height
 currH = (nVItems.mode * butSp) + ((nVItems.mode-1) * butHeight);
-
-% Camera mode button
-handles.camMode = uicontrol(handles.modePanel,'Style','radiobutton',...
-    'String','Camera Mode','Tag','camMode',...
-    'Position',[f_LPos,currH,f_butWidth,butHeight]); 
-
-% update current height
-currH = currH - (butHeight + butSp);  
 
 %  Data mode button
 handles.dataMode = uicontrol(handles.modePanel,'Style','radiobutton',...
@@ -315,6 +299,14 @@ currH = currH - (butHeight + butSp);
 % select surface menu
 handles.selSurf = uicontrol(handles.surfPanel,'Style','popupmenu',...
     'String','Select Surface','Tag','selSurf',...
+    'Position',[f_LPos,currH,f_butWidth,butHeight]);
+
+% update current height
+currH = currH - (butHeight + butSp);  
+
+% reset camera button
+handles.resCam = uicontrol(handles.surfPanel,'Style','pushbutton',...
+    'String','Reset Camera','Tag','resCam',...
     'Position',[f_LPos,currH,f_butWidth,butHeight]);
 
 %% ========================================================================
@@ -423,43 +415,6 @@ handles.togROI = uicontrol(handles.roiPanel,'Style','checkbox',...
 
 %% ========================================================================
 
-%  ---------------------- CAMERA BUTTONS ----------------------------------
-
-%  ========================================================================
-
-% create camera buttons
-
-% set current height
-currH = (nVItems.cam * butSp) + ((nVItems.cam-1) * butHeight);
-
-% rotate camera button
-handles.rotCam = uicontrol(handles.camPanel,'Style','radiobutton',...
-    'String','Rot.','Tag','rotCam',...
-    'Position',[h_LPos1,currH,h_butWidth,butHeight]); 
-
-% pan camera button
-handles.panCam = uicontrol(handles.camPanel,'Style','radiobutton',...
-    'String','Pan','Tag','panCam',...
-    'Position',[h_LPos2,currH,h_butWidth,butHeight]);
-
-% update current height
-currH = currH - (butHeight + butSp);  
-
-% zoom camera button
-handles.zoomCam = uicontrol(handles.camPanel,'Style','radiobutton',...
-    'String','Zoom','Tag','zoomCam',...
-    'Position',[f_LPos,currH,f_butWidth,butHeight]);
-
-% update current height
-currH = currH - (butHeight + butSp);  
-
-% reset camera button
-handles.resCam = uicontrol(handles.camPanel,'Style','pushbutton',...
-    'String','Reset Camera','Tag','resCam',...
-    'Position',[f_LPos,currH,f_butWidth,butHeight]);
-
-%% ========================================================================
-
 %  ---------------------- POINTER MANAGER ---------------------------------
 
 %  ========================================================================
@@ -485,12 +440,13 @@ iptPointerManager(figHandle);
 % grab all handles
 allHandles = fieldnames(handles);
 
-% set all units to 'normalized' to allow resizing
+% set all units to 'normalized' to allow resizing and non-interruptible
 for currHandle = 1:length(allHandles)
-    try
-        handles.(allHandles{currHandle}).Units = 'normalized';
-    catch
-        % handle doesn't have units property so can't set
+    try handles.(allHandles{currHandle}).Units = 'normalized';
+    catch % handle doesn't have units property so can't set
+    end
+    try handles.(allHandles{currHandle}).Interruptible = 'off';
+    catch % handle doesn't have Interruptible property so can't set
     end
 end
 

@@ -11,7 +11,7 @@ cTime = clock;
 
 % calculate distance moved (dWH - delta width, height)
 dWH = zeros(1,3);
-dWH([1,3]) = (mPos2 - camCont.mPos1)./camCont.figSize;
+dWH([1,3]) = (mPos2 - camCont.mPos1)./src.Position(3:4);
 
 % make sure we've moved reasonable amount...
 % (doing this before scaling so don't magnify false +ves)

@@ -30,12 +30,11 @@ clPatch - true if click came from patch
 ip      - intersection point between click/patch if clicked patch
 qForm   - rotation matrix in quaternion form
 tStmp   - time stamp of button down
-figSize - size of figure (should be normalised units)
 fRate   - frame rate limit of camera
 %}
 camCont = struct(...
-    'mSens',[1.5,1.0,1.0],'mState','','mPos1',[],'mMoved',false,...
-    'clPatch',false,'ip',[],'qForm',[],'tStmp',[],'figSize',[],'fRate',1/24);
+    'mSens',[1.5,1.5,1.0],'mState','','mPos1',[],'mMoved',false,...
+    'clPatch',false,'ip',[],'qForm',[],'tStmp',[],'fRate',1/24);
 setappdata(f_h,'camCont',camCont);
 
 % show the figure

@@ -34,14 +34,24 @@ switch camCont.mState(1)
             camCont.clPatch = false;            
         end
         
-        % get mouse pos on 'sphere'
-        camCont.mPos1 = cam_getCurrPos(handles.brainAx,handles.brainAx.XLim(2)); 
+        % get current panel size
+        pSize = handles.axisPanel.Position;
+        
+        % get mouse pos on 'sphere' covering panel, radius 1
+        % (currPnt - min(panelSz))/0.5*range(panelSz) - 1
+        % if panel 0.25-1.0 and pnt 0.5, (0.5-0.25)/0.375 -1 = -1/3
+        camCont.mPos1 = zeros(1,3);
+        camCont.mPos1([1,3]) = (f_h.CurrentPoint-pSize(1:2))./(0.5*pSize(3:4)) - 1;
+        
+        % if mPos1 within circle (<=1), get depth from basic pythag., otherwise set to 0
+        currPos_SSq = sum(camCont.mPos1.^2);
+        if currPos_SSq <= 1, camCont.mPos1(2) = -sqrt(1-currPos_SSq); end
+
         f_h.WindowButtonMotionFcn = @cam_mMoveFcn_rot;
         
     case 'e' % extend, pan
         
         camCont.mPos1 =   f_h.CurrentPoint;  % get mouse pos on figure
-        camCont.figSize = f_h.Position(3:4); % get current figure size
         f_h.WindowButtonMotionFcn = @cam_mMoveFcn_pan;
         
     otherwise % alt, do nothing

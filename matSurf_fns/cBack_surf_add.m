@@ -55,17 +55,19 @@ set(handles.brainPatch,...
     'visible','on');
 
 % set lights on
-light_d2m = atand(30) * abs(handles.brainAx.CameraPosition(2));
-handles.llLight.Position = [-light_d2m, -2.5*currVol.xyzLim, -light_d2m];
-handles.lrLight.Position = [ light_d2m, -2.5*currVol.xyzLim, -light_d2m];
-handles.ulLight.Position = [-light_d2m, -2.5*currVol.xyzLim,  light_d2m];
-handles.urLight.Position = [ light_d2m, -2.5*currVol.xyzLim,  light_d2m];
+lPos = handles.brainAx.XLim(2);
+lPos = [lPos/2,-2*lPos,lPos/2];
+handles.llLight.Position = [-lPos(1), lPos(2), -lPos(3)];
+handles.ulLight.Position = [-lPos(1), lPos(2),  lPos(3)];
+handles.lrLight.Position = [ lPos(1), lPos(2), -lPos(3)];
+handles.urLight.Position = [ lPos(1), lPos(2),  lPos(3)];
 handles.aLights.Visible = 'on';
 
 % draw it
 drawnow;
 
 % set default view and initialise callbacks
+handles.axisPanel.ButtonDownFcn  = @cam_bDownFcn;
 handles.brainAx.ButtonDownFcn    = @cam_bDownFcn;
 handles.brainPatch.ButtonDownFcn = @cam_bDownFcn;
 
