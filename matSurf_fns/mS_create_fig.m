@@ -189,7 +189,7 @@ set(handles.roiPanel,'Tag','roiPanel','Title','ROI','Position',panPos.ROI);
 % Data and PlotBox AspectRatioMode stops axis reshaping when moving camera
 % Setting [XYZ]Color and Color to 'none' means the axis won't be visible
 % Setting all camera modes to manual for custom control
-% Setting cameraUpVector to z up (so x hor. and y depth)
+% Setting HitTest off, so mouse clicked passed to panel ancestor
 % Setting NextPlot to 'add' is like 'hold on'
 
 handles.brainAx = axes(handles.axisPanel,'Tag','brainAx',...
@@ -199,7 +199,7 @@ handles.brainAx = axes(handles.axisPanel,'Tag','brainAx',...
     'XColor','none','YColor','none','ZColor','none','Color','none',...
     'CameraPositionMode','manual','CameraTargetMode','manual',...
     'CameraUpVectorMode','manual','CameraViewAngleMode','manual',...
-    'NextPlot','add');
+    'HitTest','off','NextPlot','add');
 
 % create transform object so can rotate patch
 handles.xForm = hgtransform('Parent',handles.brainAx,'Tag','xForm');

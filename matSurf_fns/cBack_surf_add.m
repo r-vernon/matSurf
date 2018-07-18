@@ -69,7 +69,6 @@ drawnow;
 % set default view and initialise callbacks
 handles.matSurfFig.WindowScrollWheelFcn = @cam_scrollWhFn;
 handles.axisPanel.ButtonDownFcn  = @cam_bDownFcn;
-handles.brainAx.ButtonDownFcn    = @cam_bDownFcn;
 handles.brainPatch.ButtonDownFcn = @cam_bDownFcn;
 
 % add it to pop up menu and update title
