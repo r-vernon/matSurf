@@ -32,7 +32,7 @@ end
 % calculate additional things from surface and return
 
 % count number of vertices
-obj.nVert = single(size(vert,1));
+obj.nVert = size(vert,1);
 
 % calculate centroid, then centre volume on it so centroid = origin (0,0,0)
 obj.calcCentroid(vert);
@@ -49,7 +49,7 @@ obj.xyzLim = ceil(max(abs(vert(:)))) + 1;
 % using x - hor. right, z - ver. up, y - depth into screen
 % camera target (0,0,0) (centroid), want to 'pull back' on y to show scene
 %}
-obj.cam.VA_def{1} = single([0,-10*obj.xyzLim,0]);
+obj.cam.VA_def{1} = [0,-10*obj.xyzLim,0];
 obj.cam.VA_cur{1} = obj.cam.VA_def{1}; % current = default at start...
 
 %--------------------------------------------------------------------------
@@ -70,7 +70,7 @@ dist2add = 0;
 vertNorm = vertexNormal(obj.TR);
 
 % calculate set of points ROIs will be plotted over
-obj.ROIpts = single(bsxfun(@minus,vert,dist2add*vertNorm));
+obj.ROIpts = bsxfun(@minus,vert,dist2add*vertNorm);
 
 % append a nan at very end, so can index it to show line finished
 obj.ROIpts(obj.nVert+1,:) = nan;

@@ -92,7 +92,6 @@ classdef camControl < handle
             obj.t_h.Matrix = obj.qRotMat(obj.qForm1);
             
             setStatusTxt('camera reset');
-            drawnow;
             
         end
         
@@ -249,10 +248,7 @@ classdef camControl < handle
             obj.mMoved = false;
             obj.f_h.WindowButtonMotionFcn = '';
             obj.f_h.WindowButtonUpFcn     = '';
-            
-            % make sure everything is up to date...
-            drawnow;
-            
+
         end
         
     end % hidden methods

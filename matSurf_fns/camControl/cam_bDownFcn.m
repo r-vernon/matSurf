@@ -4,6 +4,7 @@ function cam_bDownFcn(src,event)
 % get data
 f_h = getFigHandle(src);
 camCont = getappdata(f_h,'camCont');
+currVol = getappdata(f_h,'currVol');
 handles = getappdata(f_h,'handles');
 
 % get state of mouse at click
@@ -27,7 +28,7 @@ switch camCont.mState(1)
             % but actually want inv. rotmat, so doing inv(r)*q*r...
             inv_qForm = [camCont.qForm(1),-camCont.qForm(2:4)];
             ip = qMul(inv_qForm,qMul([0,event.IntersectionPoint],camCont.qForm));
-            camCont.ip = ip(2:4);        
+            camCont.ip = nearestNeighbor(currVol.TR,ip(2:4));        
             
         else            
             % axis click

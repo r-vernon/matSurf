@@ -41,7 +41,7 @@ if isnumeric(ovrlay) % if provided as index
         return
     else
         % seems to be valid!
-        ovrlayInd = uint32(ovrlay);
+        ovrlayInd = ovrlay;
     end
     
     %----------------------------------------------------------------------

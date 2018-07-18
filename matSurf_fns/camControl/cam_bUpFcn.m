@@ -25,25 +25,21 @@ if camCont.mMoved
     handles = getappdata(src,'handles');
 
     % update current camera view in volume
-    currVol.cam_setCurr(...
-        'CameraPosition',handles.brainAx.CameraPosition,...
-        'CameraTarget',handles.brainAx.CameraTarget,...
-        'CameraViewAngle',handles.brainAx.CameraViewAngle,...
-        'quat',camCont.qForm);
+    currVol.VA_cur(1:3) = {...
+        handles.brainAx.CameraPosition,...
+        handles.brainAx.CameraTarget,...
+        handles.brainAx.CameraViewAngle};
+    currVol.q_cur = camCont.qForm;
     
     % reset status and update appdata
     camCont.mMoved = false;
     setappdata(src,'camCont',camCont);
     
-    % make sure everything is up to date...
-    drawnow;
-    
 elseif camCont.clPatch
+    
     % no movement so if click was on patch, send intersection point for
     % processing
-    
-    % (for now just displaying IP)
-    disp(camCont.ip);
+    cBack_mode_mouseEvnt(src,camCont.ip);
     
 end
 

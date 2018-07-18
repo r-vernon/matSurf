@@ -45,7 +45,7 @@ if finalPt
     % if final point, set selected vertex to first vertex
     vInd = obj.ROIs(ind).selVert(1);
 else
-    vInd = single(nearestNeighbor(obj.TR,ptClicked));
+    vInd = nearestNeighbor(obj.TR,ptClicked);
 end
 
 % get start positions for new vertices in line and marker indices
@@ -66,9 +66,9 @@ if newROI
 
     % preallocate space for all/selected vertices
     % (will shrink when ROI finished)
-    allV = zeros(1e5,1,'single');
+    allV = zeros(1e5,1);
     allV(1) = vInd;
-    selV = zeros(100,1,'single');
+    selV = zeros(100,1);
     selV(1) = vInd;
 
     %-------------------
@@ -123,7 +123,7 @@ else
     % get path to new point
     
     inc = 1e4; % no single path should be > 10,000 elements!
-    sPath = zeros(inc,1,'uint32');
+    sPath = zeros(inc,1);
     sPath(inc) = vInd;
     while obj.ROI_sPaths(sPath(inc))~= 0
         inc = inc - 1;

@@ -42,11 +42,11 @@ if ~isempty(cLim)
 end
 dataVals = setRange(dataVals,[0,1]);
 
-% grab color values to return (forcing single)
-colVals = single(interp1(...
+% grab color values to return
+colVals = interp1(...
     obj.x,...
     obj.colMaps(cmapInd).cmap,...
-    dataVals));
+    dataVals);
 
 % reshape to original dimensions
 colVals = reshape(colVals,[dataDim,3]);

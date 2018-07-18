@@ -77,7 +77,7 @@ if ischar(newOvrlay) % provided a path to the new overlay
     % can we load it...?
     try
         newOvrlay = MRIread(newOvrlay);
-        newOvrlay = single(newOvrlay.vol(:));
+        newOvrlay = newOvrlay.vol(:);
     catch ME
         warning('Could not read overlay, no overlay added');
         fprintf('Path provided was: [%s]\n',newOvrlay);
@@ -88,7 +88,7 @@ if ischar(newOvrlay) % provided a path to the new overlay
 else % sent data in directly
     
     try
-        newOvrlay = single(newOvrlay(:));
+        newOvrlay = newOvrlay(:);
     catch ME
         warning('Could not load overlay, no overlay added');
         fprintf('Data provided was: \n'); 

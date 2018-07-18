@@ -6,7 +6,6 @@ if nargin < 3, force = false; end
 
 if force || handles.togData.Value == 1
     handles.brainPatch.FaceVertexCData = currVol.currOvrlay.colData;
-    drawnow;
 end
 
 end

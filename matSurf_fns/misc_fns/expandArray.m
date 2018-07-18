@@ -53,9 +53,9 @@ amntAvail = length(currArray);
 
 if (amntUsed + num2Add) > (fillThr * amntAvail)
     if iscolumn(currArray)
-        currArray = [currArray ; zeros(baseSize,1,'single')];
+        currArray = [currArray ; zeros(baseSize,1)];
     else
-        currArray = [currArray , zeros(1,baseSize,'single')];
+        currArray = [currArray , zeros(1,baseSize)];
     end
     sizeInc = true;
 end

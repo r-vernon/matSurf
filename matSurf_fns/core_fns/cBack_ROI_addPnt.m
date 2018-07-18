@@ -58,6 +58,4 @@ else
     handles.addROI.String = 'Cont';
 end
 
-drawnow;
-
 end

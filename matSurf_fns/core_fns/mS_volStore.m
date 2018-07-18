@@ -64,7 +64,7 @@ classdef mS_volStore < handle
                 return
             end
             
-            ind = uint32(ind);              % make sure integer
+            ind = round(ind);               % make sure integer
             obj.vol(ind) = [];              % delete brainSurf class in vol
             obj.vNames(ind) = [];           % delete corresponding name
             obj.nVol = obj.nVol - 1;        % dec. num volumes

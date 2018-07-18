@@ -9,7 +9,7 @@ function [txtSize] = measureTxtSize(txt,FontName,FontSize)
 
 % preallocate outputs in case return early
 numTxt  = 1;
-txtSize = nan(numTxt,2,'single');
+txtSize = nan(numTxt,2);
 
 %--------------------------------------------------------------------------
 % parse inputs
@@ -50,7 +50,7 @@ if iscell(txt)
     else
         % save number to process and preallocate txtSize with new size
         numTxt = length(txt);
-        txtSize = zeros(numTxt,2,'single');
+        txtSize = zeros(numTxt,2);
     end
 
 elseif ~ischar(txt)

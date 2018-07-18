@@ -38,9 +38,11 @@ camCont = struct(...
     'clPatch',false,'ip',[],'qForm',[],'tStmp',clock,'fRate',1/60);
 setappdata(f_h,'camCont',camCont);
 
+% set marker size preferences (length, radius)
+setappdata(f_h,'markSize',[5,1]);
+
 % show the figure
 f_h.Visible = 'on';
-drawnow;
 
 % =========================================================================
 % surface button callbacks

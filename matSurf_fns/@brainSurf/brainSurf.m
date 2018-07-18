@@ -28,11 +28,9 @@ classdef brainSurf < handle
 
     properties
         
-        % structure with camera properties:
-        % NA - name array for corresponding value arrays
-        % VA_def/q_def - value array and quaternion for default view
-        % VA_cur/q_cur - value array and quaternion for current view
-        cam = struct('NA',{},'VA_def',{},'VA_cur',{},'q_def',[],'q_cur',[]);
+        % stores for current camera view, see cam in properties below
+        VA_cur = {}
+        q_cur
         
     end
     
@@ -74,6 +72,14 @@ classdef brainSurf < handle
         viewStore = struct('name','','VA_cur',{});
         nViews    = 0 % number of saved views
         viewNames     % cell array of all views saved
+        
+        % structure with camera properties:
+        % NA - name array for corresponding value arrays
+        % VA_def/q_def - value array and quaternion for default view
+        %
+        % VA_cur/q_cur - value array and quaternion for current view
+        %                these stored as settable properties above
+        cam = struct('NA',{},'VA_def',{},'q_def',[]);
         
     end
     
@@ -117,8 +123,8 @@ classdef brainSurf < handle
         % lineInd - array with vertices for all ROIs, delimited by index 
         %           to 'NaN' in ROIpts
         % markInd - stores manually clicked points to mark with marker
-        ROI_lineInd = zeros(1e5,1,'single') % single to allow NaNs
-        ROI_markInd = zeros(1e3,1,'single')
+        ROI_lineInd = zeros(1e5,1)
+        ROI_markInd = zeros(1e3,1)
         
         % Shortest path data for all vertices to clicked vertex
         ROI_sPaths
@@ -145,10 +151,10 @@ classdef brainSurf < handle
             
             % initialise cam
             obj.cam(1).NA = {'CameraPosition','CameraTarget','CameraViewAngle','CameraUpVector'};
-            obj.cam(1).VA_def = {[],zeros(1,3,'single'),single(10),single([0,0,1])};
-            obj.cam(1).VA_cur = {[],zeros(1,3,'single'),single(10),single([0,0,1])};
+            obj.cam(1).VA_def = {[],zeros(1,3),10,[0,0,1]};
             obj.cam(1).q_def  = [1,0,0,0];
-            obj.cam(1).q_cur  = [1,0,0,0];
+            obj.VA_cur = {[],zeros(1,3),10,[0,0,1]};
+            obj.q_cur  = [1,0,0,0];
             
         end
         
@@ -210,13 +216,9 @@ classdef brainSurf < handle
         % =================================================================
         % camera functions
         
-        cam_setCurr(obj,varargin)
-        % function to set current camera view
-        % sets cam
-        
         cam_reset(obj)
         % resets camera to default state
-        % sets cam
+        % sets VA_cur, q_cur
         
     end
     

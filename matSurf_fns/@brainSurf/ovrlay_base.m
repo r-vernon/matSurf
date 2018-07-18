@@ -36,7 +36,7 @@ if numel(gyrusCol)==1, gyrusCol = repmat(gyrusCol,1,3); end
 
 % corresponding curvature information (casting to single for memory purposes)
 try
-    curv = single(read_curv(obj.surfDet.curvPath));
+    curv = read_curv(obj.surfDet.curvPath);
 catch ME
     fprintf('Could not load curvature information\n(%s)\n',...
         obj.surfDet.curvPath);
@@ -50,7 +50,7 @@ curveGtrZero = curv > 0;
 
 % create base overlay colors, setting all to gyrus colors for now and
 % forcing single for memory purposes
-baseCol = single(repmat(gyrusCol,obj.nVert,1));
+baseCol = repmat(gyrusCol,obj.nVert,1);
 
 % now set sulcus colors for each channel
 for rgb = 1:3
@@ -66,7 +66,7 @@ end
 obj.baseOvrlay.name = 'base';
 obj.baseOvrlay.data = curv;
 obj.baseOvrlay.colData = baseCol;
-obj.baseOvrlay.mask = ones(obj.nVert,1,'single');
+obj.baseOvrlay.mask = ones(obj.nVert,1);
 
 % also set current overlay as will be base at start
 obj.currOvrlay = obj.baseOvrlay;

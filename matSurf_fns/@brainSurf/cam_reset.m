@@ -1,9 +1,10 @@
 function cam_reset(obj)
-% resets camera to default state
+% resets current camera view to default state
 %
-% (set.) cam, sets VA_cur to VA_def, and q_cur to q_def
+% (set.) VA_cur, sets current value array to default value array
+% (set.) q_cur,  sets current quaternion to default quaternion
 
-obj.cam.VA_cur = obj.cam.VA_def;
-obj.cam.q_cur  = obj.cam.q_cur;
+obj.VA_cur = obj.cam.VA_def;
+obj.q_cur  = obj.cam.q_cur;
 
 end

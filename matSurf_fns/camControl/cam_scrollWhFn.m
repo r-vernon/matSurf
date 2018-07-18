@@ -36,6 +36,6 @@ newVA = normcdf(newVA,10,10/3)*16 +2;
 handles.brainAx.CameraViewAngle = newVA;
 
 % update current camera view in volume
-currVol.cam.VA_cur{3} = newVA;
+currVol.VA_cur{3} = newVA;
 
 end

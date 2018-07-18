@@ -74,7 +74,6 @@ end
 % set the status text
 statTxt.String = txt;
 statTxt.ForegroundColor = strCol;
-drawnow;
 
 % if showing in workspace, print there too
 if showWS

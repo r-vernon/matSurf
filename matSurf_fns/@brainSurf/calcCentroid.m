@@ -9,7 +9,7 @@ function calcCentroid(obj,vert)
 vert = [vert;mean(vert)];
 
 % split the volume into tetrahedrons (pyramids)
-T = uint32(delaunay(vert));
+T = delaunay(vert);
 
 % calculate centroids of each tetrahedron
 centroids = [...

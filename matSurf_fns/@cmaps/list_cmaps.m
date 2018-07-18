@@ -81,7 +81,6 @@ if disp_cmaps % if displaying the colormaps as well
     % show the figure
     movegui(tmpFig,'center');
     tmpFig.Visible = 'on';
-    drawnow();
     
 end
 

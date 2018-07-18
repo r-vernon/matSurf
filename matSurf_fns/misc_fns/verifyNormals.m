@@ -1,7 +1,10 @@
-function verifyNormals(TR)
+function verifyNormals(TR,dontTrim)
 % function to verify that vertex and face normals face right way
 %
 % (req.) TR, triangulation to get normals from
+% (opt.) dontTrim, if true, won't reduce number of vertices/faces
+
+if nargin < 2, dontTrim = false; end
 
 % grab the data to check
 V = vertexNormal(TR); % vertex normals
@@ -9,8 +12,13 @@ P = incenter(TR);     % center of each face
 F = faceNormal(TR);   % face normals
 
 % reduce number of vertices/faces to plot
-nV = uint32(linspace(1,length(V),1e4/2));
-nF = uint32(linspace(1,length(F),1e4/2));
+if dontTrim
+    nV = 1:length(V);
+    nF = 1:length(F);
+else
+    nV = round(linspace(1,length(V),1e4/2));
+    nF = round(linspace(1,length(F),1e4/2));
+end
 
 % open up a new figure and show camera toolbar
 figure;
@@ -18,7 +26,7 @@ cameratoolbar;
 
 % create a patch opject, white face, no vertices shown
 patch('faces',TR.ConnectivityList,'vertices',TR.Points,...
-    'FaceColor',[0.8,0.8,0.8],'EdgeColor','none','FaceAlpha',0.6);
+    'FaceColor',[0.8,0.8,0.8],'EdgeColor','black','FaceAlpha',0.6);
 
 % grab the axis and lock its aspect ratio, plus set hold on
 ax = gca;

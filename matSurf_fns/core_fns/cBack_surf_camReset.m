@@ -21,6 +21,5 @@ camCont.qForm = currVol.cam.q_def;
 setappdata(f_h,'camCont',camCont);
 
 setStatusTxt('camera reset');
-drawnow;
 
 end

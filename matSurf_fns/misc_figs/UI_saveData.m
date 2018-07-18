@@ -180,7 +180,6 @@ movegui(saveDataFig,'center');
 
 % make visible
 saveDataFig.Visible = 'on';
-drawnow;
 
 % =========================================================================
 
@@ -262,7 +261,7 @@ drawnow;
             % create dialogue box allowing user to  select var
             [selVar,didSel] = listdlg('ListString',varList,...
                 'PromptString','Select variable to replace:',...
-                'ListSize',[175,300],'SelectionMode','single');
+                'ListSize',[175,300],'SelectionMode');
             
             % if selected a variable...
             if didSel && ~isempty(baseVar)
@@ -425,8 +424,7 @@ drawnow;
         
         % update save button (enable - on/off)
         saveBut.Enable = butOpt{butVal(3)};
-        
-        drawnow;
+
     end
 
 end
