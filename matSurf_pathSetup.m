@@ -5,9 +5,6 @@ function matSurf_pathSetup(baseDir)
 
 if nargin == 0, baseDir = pwd; end
 
-allPaths = {};
-pathsToAdd = '';
-
 %----------------------------------------------------
 % first work out where the FreeSurfer directory is...
 
@@ -28,6 +25,12 @@ if isempty(fsPaths)
     fsPaths{1} = input('Enter path to FreeSurfer matlab dir\n','s');
 end
 
+% add to path, if it isn't already
+if ~contains(path,fsPaths{1})
+    addpath(fsPaths{1});
+    fprintf('\nAdded %s to Matlab path\n',fsPaths{1});
+end
+
 % also just make sure TMPDIR set appropriately for FreeSurfer
 % (on my work machine, TMPDIR will default to somewhere without write
 % access so causes error)
@@ -35,27 +38,13 @@ if isempty(getenv('TMPDIR'))
     setenv('TMPDIR','/tmp'); 
 end
 
-%---------------------------------------
-% add all remaining paths to matlab path
+%-------------------------------
+% add matSurf fns to matlab path
 
-% create cell of all required paths
-allPaths{1} = [fsPaths{1},              pathsep]; % FreeSurfer matlab dir
-allPaths{2} = [baseDir, '/matSurf_fns', pathsep]; % matSurf callback fns
-allPaths{3} = [baseDir, '/camControl',  pathsep]; % camera control fns
-allPaths{4} = [baseDir, '/misc_figs',   pathsep]; % misc. figures
-allPaths{5} = [baseDir, '/misc_fns',    pathsep]; % misc. functions
-
-% work out which paths need adding
-for currPath = 1:length(allPaths)
-    if ~contains(path,allPaths{currPath})
-        pathsToAdd = strcat(pathsToAdd,allPaths{currPath});
-    end
-end
-
-% add them (doing all in one go should be faster than individually)
-if ~isempty(pathsToAdd)
-    addpath(pathsToAdd);
-    fprintf(['\nAdding following to Matlab path: \n',strrep(pathsToAdd,':','\n'),'\n']);
+mS_path = [baseDir, '/matSurf_fns'];
+if ~contains(path,mS_path)
+    addpath(genpath(mS_path));
+    fprintf('\nAdded %s to Matlab path\n',mS_path);
 end
 
 end
