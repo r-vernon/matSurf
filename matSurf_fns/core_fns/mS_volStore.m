@@ -7,8 +7,8 @@ classdef mS_volStore < handle
         
         vol = brainSurf([]) % will store all volumes
         nVol = 0;           % will store number of volumes
-        cVol = 0;           % will store current volume
-
+        cVol = 0;           % will store current volume index
+        
     end
     
     properties (Dependent)
@@ -58,7 +58,7 @@ classdef mS_volStore < handle
             
             % make sure it's a valid ind (unpacking cell first if req.)
             if iscell(ind), ind = ind{:}; end
-            if isempty(ind) || ~iscalar(ind) || ~isnumeric(ind) || ...
+            if isempty(ind) || ~isscalar(ind) || ~isnumeric(ind) || ...
                     ind < 1 || ind > obj.nVol
                 warning('Index not valid, not deleting volume');
                 return
@@ -66,10 +66,28 @@ classdef mS_volStore < handle
             
             ind = round(ind);               % make sure integer
             obj.vol(ind) = [];              % delete brainSurf class in vol
-            obj.vNames(ind) = [];           % delete corresponding name
             obj.nVol = obj.nVol - 1;        % dec. num volumes
             obj.cVol = min([obj.nVol,ind]); % update current volume
             success = true;
+            
+        end
+        
+        function cV = selVol(obj,ind)
+            % function to select a volume
+            %
+            % (req.) ind,  index of brainSurf class to set as current
+            % (ret.) cVol, new current volume
+            
+            % make sure it's a valid ind (unpacking cell first if req.)
+            if iscell(ind), ind = ind{:}; end
+            if isempty(ind) || ~isscalar(ind) || ~isnumeric(ind) || ...
+                    ind < 1 || ind > obj.nVol
+                warning('Index not valid, not selecting volume');
+                return
+            end
+              
+            obj.cVol = round(ind); % set current vol (making sure ind is int)
+            cV = obj.curVol;       % return current vol
             
         end
         
@@ -77,9 +95,12 @@ classdef mS_volStore < handle
             % function to calculate and return volume names when requested
             
             if obj.nVol == 0
-                vN = '';
+                vN = [];
             else
-                vN = {obj.vol(:).surfDet.surfName};
+                vN = cell(obj.nVol,1);
+                for inc = 1:obj.nVol
+                    vN{inc} = obj.vol(inc).surfDet.surfName;
+                end
             end
             
         end
@@ -88,7 +109,7 @@ classdef mS_volStore < handle
             % function to return current volume
             
             if obj.nVol == 0
-                cV = '';
+                cV = [];
             else
                 cV = obj.vol(obj.cVol);
             end

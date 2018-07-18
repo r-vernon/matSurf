@@ -17,7 +17,7 @@ hemi = 'rh';
 surfType = 'inflated';
 
 % set surfName, plus surf and curv to load
-surfName = strcat(subject,'_',hemi);
+surfName = strcat(subject,'_',hemi,'_',surfType(1:2));
 fPath = fullfile(SUBJECTS_DIR,subject,'surf',{[hemi,'.',surfType],[hemi,'.curv']});
 currVol.surface_setDetails(fPath{1},fPath{2},surfName)
 

@@ -5,6 +5,6 @@ function cam_reset(obj)
 % (set.) q_cur,  sets current quaternion to default quaternion
 
 obj.VA_cur = obj.cam.VA_def;
-obj.q_cur  = obj.cam.q_cur;
+obj.q_cur  = obj.cam.q_def;
 
 end

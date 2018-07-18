@@ -70,8 +70,8 @@ classdef brainSurf < handle
 
         % additional structure for saved views
         viewStore = struct('name','','VA_cur',{});
-        nViews    = 0 % number of saved views
-        viewNames     % cell array of all views saved
+        nViews = 0 % number of saved views
+        viewNames  % cell array of all views saved
         
         % structure with camera properties:
         % NA - name array for corresponding value arrays
@@ -170,6 +170,10 @@ classdef brainSurf < handle
         % function to set surface details
         % sets surfDet
         
+        calcCentroid(obj,vert)
+        % function to calculate the centroid of a volume
+        % sets centroid
+        
         % =================================================================
         % Overlay functions
         
@@ -203,6 +207,12 @@ classdef brainSurf < handle
         [ovrlayData] = ovrlay_get(obj,ovrlay)
         % function to get an overlay
         
+        % -----------------------------------------------------------------
+
+        ovrlayInd = ovrlay_find(obj,ovrlay)
+        % function to return overlay index corresponding to overlay
+        % gets nOvrlays, dataOvrlay, baseOvrlay
+        
         % =================================================================
         % ROI functions
         
@@ -221,20 +231,5 @@ classdef brainSurf < handle
         % sets VA_cur, q_cur
         
     end
-    
-    % =====================================================================
-    
-    methods (Access = private, Hidden = true)
-        % internal methods for the class only
-        
-        ovrlayInd = ovrlay_find(obj,ovrlay)
-        % function to return overlay index corresponding to overlay
-        % gets nOvrlays, dataOvrlay, baseOvrlay
-        
-        calcCentroid(obj,vert)
-        % function to calculate the centroid of a volume
-        % sets centroid
-
-    end % private, hidden methods
         
 end

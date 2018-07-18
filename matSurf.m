@@ -50,6 +50,9 @@ f_h.Visible = 'on';
 % load surface
 handles.addSurf.Callback  = @cBack_surf_add;
 
+% select surface
+handles.selSurf.Callback  = @cBack_surf_select;
+
 % reset camera
 handles.resCam.Callback   = @cBack_surf_camReset;
 
