@@ -32,6 +32,10 @@ setappdata(src,'camCont',camCont);
 % this will also map it to between 2 and 18 deg. view angle
 newVA = normcdf(newVA,10,10/3)*16 +2;
 
+% calculate % change from base (10) and apply to line thickness (base 2)
+% formula actually 2 + 2*((10-newVA)/10) but simplifies to newVA/5
+handles.brainROI.LineWidth = 4 - newVA/5;
+
 % set it
 handles.brainAx.CameraViewAngle = newVA;
 

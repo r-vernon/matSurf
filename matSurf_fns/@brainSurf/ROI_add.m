@@ -1,11 +1,9 @@
-function [vCoords,markInd,ind,newROI] = ROI_add(obj,ptClicked,finalPt)
+function [vCoords,ind,newROI] = ROI_add(obj,vInd)
 % function to add an ROI point, sets both the selected point to be shown
 % with a marker, and all (if any) intermediate points to be shown as a line
 %
-% (req.) ptClicked,   the vertex the user clicked
-% (opt.) finalPt,     if true, close the ROI and append with index to nan
+% (req.) vInd,        the vertex the user clicked, or empty if final point
 % (ret.) vCoords,     vertex coords to plot with line (intermediate points)
-% (ret.) markInd,     vertex indices to plot with marker (selected points)
 % (ret.) ind,         index of ROI point added to
 % (ret.) newROI,      true if ROI is new
 % (set.) ROIs,        if new ROI, details of that ROI
@@ -17,8 +15,6 @@ function [vCoords,markInd,ind,newROI] = ROI_add(obj,ptClicked,finalPt)
 % (set.) ROI_markInd, stores manually clicked points to mark with marker
 % (set.) ROI_sPaths,  a vector allowing calculation of the shortest
 %                     path between any given vertex, and selected vertex
-
-if nargin < 3 || isempty(finalPt), finalPt = false; end
 
 %--------------------------------------------------------------------------
 % work out whether starting new ROI, or resuming old one
@@ -40,18 +36,21 @@ end
 %--------------------------------------------------------------------------
 % get index and coord Pts of nearest vertex to the click
 
-% use triangulation (TR) to get nearest neighbour vertex ind
-if finalPt
-    % if final point, set selected vertex to first vertex
-    vInd = obj.ROIs(ind).selVert(1);
+if isempty(vInd)
+    finalPt = true;
+    vInd = obj.ROIs(ind).selVert(1); % set selected vertex to first vertex
 else
-    vInd = nearestNeighbor(obj.TR,ptClicked);
+    finalPt = false;
 end
 
-% get start positions for new vertices in line and marker indices
-% (nnz = number of non zeros)
-lStPos = nnz(obj.ROI_lineInd) + 1;
-mStPos = nnz(obj.ROI_markInd) + 1;
+% get start positions for new vertices in line indices
+if ind == 0
+    lStPos = 1;
+elseif newROI
+    lStPos = obj.pROIs(ind).endPos + 2; % plus 2 as 'jumping' over NaN
+else
+    lStPos = nnz(obj.ROI_lineInd) + 1; % just count non-zeros
+end
 
 %==========================================================================
 % deal with new ROIs
@@ -64,11 +63,12 @@ if newROI
     % set name
     ROIname = sprintf('[e] ROI %d',ind); % [e] means open for editing
 
-    % preallocate space for all/selected vertices
-    % (will shrink when ROI finished)
+    % preallocate space for all/selected vertices (will shrink when ROI finished)
     allV = zeros(1e5,1);
-    allV(1) = vInd;
     selV = zeros(100,1);
+    
+    % set first index in both to selected vertex
+    allV(1) = vInd;
     selV(1) = vInd;
 
     %-------------------
@@ -82,7 +82,7 @@ if newROI
     %--------------------
     % set private details
     
-    obj.pROIs(ind).name = ROIname;  % copy of ROI name
+    obj.pROIs(ind).name  = ROIname; % copy of ROI name
     obj.pROIs(ind).stPos = lStPos;  % where ROI starts in line ind
     
     %--------------------------
@@ -91,18 +91,16 @@ if newROI
     obj.roiNames{ind} = ROIname;
     obj.nROIs = ind;
     
-    %-------------------------------------
-    % make sure arrays can hold new pointsa
+    %-----------------------------------------
+    % make sure line array can hold new points
     
     % e.g. if obj.ROI_lineInd > 75% full, add 1e5 extra elements
     obj.ROI_lineInd = expandArray(obj.ROI_lineInd, 1e5, 1);
-    obj.ROI_markInd = expandArray(obj.ROI_markInd, 1e3, 1);
     
     %---------------------
     % set vertices to draw
     
     obj.ROI_lineInd(lStPos) = vInd;   % vertices to draw lines across
-    obj.ROI_markInd(mStPos) = lStPos; % vertices to draw markers on
     
     % set line end pos. to line start pos., as only added one point
     lEndPos = lStPos;
@@ -122,17 +120,18 @@ else
     %----------------------
     % get path to new point
     
-    inc = 1e4; % no single path should be > 10,000 elements!
-    sPath = zeros(inc,1);
+    sPath = zeros(1e4,1); % no path should be > 1e4 pts! (won't crash if is though)
+    inc = 1; 
     sPath(inc) = vInd;
     while obj.ROI_sPaths(sPath(inc))~= 0
-        inc = inc - 1;
-        sPath(inc) = obj.ROI_sPaths(sPath(inc+1));
+        inc = inc + 1;
+        sPath(inc) = obj.ROI_sPaths(sPath(inc-1));
     end
     
-    % sPath will contain path from prev. selected point at inc, to current
-    % selected point at end, so take inc+1 to end
-    sPath = sPath(inc+1:end);
+    % sPath will contain path from selected point at 1, to previously
+    % selected point at inc, so take 1:inc-1 to avoid duplicated point,
+    % then flip so going from prev. point to selected
+    sPath = flipud(sPath(1:inc-1));
 
     % count num. points to be added
     nPts2add = length(sPath); 
@@ -141,7 +140,6 @@ else
     % make sure arrays can hold new points
 
     obj.ROI_lineInd       = expandArray(obj.ROI_lineInd, 1e5, nPts2add);
-    obj.ROI_markInd       = expandArray(obj.ROI_markInd, 1e3, 1);
     obj.ROIs(ind).allVert = expandArray(obj.ROIs(ind).allVert, 1e5, nPts2add);
     obj.ROIs(ind).selVert = expandArray(obj.ROIs(ind).selVert, 100, 1);
 
@@ -172,15 +170,13 @@ else
     lEndPos = lStPos + nPts2add - 1;
     
     if finalPt
-        % vertices to draw lines across (appending index to nan to show finished)
-        obj.ROI_lineInd(lStPos:lEndPos+1) = [sPath ; obj.nVert+1];
+        % vertices to draw lines across (appending nan to show finished)
+        obj.ROI_lineInd(lStPos:lEndPos+1) = [sPath ; NaN];
         % set private ROI end point
         obj.pROIs(ind).endPos = lEndPos;
     else
         % vertices to draw lines across
-        obj.ROI_lineInd(lStPos:lEndPos) = sPath; 
-        % vertices to draw markers on
-        obj.ROI_markInd(mStPos) = lEndPos;       
+        obj.ROI_lineInd(lStPos:lEndPos) = sPath;   
     end
     
     %-----------------------------
@@ -190,11 +186,8 @@ else
     if finalPt
         obj.ROIs(ind).name = erase(obj.ROIs(ind).name,'[e] ');
         obj.pROIs(ind).name = obj.ROIs(ind).name;
-    end
-    
-    % update ROI names list
-    obj.roiNames{ind} = obj.ROIs(ind).name;
-    
+        obj.roiNames{ind} = obj.ROIs(ind).name;
+    end    
 end
 
 %--------------------------------------------------------------------------
@@ -210,16 +203,14 @@ end
 %--------------------------------------------------------------------------
 % set return variables
 
-% get vertex indices and marker indices
+% get vertex indices
 if finalPt
-    vInd = obj.ROI_lineInd(1:lEndPos+1);
-    markInd = obj.ROI_markInd(1:mStPos-1);
+    vertInd = obj.ROI_lineInd(1:lEndPos+1);
 else
-    vInd = obj.ROI_lineInd(1:lEndPos);
-    markInd = obj.ROI_markInd(1:mStPos);
+    vertInd = obj.ROI_lineInd(1:lEndPos);
 end
 
 % get actual vertex coords to return
-vCoords = obj.ROIpts(vInd,:);
+vCoords = obj.ROI_get(vertInd);
 
 end

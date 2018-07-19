@@ -61,7 +61,15 @@ handles.llLight.Position = [-lPos(1), lPos(2), -lPos(3)];
 handles.ulLight.Position = [-lPos(1), lPos(2),  lPos(3)];
 handles.lrLight.Position = [ lPos(1), lPos(2), -lPos(3)];
 handles.urLight.Position = [ lPos(1), lPos(2),  lPos(3)];
-handles.aLights.Visible = 'on';
+
+% enable data/ROI interactions, plus reset them
+set(handles.dataPanel.Children,'Enable','on');
+set(handles.selData,'String','Select Data','Value',1);
+handles.togData.Value = 1;
+set(handles.roiPanel.Children,'Enable','on');
+set(handles.selROI,'String','Select ROI','Value',1);
+handles.togROI.Value = 1;
+set(handles.brainROI,'XData',[],'YData',[],'ZData',[]);
 
 % set default view and initialise callbacks
 handles.matSurfFig.WindowScrollWheelFcn = @cam_scrollWhFn;

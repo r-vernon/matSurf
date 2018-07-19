@@ -1,7 +1,16 @@
-function cBack_ROI_addPnt(src,event)
+function cBack_ROI_addPnt(src,ptClicked)
+
+% check if source was adding point, or finishing point
+if strcmp(src.Tag,'finROI')
+    f_h = getFigHandle(src);
+    finalPt = true;
+    ptClicked = [];
+else
+    f_h = src;
+    finalPt = false;
+end
 
 % make sure volumes loaded
-f_h = getFigHandle(src);
 if ~isappdata(f_h,'currVol'), return; end
 
 % get remaining data
@@ -10,29 +19,19 @@ handles = getappdata(f_h,'handles');
 
 %--------------------------------------------------------------------------
 
-% work out if final point or not (get point clicked if not)
-if isprop(event,'IntersectionPoint')
-    finalPt   = false;
-    ptClicked = event.IntersectionPoint; 
-else
-    finalPt   = true;
-    ptClicked = [];
-end
-
 % if called 'final point' but not  continuing ROI, return
 if finalPt && ~strcmp(handles.addROI.String,'Cont')
     return; 
 end
 
 % call ROI_add with the point clicked
-[vCoords,markInd,ind,newROI] = currVol.ROI_add(ptClicked,finalPt);
+[vCoords,ind,newROI] = currVol.ROI_add(ptClicked);
 
 % display it
 set(handles.brainROI,...
     'XData',vCoords(:,1),...
     'YData',vCoords(:,2),...
-    'ZData',vCoords(:,3),...
-    'MarkerIndices',markInd);
+    'ZData',vCoords(:,3));
 
 % if first ROI, make sure ROI object is visible
 if currVol.nROIs == 1
@@ -48,10 +47,10 @@ end
 % change ROI add button to continue if drawing, or back to 'add' if
 % finished. Disable select ROI option whilst drawing
 if finalPt
-    handles.selROI.Enable = 'on';
-    handles.selROI.String = currVol.roiNames;
+    surf_coneMarker(f_h,currVol.ROIs(ind).selVert(1));
+    set(handles.selROI,'Enable','on','String',currVol.roiNames,'Value',ind);
     handles.addROI.String = 'Add';
-    handles.brainPatch.ButtonDownFcn = '';
+    handles.dataMode.Value = 1;
     setStatusTxt('Finished ROI');
 else
     handles.selROI.Enable = 'off';

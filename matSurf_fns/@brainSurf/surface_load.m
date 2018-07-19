@@ -50,7 +50,7 @@ obj.xyzLim = ceil(max(abs(vert(:)))) + 1;
 % camera target (0,0,0) (centroid), want to 'pull back' on y to show scene
 %}
 obj.cam.VA_def{1} = [0,-10*obj.xyzLim,0];
-obj.cam.VA_cur{1} = obj.cam.VA_def{1}; % current = default at start...
+obj.VA_cur{1} = obj.cam.VA_def{1}; % current = default at start...
 
 %--------------------------------------------------------------------------
 % triangulation
@@ -59,21 +59,6 @@ obj.cam.VA_cur{1} = obj.cam.VA_def{1}; % current = default at start...
 % (add 1 to faces due to FreeSurfer zero indexing)
 % allows e.g. nearestNeighbor(TR,P) - find closes vertex to point P
 obj.TR = triangulation(faces+1,vert);
-
-%--------------------------------------------------------------------------
-% normals for plotting ROIs
-
-% plot ROI 0.1mm above surface
-dist2add = 0;
-
-% calculate vertex normals
-vertNorm = vertexNormal(obj.TR);
-
-% calculate set of points ROIs will be plotted over
-obj.ROIpts = bsxfun(@minus,vert,dist2add*vertNorm);
-
-% append a nan at very end, so can index it to show line finished
-obj.ROIpts(obj.nVert+1,:) = nan;
 
 %--------------------------------------------------------------------------
 % graph

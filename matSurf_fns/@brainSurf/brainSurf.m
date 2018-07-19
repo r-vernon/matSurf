@@ -67,11 +67,6 @@ classdef brainSurf < handle
         
         % max xyz limited needed for plotting
         xyzLim
-
-        % additional structure for saved views
-        viewStore = struct('name','','VA_cur',{});
-        nViews = 0 % number of saved views
-        viewNames  % cell array of all views saved
         
         % structure with camera properties:
         % NA - name array for corresponding value arrays
@@ -81,6 +76,11 @@ classdef brainSurf < handle
         %                these stored as settable properties above
         cam = struct('NA',{},'VA_def',{},'q_def',[]);
         
+        % additional structure for saved views
+        viewStore = struct('name','','VA_cur',{});
+        nViews = 0 % number of saved views
+        viewNames  % cell array of all views saved
+  
     end
     
     % =====================================================================
@@ -115,16 +115,10 @@ classdef brainSurf < handle
         % private ROI structure to map onto ROI_lineInd and ROI_markInd
         % stPos/endPos will contain start/end position for each ROI
         pROIs = struct('name','','stPos',[],'endPos',[]);
-        
-        % set of points ROIs will be plotted on (floating just above surface)
-        % calculated by moving set distance from vertex along vertex normal
-        ROIpts
 
         % lineInd - array with vertices for all ROIs, delimited by index 
         %           to 'NaN' in ROIpts
-        % markInd - stores manually clicked points to mark with marker
         ROI_lineInd = zeros(1e5,1)
-        ROI_markInd = zeros(1e3,1)
         
         % Shortest path data for all vertices to clicked vertex
         ROI_sPaths
@@ -216,12 +210,17 @@ classdef brainSurf < handle
         % =================================================================
         % ROI functions
         
-        [vCoords,markInd,ind,newROI] = ROI_add(obj,ptClicked,finalPt)
+        [vCoords,ind,newROI] = ROI_add(obj,vInd)
         % function to ROI points
         % gets nROIs, ROIs, ROI_lineInd, ROI_markInd, pROIs, roiNames,
         % ROI_sPaths
         % sets ROIs, pROIs, roiNames, nROIs, ROI_lineInd, ROI_markInd,
         % ROI_sPaths
+        
+        % -----------------------------------------------------------------
+        
+        [roiData] = ROI_get(obj,vertInd)
+        % function that returns all ROI coordinates for plotting
         
         % =================================================================
         % camera functions

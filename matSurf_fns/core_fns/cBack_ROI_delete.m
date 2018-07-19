@@ -1,17 +1,17 @@
-function cBack_data_delete(src,~)
+function cBack_ROI_delete(src,~)
 
 % get data
 f_h = getFigHandle(src);
 handles = getappdata(f_h,'handles');
 currVol = getappdata(f_h,'currVol'); 
 
-if currVol.nOvrlays == 0, return; end
+if currVol.nROIs == 0, return; end
 
-% grab index of data to remove
-toDel = handles.selData.Value;
+% grab index of ROI to remove
+toDel = handles.selROI.Value;
 
 % try to delete selected overlay
-[success,ind] = currVol.ovrlay_remove(toDel);
+[success,ind] = currVol.ROI_remove(toDel);
 
 if success % update popupmenu and surface
     if ind == 0

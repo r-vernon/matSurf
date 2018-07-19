@@ -5,6 +5,8 @@ f_h = getFigHandle(src);
 handles = getappdata(f_h,'handles');
 currVol = getappdata(f_h,'currVol'); 
 
+if currVol.nOvrlays == 0, return; end
+
 if src.Value == 0 % don't show data (sending '0' requests base)
     
     [success] = currVol.ovrlay_set(0);

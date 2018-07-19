@@ -7,9 +7,10 @@ handles = getappdata(f_h,'handles');
 switch src.Tag
     case 'addROI'
         setStatusTxt('In ROI drawing mode');
-        handles.brainPatch.ButtonDownFcn = @ROI_addPnt_cBack;
+        handles.roiMode.Value = 1;
     otherwise
-        return
+        setStatusTxt('In data mode');
+        handles.dataMode.Value = 1;
 end
 
 end

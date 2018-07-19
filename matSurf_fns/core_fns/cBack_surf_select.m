@@ -48,18 +48,18 @@ else
 end
     
 % ROIs
-handles.selROI.Value = 1;
+handles.togROI.Value = 1;
 if nCurrVol.nROIs == 0
     % if no overlays, just set everything to defaults
     handles.selROI.String = 'Select ROI';
-    handles.togROI.Value = 1;
+    handles.selROI.Value  = 1;
+    set(handles.brainROI,'XData',[],'YData',[],'ZData',[]);
 else
     handles.selROI.String = nCurrVol.roiNames;
-    handles.togROI.Value = 0;
+    handles.selROI.Value  = nCurrVol.nROIs;
+    vC = nCurrVol.ROI_get;
+    set(handles.brainROI,'XData',vC(:,1),'YData',vC(:,2),'ZData',vC(:,3));
 end
-
-% make sure no old ROIs loaded
-set(handles.brainROI,'XData',[],'YData',[],'ZData',[]);
 
 %--------------------------------------------------------------------------
 
