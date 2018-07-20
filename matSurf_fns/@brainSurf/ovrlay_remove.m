@@ -24,26 +24,26 @@ if ovrlayInd == 0 || isempty(ovrlayInd)
     warning('Can''t remove selected overlay');
     return;
 end
-    
+
 %==========================================================================
 
 % seem to have made it this far! remove requested overlay
 obj.dataOvrlay(ovrlayInd) = [];
 
 % work out what to show now
+% e.g. if no overlays remaining, return 0, else if have ovrlay 1, 2, 3 and
+% ovrlayInd = 2, ovrlay now 1, 3 so want ind=1, however if ovrlayInd = 1,
+% ovrlay now 2,3 so still want ind=1
+
 if obj.nOvrlays == 1 % removed only overlay
     obj.currOvrlay = obj.baseOvrlay;
     ind = 0;
+elseif ovrlayInd > 1
+    ind = ovrlayInd - 1;
+    obj.currOvrlay = obj.dataOvrlay(ind); % show prev. overlay
 else
-    % e.g. if have ovrlay 1, 2, 3 and ovrlayInd = 2, ovrlay now 1, 3 so
-    % want ind=1, however if ovrlayInd = 1, ovrlay now 2,3 so want ind=1
-    if ovrlayInd > 1
-        ind = ovrlayInd - 1;
-        obj.currOvrlay = obj.dataOvrlay(ind); % show prev. overlay
-    else
-        ind = ovrlayInd;
-        obj.currOvrlay = obj.dataOvrlay(ind); % show next overlay
-    end
+    ind = ovrlayInd;
+    obj.currOvrlay = obj.dataOvrlay(ind); % show next overlay 
 end
 
 % update ovrlayNames and nOvrlays

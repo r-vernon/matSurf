@@ -80,6 +80,9 @@ handles.togData.Callback = @cBack_data_toggle;
 % add ROI
 handles.addROI.Callback = @cBack_setMode;
 
+% delete ROI
+handles.delROI.Callback = @cBack_ROI_delete;
+
 % finish ROI
 handles.finROI.Callback = @cBack_ROI_addPnt;
 

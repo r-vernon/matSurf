@@ -21,8 +21,9 @@ classdef brainSurf < handle
     %
     % ROIs properties:
     %   name,    name of ROI
-    %   data,    data in overlay, one value for each surface vertex
-    %   colData, colour values for the overlay
+    %   allVert, all vertices in ROI boundary
+    %   selVert, manually selected vertices in ROI boundary
+    %   visible, if true, show ROI, false, hide it
     
     % =====================================================================
 
@@ -112,9 +113,11 @@ classdef brainSurf < handle
         % -------------------------------------------------------------
         % ROI properties
         
-        % private ROI structure to map onto ROI_lineInd and ROI_markInd
-        % stPos/endPos will contain start/end position for each ROI
-        pROIs = struct('name','','stPos',[],'endPos',[]);
+        % private ROI structure to map onto ROI_lineInd
+        % row num. corresponds to ind in public ROIs variable
+        % 1st col. is index of ROI in public ROI list
+        % 2nd col. is ROI start position, 3rd col. is end position
+        pROIs = zeros(10,3);
 
         % lineInd - array with vertices for all ROIs, delimited by index 
         %           to 'NaN' in ROIpts

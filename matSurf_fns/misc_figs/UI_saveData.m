@@ -17,7 +17,7 @@ success = false;
 
 if nargin < 2, defName = ''; end % will deal with defName shortly
 
-if nargin < 3 || isempty(startMode) || (startMode ~= 1 || startMode ~= 2)
+if nargin < 3 || isempty(startMode) || (startMode ~= 1 && startMode ~= 2)
     startMode = 1; % by default save as file
 end     
 

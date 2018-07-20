@@ -1,4 +1,4 @@
-function [success,ind] = ROI_remove(obj,toDel)
+function [success,ind,vCoords] = ROI_remove(obj,ROIname)
 % function to remove overlay
 %
 % (req.) ovrlay, overlay to remove either as an index, or as a string
@@ -16,71 +16,99 @@ success = false;
 %==========================================================================
 % grab details of selected ROI
 
-stPos  = obj.pROIs(toDel).stPos;
-endPos = obj.pROIs(toDel).endPos;
+% look up ROI
+ROI_ind = find(strcmpi({obj.ROIs.name},ROIname),1);
+if isempty(ROI_ind)
+    warning('Could not find requrested ROI, not deleting');
+    return
+end
+pROI_ind = find(obj.pROIs(:,1)==ROI_ind,1);
 
-if isempty(endPos) 
-    % ROI not finished so find how many points created
-    finROI = false;
-    % say 3 points starting at 2, [x,1,2,3,x...], endPos st+(n-1) = 4
-    endPos = stPos + nnz(obj.ROIs(toDel).allVert) - 1;
+% grab start and end position of ROI
+stPos  = obj.pROIs(pROI_ind,2);
+endPos = obj.pROIs(pROI_ind,3);
+
+% if ROI not finished, find how many points created
+if endPos == 0
+    % (say 3 points starting at 2, [x,1,2,3,x...], endPos = stPos +(n-1) = 4)
+    endPos = stPos + (nnz(obj.ROIs(ROI_ind).allVert) -1);
 else
-    finROI = true;
-    endPos = endPos + 1; % ROI finished, so account for NaN
+    endPos = endPos +1; % ROI finished, so account for NaN
 end
 
+% count how many points to delete
 nToDel = endPos - stPos + 1;
+
+%==========================================================================
+% overwrite the ROI to be deleted and update indices
+
+% delete from line indices
+obj.ROI_lineInd(stPos:endPos) = 0;
+newEndPos = stPos -1;
+
+% grab all start positions, and find last ROI (latest start)
+allSt = obj.pROIs(:,2);
+[mSt,mStInd] = max(allSt);
+
+% if any ROIs start after end of deleted ROI, shift them
+if mSt > endPos
+    
+    % find all ROIs that start after deleted ROI
+    toMove = find(allSt > endPos);
+    
+    % shift actual indices in ROI_lineInd
+    mEnd = obj.pROIs(mStInd,3);
+    if mEnd == 0
+        % change mStInd to point to public ROIs list
+        mStInd = obj.pROIs(mStInd,1); 
+        % count how many indices have been added in identified ROI
+        mEnd = mSt + nnz(obj.ROIs(mStInd).allVert) - 1;
+    else
+        mEnd = mEnd + 1;
+    end
+    newEndPos = mEnd-nToDel;
+    obj.ROI_lineInd(stPos:newEndPos) = obj.ROI_lineInd(endPos+1:mEnd);
+    obj.ROI_lineInd(newEndPos+1:mEnd) = 0;
+    
+    % update ROI_lineInd mappings to account for above shift
+    % (making sure endPos can't go below 0 if not finished yet)
+    obj.pROIs(toMove,2:3) = obj.pROIs(toMove,2:3) - nToDel;
+    obj.pROIs(toMove(obj.pROIs(toMove,3)<0),3) = 0;
+    
+    % update index to public ROI list to account for upcoming deletion
+    obj.pROIs(toMove,1) = obj.pROIs(toMove,1) - 1;
+    
+end
 
 %==========================================================================
 % delete ROI
 
-obj.ROIs(toDel)  = []; % clear from public ROIs list
-obj.pROIs(toDel) = []; % clear from private ROIs list
-obj.ROI_sPaths   = []; % might as well clear sPaths as well
+% delete from public and private ROI lists
+obj.ROIs(ROI_ind)     = []; 
+obj.pROIs(pROI_ind,:) = []; 
 
-% delete from line indices
-obj.ROI_lineInd(stPos:endPos) = 0;
-
-% may need to shuffle points up
-if obj.nROIs > 1
-    
-    toMove = find([obj.pROIs(:).stPos] >  endPos);
-    if ~isempty(toMove)
-        for currROI = 1:length(toMove)
-            obj.pROIs(currROI).stPos = obj.pROIs(currROI).stPos - nToDel;
-            if ~isempty(obj.pROIs(currROI).endPos)
-                obj.pROIs(currROI).endPos = obj.pROIs(currROI).endPos - nToDel;
-            end
-        end
-    end
-end
-
-
-
-%==========================================================================
-
-% seem to have made it this far! remove requested overlay
-obj.dataOvrlay(ovrlayInd) = [];
+% make sure pROIs isn't getting full after deleting row
+obj.pROIs = expandArray(obj.pROIs, 10, 1);
 
 % work out what to show now
-if obj.nOvrlays == 1 % removed only overlay
-    obj.currOvrlay = obj.baseOvrlay;
+if obj.nROIs == 1 % will have removed only overlay
     ind = 0;
+elseif ROI_ind > 1
+    ind = ROI_ind - 1;
 else
-    % e.g. if have ovrlay 1, 2, 3 and ovrlayInd = 2, ovrlay now 1, 3 so
-    % want ind=1, however if ovrlayInd = 1, ovrlay now 2,3 so want ind=1
-    if ovrlayInd > 1
-        ind = ovrlayInd - 1;
-        obj.currOvrlay = obj.dataOvrlay(ind); % show prev. overlay
-    else
-        ind = ovrlayInd;
-        obj.currOvrlay = obj.dataOvrlay(ind); % show next overlay
-    end
+    ind = ROI_ind;
 end
 
 % update roiNames and nROIs
-obj.ovrlayNames = {obj.ROIs(:).name};
+obj.roiNames = {obj.ROIs(:).name};
 obj.nROIs = length(obj.ROIs);
+
+% get vertex coords to return (unless deleted all ROIs)
+if obj.nROIs > 0
+    vCoords = obj.ROI_get(obj.ROI_lineInd(1:newEndPos));
+else
+    vCoords = [];
+end
 
 success = true; % yay
 

@@ -6,20 +6,33 @@ function [roiData] = ROI_get(obj,vertInd)
 
 % get all current vertices if not provided
 if nargin < 2 || isempty(vertInd)
-    [mSt,mStInd] = max([obj.pROIs(:).stPos]);
-    mEnd = obj.pROIs(mStInd).endPos;
-    if isempty(mEnd)
-        mEnd = mSt + nnz(obj.ROIs(ind).allVert) - 1;
+    
+    [mSt,mStInd] = max(obj.pROIs(:,2)); % find last starting pos.
+    mEnd = obj.pROIs(mStInd,3);         % get end pos. of last starting pos.
+    
+    if mEnd == 0
+        mEnd = mSt + nnz(obj.ROIs(mStInd).allVert) - 1;
     else
         mEnd = mEnd + 1;
     end
+    
     vertInd = obj.ROI_lineInd(1:mEnd);
 end
 
-% get actual vertex coords to return
-roiEnds = [obj.pROIs(:).endPos] + 1; % find NaNs
-vertInd(roiEnds) = 1;                % temporarily replace NaNs with valid ind
-roiData = obj.TR.Points(vertInd,:);  % grab vertex coords
-roiData(roiEnds,:) = NaN;            % put NaNs back in
+% find NaNs in data set
+roiEnds = obj.pROIs(:,3);  % find endpoints
+roiEnds(roiEnds==0) = [];  % ignore unfinished ROIs
+if ~isempty(roiEnds)
+    roiEnds = roiEnds + 1; % find NaNs (one after valid endpoints)
+    vertInd(roiEnds) = 1;  % temporarily replace NaNs with valid ind
+end
+
+% get actual vertex coords
+roiData = obj.TR.Points(vertInd,:);
+
+% put NaNs between each ROI
+if ~isempty(roiEnds)
+    roiData(roiEnds,:) = NaN;
+end
 
 end

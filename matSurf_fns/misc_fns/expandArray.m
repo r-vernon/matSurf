@@ -3,7 +3,7 @@ function [currArray,sizeInc] = expandArray(currArray,baseSize,num2Add,fillThr)
 % (or 'fillThresh'%) used, expands by baseSize (note - an empty array would
 % be all zeros)
 %
-% (req.) currArray, array whos size to check, must be vector
+% (req.) currArray, array whos size to check, must be matrix (2D)
 % (req.) baseSize,  how many points to add if array needs expanding
 % (opt.) num2add,   how many points are going to be added (default = 1)
 % (opt.) fillThr,   threshold at which to expand array (range 0:1 or 1:100)
@@ -38,26 +38,37 @@ elseif fillThr <= 0 || fillThr >= 1
     end
 end
 
-% make sure currArray is vector
-if ~isvector(currArray) || ~isnumeric(currArray)
-    warning('Can only expand numeric vector arrays');
-    return
+% make sure array is numeric matrix (2D)
+if iscell(currArray), currArray = currArray{:}; end
+if ~isnumeric(currArray) || ~ismatrix(currArray)
+    error('Can only expand numeric 2D arrays');
 end
 
 %--------------------------------------------------------------------------
 % check if too full
 
-% get length and current filled state of currArray
-amntUsed  = find(currArray~=0,1,'last');
-amntAvail = length(currArray);
+% get length (amount available) of current array
+[amntAvail,mInd] = max(size(currArray));
+
+% if row dim largest, temporarily transpose
+if mInd == 2, currArray = currArray'; transposed = true; 
+else, transposed = false; end
+
+% find how full vector currently is
+if isvector(currArray)
+    amntUsed = nnz(currArray);
+else
+    amntUsed = find(any(currArray,2),1,'last');
+end
 
 if (amntUsed + num2Add) > (fillThr * amntAvail)
-    if iscolumn(currArray)
-        currArray = [currArray ; zeros(baseSize,1)];
-    else
-        currArray = [currArray , zeros(1,baseSize)];
-    end
+    currArray(end+baseSize,:) = 0;
     sizeInc = true;
+end
+
+% undo transpose if performed
+if transposed
+    currArray = currArray';
 end
 
 end

@@ -27,7 +27,7 @@ ind = obj.nROIs;
 % - current ROI (at ind) is finished (and so has end point set)
 
 % test if new ROI
-if ind == 0 || ~isempty(obj.pROIs(ind).endPos)
+if ind == 0 || obj.pROIs(ind,3) ~= 0
     newROI = true;
 else
     newROI = false;
@@ -47,7 +47,7 @@ end
 if ind == 0
     lStPos = 1;
 elseif newROI
-    lStPos = obj.pROIs(ind).endPos + 2; % plus 2 as 'jumping' over NaN
+    lStPos = obj.pROIs(ind,3) + 2; % plus 2 as 'jumping' over NaN
 else
     lStPos = nnz(obj.ROI_lineInd) + 1; % just count non-zeros
 end
@@ -60,8 +60,14 @@ if newROI
     % get index to new location
     ind = ind + 1;
     
+    % make sure space in private ROI array for new ROI
+    obj.pROIs = expandArray(obj.pROIs, 10, 1);
+    
     % set name
-    ROIname = sprintf('[e] ROI %d',ind); % [e] means open for editing
+    a = {'ROI 001','ROI 002','ROI 003','test','ROI 099'};
+    b = regexp(a,'^ROI ([0-9]{3})$','tokens');
+    
+    ROIname = sprintf('[e] ROI %03d',ind); % [e] means open for editing
 
     % preallocate space for all/selected vertices (will shrink when ROI finished)
     allV = zeros(1e5,1);
@@ -71,19 +77,18 @@ if newROI
     allV(1) = vInd;
     selV(1) = vInd;
 
-    %-------------------
-    % set public details
+    %----------------
+    % set ROI details
     
+    % set public details
     obj.ROIs(ind).name = ROIname; % ROI name
     obj.ROIs(ind).allVert = allV; % all vertices
     obj.ROIs(ind).selVert = selV; % selected vertex
     obj.ROIs(ind).visible = true; % visibility
     
-    %--------------------
     % set private details
-    
-    obj.pROIs(ind).name  = ROIname; % copy of ROI name
-    obj.pROIs(ind).stPos = lStPos;  % where ROI starts in line ind
+    obj.pROIs(ind,1) = ind;    % ROI index (same as pos. now but not if reshuffle)
+    obj.pROIs(ind,2) = lStPos; % where ROI starts in line ind
     
     %--------------------------
     % update roiNames and nROIs
@@ -154,7 +159,7 @@ else
         % deal with all vertices (sPath to end-1 as ignoring repeated end pt)
         obj.ROIs(ind).allVert(avStPos:avEndPos-1) = sPath(1:end-1); 
         % clear any additional padding in all/selected vertices
-        obj.ROIs(ind).allVert(avEndPos+1:end) = [];
+        obj.ROIs(ind).allVert(avEndPos:end) = [];
         obj.ROIs(ind).selVert(svStPos:end)  = [];
     else
         % deal with all vertices
@@ -173,7 +178,7 @@ else
         % vertices to draw lines across (appending nan to show finished)
         obj.ROI_lineInd(lStPos:lEndPos+1) = [sPath ; NaN];
         % set private ROI end point
-        obj.pROIs(ind).endPos = lEndPos;
+        obj.pROIs(ind,3) = lEndPos;
     else
         % vertices to draw lines across
         obj.ROI_lineInd(lStPos:lEndPos) = sPath;   
@@ -185,7 +190,6 @@ else
     % remove edit symbol from ROI ([e])
     if finalPt
         obj.ROIs(ind).name = erase(obj.ROIs(ind).name,'[e] ');
-        obj.pROIs(ind).name = obj.ROIs(ind).name;
         obj.roiNames{ind} = obj.ROIs(ind).name;
     end    
 end
