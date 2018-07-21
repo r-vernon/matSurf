@@ -10,7 +10,7 @@ function [vCoords,ind,newROI] = ROI_add(obj,vInd)
 % (set.) pROIs,       private details of obj.ROI
 % (set.) roiNames,    cell array containing names of all loaded ROIs
 % (set.) nROIs,       number of ROIs
-% (set.) ROI_lineInd, array with vertices for all ROIs, delimited by index 
+% (set.) ROI_lineInd, array with vertices for all ROIs, delimited by index
 %                     to 'NaN' in ROIpts
 % (set.) ROI_markInd, stores manually clicked points to mark with marker
 % (set.) ROI_sPaths,  a vector allowing calculation of the shortest
@@ -63,12 +63,23 @@ if newROI
     % make sure space in private ROI array for new ROI
     obj.pROIs = expandArray(obj.pROIs, 10, 1);
     
-    % set name
-    a = {'ROI 001','ROI 002','ROI 003','test','ROI 099'};
-    b = regexp(a,'^ROI ([0-9]{3})$','tokens');
+    % find a safe name
+    %{
+      the regexp looks for strings matching 'ROI 000'
+      [0-9]{3} means match exactly 3 numbers
+      wrapping [0-9]{3} in () saves it as a token, and we only return
+      tokens, so can convert resultant numbers to double
+      e.g. if max ROI was 'ROI 023', newInd will be 24
+    %}
+    if ind == 1
+        newInd = 1;
+    else
+        newInd = 1 + max([0,cellfun(@str2double,...
+            regexp([obj.ROIs(:).name],'ROI ([0-9]{3})','tokens'))]);
+    end
     
-    ROIname = sprintf('[e] ROI %03d',ind); % [e] means open for editing
-
+    ROIname = sprintf('[e] ROI %03d',newInd); % [e] means open for editing
+    
     % preallocate space for all/selected vertices (will shrink when ROI finished)
     allV = zeros(1e5,1);
     selV = zeros(100,1);
@@ -76,7 +87,7 @@ if newROI
     % set first index in both to selected vertex
     allV(1) = vInd;
     selV(1) = vInd;
-
+    
     %----------------
     % set ROI details
     
@@ -121,12 +132,12 @@ else
     % find starting position for all/selected vertices
     avStPos = nnz(obj.ROIs(ind).allVert) + 1;
     svStPos = nnz(obj.ROIs(ind).selVert) + 1;
-
+    
     %----------------------
     % get path to new point
     
     sPath = zeros(1e4,1); % no path should be > 1e4 pts! (won't crash if is though)
-    inc = 1; 
+    inc = 1;
     sPath(inc) = vInd;
     while obj.ROI_sPaths(sPath(inc))~= 0
         inc = inc + 1;
@@ -137,17 +148,17 @@ else
     % selected point at inc, so take 1:inc-1 to avoid duplicated point,
     % then flip so going from prev. point to selected
     sPath = flipud(sPath(1:inc-1));
-
+    
     % count num. points to be added
-    nPts2add = length(sPath); 
+    nPts2add = length(sPath);
     
     %-------------------------------------
     % make sure arrays can hold new points
-
+    
     obj.ROI_lineInd       = expandArray(obj.ROI_lineInd, 1e5, nPts2add);
     obj.ROIs(ind).allVert = expandArray(obj.ROIs(ind).allVert, 1e5, nPts2add);
     obj.ROIs(ind).selVert = expandArray(obj.ROIs(ind).selVert, 100, 1);
-
+    
     %------------------------
     % write new points to ROI
     
@@ -157,15 +168,15 @@ else
     
     if finalPt
         % deal with all vertices (sPath to end-1 as ignoring repeated end pt)
-        obj.ROIs(ind).allVert(avStPos:avEndPos-1) = sPath(1:end-1); 
+        obj.ROIs(ind).allVert(avStPos:avEndPos-1) = sPath(1:end-1);
         % clear any additional padding in all/selected vertices
         obj.ROIs(ind).allVert(avEndPos:end) = [];
         obj.ROIs(ind).selVert(svStPos:end)  = [];
     else
         % deal with all vertices
-        obj.ROIs(ind).allVert(avStPos:avEndPos) = sPath; 
+        obj.ROIs(ind).allVert(avStPos:avEndPos) = sPath;
         % deal with selected vertex
-        obj.ROIs(ind).selVert(svStPos) = vInd;           
+        obj.ROIs(ind).selVert(svStPos) = vInd;
     end
     
     %---------------------
@@ -181,7 +192,7 @@ else
         obj.pROIs(ind,3) = lEndPos;
     else
         % vertices to draw lines across
-        obj.ROI_lineInd(lStPos:lEndPos) = sPath;   
+        obj.ROI_lineInd(lStPos:lEndPos) = sPath;
     end
     
     %-----------------------------
@@ -191,7 +202,7 @@ else
     if finalPt
         obj.ROIs(ind).name = erase(obj.ROIs(ind).name,'[e] ');
         obj.roiNames{ind} = obj.ROIs(ind).name;
-    end    
+    end
 end
 
 %--------------------------------------------------------------------------

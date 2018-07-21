@@ -129,7 +129,7 @@ panBottom = figSize.h - panSp - panHeight;
 panPos.mode = [panLeft,panBottom,panWidth,panHeight];
 
 % surface panel
-nVItems.surf = 3;
+nVItems.surf = 4;
 panHeight = calcHeight(nVItems.surf);
 panBottom = panBottom - panSp - panHeight;
 panPos.surf = [panLeft,panBottom,panWidth,panHeight];
@@ -256,6 +256,13 @@ h_butWidth = (panWidth - 2.5*f_LPos)/2;
 h_LPos1 = f_LPos;
 h_LPos2 = f_LPos + h_butWidth + f_LPos/2;
 
+% set properties for 1/3, 2/3 button
+% will have normal spacings to left/right, but half normal in middle
+% second button will have width 2*t_butWidth
+t_butWidth = (panWidth - 2.5*f_LPos)/3;  
+t_LPos1 = f_LPos;
+t_LPos2 = f_LPos + t_butWidth + f_LPos/2;
+
 %% ========================================================================
 
 %  ---------------------- MODE BUTTONS ------------------------------------
@@ -306,6 +313,19 @@ currH = currH - (butHeight + butSp);
 handles.selSurf = uicontrol(handles.surfPanel,'Style','popupmenu',...
     'String','Select Surface','Tag','selSurf',...
     'Position',[f_LPos,currH,f_butWidth,butHeight]);
+
+% update current height
+currH = currH - (butHeight + butSp);  
+
+% selected vertex text (reducing butHeight slightly for better alignment)
+handles.svTxt = uicontrol(handles.surfPanel,'Style','text',...
+    'String','Vert.','Tag','svTxt',...
+    'Position',[t_LPos1,currH,t_butWidth,butHeight-4]);
+    
+% selected vertex edit
+handles.svEdit = uicontrol(handles.surfPanel,'Style','edit',...
+    'String','','Tag','svEdit',...
+    'Position',[t_LPos2,currH,2*t_butWidth,butHeight]);
 
 % update current height
 currH = currH - (butHeight + butSp);  

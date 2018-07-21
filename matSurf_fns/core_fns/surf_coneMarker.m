@@ -73,4 +73,6 @@ set(handles.markPatch,...
     'FaceNormals',faceNormal(coneTR),...
     'FaceVertexCData',coneC);
 
+drawnow;
+
 end

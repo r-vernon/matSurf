@@ -22,4 +22,6 @@ setappdata(f_h,'camCont',camCont);
 
 setStatusTxt('camera reset');
 
+drawnow;
+
 end

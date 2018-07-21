@@ -22,6 +22,9 @@ camCont.mMoved = false;
 camCont.clPatch = false;
 camCont.qForm = nCurrVol.q_cur;
 
+% reset vertex edit entry
+handles.svEdit.String = '';
+
 %--------------------------------------------------------------------------
 % update data and ROI windows % TODO - put this in update fcn
 
@@ -81,5 +84,7 @@ setStatusTxt(sprintf('Switched to %s',nCurrVol.surfDet.surfName));
 % save out updated data
 setappdata(f_h,'currVol',nCurrVol);
 setappdata(f_h,'camCont',camCont);
+
+drawnow;
 
 end

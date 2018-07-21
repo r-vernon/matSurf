@@ -11,7 +11,7 @@ function cBack_mode_mouseEvnt(f_h,ip)
 handles = getappdata(f_h,'handles');
 
 % In either mode, show info about vertex clicked, do that now
-setStatusTxt(sprintf('Selected vertex %d',ip));
+handles.svEdit.String = num2str(ip);
 surf_coneMarker(f_h,ip);
 
 % get current mode (1. Data mode, 2, ROI mode)
@@ -22,3 +22,4 @@ else
     cBack_ROI_addPnt(f_h,ip);
 end
 
+end

@@ -43,6 +43,7 @@ classdef brainSurf < handle
         surfDet  % details about surface (surfName, surfPath, curvPath)
         TR       % triangulation (needed to display surface)
         centroid % surface centroid
+        nVert    % number of vertices
         
         % -------------------------------------------------------------
         % overlay properties
@@ -97,8 +98,7 @@ classdef brainSurf < handle
         % surface properties
         
         G       % graph
-        nVert   % number of vertices
-        
+
         % -------------------------------------------------------------
         % overlay properties
         
@@ -206,7 +206,7 @@ classdef brainSurf < handle
         
         % -----------------------------------------------------------------
 
-        ovrlayInd = ovrlay_find(obj,ovrlay)
+        [ovrlayInd] = ovrlay_find(obj,ovrlay)
         % function to return overlay index corresponding to overlay
         % gets nOvrlays, dataOvrlay, baseOvrlay
         
@@ -224,6 +224,11 @@ classdef brainSurf < handle
         
         [roiData] = ROI_get(obj,vertInd)
         % function that returns all ROI coordinates for plotting
+        
+        % -----------------------------------------------------------------
+        
+        [allVert] = ROI_fill(obj,bPts,midPt)
+        % function to flood fill an ROI
         
         % =================================================================
         % camera functions

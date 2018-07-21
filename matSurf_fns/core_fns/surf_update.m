@@ -8,4 +8,6 @@ if force || handles.togData.Value == 1
     handles.brainPatch.FaceVertexCData = currVol.currOvrlay.colData;
 end
 
+drawnow;
+
 end

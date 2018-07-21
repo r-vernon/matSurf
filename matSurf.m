@@ -53,6 +53,9 @@ handles.addSurf.Callback  = @cBack_surf_add;
 % select surface
 handles.selSurf.Callback  = @cBack_surf_select;
 
+% select vertex
+handles.svEdit.Callback   = @cBack_surf_setVert;
+
 % reset camera
 handles.resCam.Callback   = @cBack_surf_camReset;
 
@@ -78,7 +81,7 @@ handles.togData.Callback = @cBack_data_toggle;
 % ROI button callbacks
 
 % add ROI
-handles.addROI.Callback = @cBack_setMode;
+handles.addROI.Callback = @cBack_mode_set;
 
 % delete ROI
 handles.delROI.Callback = @cBack_ROI_delete;

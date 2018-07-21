@@ -1,4 +1,4 @@
-function cBack_setMode(src,~)
+function cBack_mode_set(src,~)
 
 % get data
 f_h = getFigHandle(src);

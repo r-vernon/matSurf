@@ -62,6 +62,9 @@ handles.ulLight.Position = [-lPos(1), lPos(2),  lPos(3)];
 handles.lrLight.Position = [ lPos(1), lPos(2), -lPos(3)];
 handles.urLight.Position = [ lPos(1), lPos(2),  lPos(3)];
 
+% reset vertex edit entry
+handles.svEdit.String = '';
+
 % enable data/ROI interactions, plus reset them
 set(handles.dataPanel.Children,'Enable','on');
 set(handles.selData,'String','Select Data','Value',1);
@@ -84,5 +87,7 @@ handles.matSurfFig.Name = ['matSurf - ',surfName];
 % save out updated data
 setappdata(f_h,'currVol',currVol); 
 setappdata(f_h,'camCont',camCont); 
+
+drawnow;
 
 end
