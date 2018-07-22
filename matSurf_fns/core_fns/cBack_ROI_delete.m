@@ -5,8 +5,6 @@ f_h = getFigHandle(src);
 handles = getappdata(f_h,'handles');
 currVol = getappdata(f_h,'currVol'); 
 
-if currVol.nROIs == 0, return; end
-
 % grab name of ROI to remove
 ROIname = handles.selROI.String{handles.selROI.Value};
 
@@ -20,23 +18,26 @@ if success % update popupmenu and surface
     
     if ind == 0 % if deleted all ROIs
         
-        % reset status to normal
-        handles.addROI.String = 'Add';
-        handles.selROI.Enable = 'on';
-        handles.selROI.String = 'Select ROI';
-        handles.selROI.Value = 1;
-        set(handles.brainROI,'XData',[],'YData',[],'ZData',[]);
+        % update state (rr = ROI removed)
+        mS_stateControl(f_h,'rr');  
+        setStatusTxt('All ROIs deleted');
         
     else % still some ROIs remaining
         
+        setStatusTxt('Deleted ROI');
+        
         % if next selected ROI is open for editing (contains '[e]'),
-        % disable select ROI option and set to continue, otherwise reset
+        % - change addROI option to (cont)inue
+        % - disable select ROI option, enable finish ROI option
+        % otherwise, do opposite...
         if contains(currVol.roiNames{ind},'[e]')
             handles.addROI.String = 'Cont';
             handles.selROI.Enable = 'off';
+            handles.finROI.Enable = 'on';
         else
             handles.addROI.String = 'Add';
             handles.selROI.Enable = 'on';
+            handles.finROI.Enable = 'off';
         end
         
         % update select ROI text with current status
@@ -44,8 +45,10 @@ if success % update popupmenu and surface
         handles.selROI.Value = ind;
         
         % update lines with new ROI vertices
-        set(handles.brainROI,'XData',vCoords(:,1),...
-            'YData',vCoords(:,2),'ZData',vCoords(:,3));
+        set(handles.brainROI,...
+            'XData',vCoords(:,1),...
+            'YData',vCoords(:,2),...
+            'ZData',vCoords(:,3));
     end
 end
 

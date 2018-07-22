@@ -33,10 +33,10 @@ qForm   - rotation matrix in quaternion form
 tStmp   - time stamp of button down
 fRate   - frame rate limit of camera
 %}
-camCont = struct(...
+camControl = struct(...
     'mSens',[1.5,1.5,1.0],'mState','','mPos1',[],'mMoved',false,'zVal',10,...
     'clPatch',false,'ip',[],'qForm',[],'tStmp',clock,'fRate',1/60);
-setappdata(f_h,'camCont',camCont);
+setappdata(f_h,'camControl',camControl);
 
 % set marker size preferences (length, radius)
 setappdata(f_h,'markSize',[5,1]);

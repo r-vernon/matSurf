@@ -3,13 +3,13 @@ function cam_scrollWhFn(src,event)
 % camera locked to view angle between 2 and 18 degrees
 
 % get data
-camCont = getappdata(src,'camCont');
+camControl = getappdata(src,'camControl');
 currVol = getappdata(src,'currVol');
 handles = getappdata(src,'handles');
 
 % make sure not zooming crazily...
 cTime = clock;
-if etime(cTime,camCont.tStmp) < camCont.fRate
+if etime(cTime,camControl.tStmp) < camControl.fRate
     return
 end
 
@@ -17,15 +17,15 @@ end
 scrAmnt = event.VerticalScrollCount * -0.1 * 1.5; %camCont.mSens(3);
 
 % set new view angle
-newVA = camCont.zVal - scrAmnt;
+newVA = camControl.zVal - scrAmnt;
 
 % make sure new view angle doesn't exceed range
 newVA = max([0,min([20,newVA])]);
 
 % update appdata
-camCont.zVal = newVA;
-camCont.tStmp  = cTime;
-setappdata(src,'camCont',camCont);
+camControl.zVal = newVA;
+camControl.tStmp  = cTime;
+setappdata(src,'camControl',camControl);
 
 % pass it through cumulative guassian (mu 10, sigma 10/3) so fast zooming
 % at centre but slows at extremes (sigmoidal basically)

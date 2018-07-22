@@ -33,6 +33,9 @@ classdef brainSurf < handle
         VA_cur = {}
         q_cur
         
+        % store selected vertex
+        selVert
+        
     end
     
     properties (SetAccess = private) % visible (but not *set*able) outside class

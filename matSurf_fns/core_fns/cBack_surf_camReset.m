@@ -1,11 +1,8 @@
 function cBack_surf_camReset(src,~)
 
-% make sure volumes loaded
+% get data
 f_h = getFigHandle(src);
-if ~isappdata(f_h,'currVol'), return; end
-
-% get remaining data
-camCont = getappdata(f_h,'camCont');
+camControl = getappdata(f_h,'camControl');
 currVol = getappdata(f_h,'currVol'); 
 handles = getappdata(f_h,'handles');
 
@@ -17,8 +14,8 @@ handles.xForm.Matrix = qRotMat(currVol.cam.q_def);
 currVol.cam_reset;
 
 % update appdata
-camCont.qForm = currVol.cam.q_def;
-setappdata(f_h,'camCont',camCont);
+camControl.qForm = currVol.cam.q_def;
+setappdata(f_h,'camControl',camControl);
 
 setStatusTxt('camera reset');
 

@@ -9,6 +9,11 @@ function cBack_mode_mouseEvnt(f_h,ip)
 
 % get data
 handles = getappdata(f_h,'handles');
+currVol = getappdata(f_h,'currVol');
+
+% save out last selected vertex
+setStatusTxt(sprintf('Selected vertex %d',ip));
+currVol.selVert = ip;
 
 % In either mode, show info about vertex clicked, do that now
 handles.svEdit.String = num2str(ip);

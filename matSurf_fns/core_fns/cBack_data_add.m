@@ -1,10 +1,7 @@
 function cBack_data_add(src,~)
 
-% make sure volumes loaded
+% get data
 f_h = getFigHandle(src);
-if ~isappdata(f_h,'currVol'), return; end
-
-% get remaining data
 currVol = getappdata(f_h,'currVol'); 
 handles = getappdata(f_h,'handles');
 
@@ -24,9 +21,20 @@ end
 % load the base overlay (curvature information, using default colours)
 [success,ind] = currVol.ovrlay_add(toRead,'cmap',cmap);
 
-if success % update popupmenu and surface, plus flag
+if success 
+    
+    setStatusTxt('Loaded data overlay');
+    
+    % if added first overlay, update state (da = data overlay added)
+    if ind == 1
+        mS_stateControl(f_h,'da');
+    end
+    
+    % update select data popupmenu
     handles.selData.String = currVol.ovrlayNames;
     handles.selData.Value = ind;
+    
+    % update surface (will check if showData toggle is on)
     surf_update(handles,currVol);
 end
 
