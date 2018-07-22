@@ -42,7 +42,7 @@ vert = bsxfun(@minus,vert,obj.centroid);
 % camera details
 
 % set necessary axis limits
-obj.xyzLim = ceil(max(abs(vert(:)))) + 1;
+obj.xyzLim = ceil(max(abs(vert(:))) * 1.1);
 
 % use that to calculate camera position
 %{
