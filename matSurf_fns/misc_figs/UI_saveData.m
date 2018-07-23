@@ -180,6 +180,10 @@ movegui(saveDataFig,'center');
 
 % make visible
 saveDataFig.Visible = 'on';
+drawnow;
+
+% wait until cancel or load clicked
+uiwait(saveDataFig); 
 
 % =========================================================================
 
@@ -212,8 +216,10 @@ saveDataFig.Visible = 'on';
 
 % -------------------------------------------------------------------------
 
-    function txtCallback(~,~) 
-        [~] = checkStatus; % just check status
+    function txtCallback(src,~) 
+        % make sure there's no double quotes, then check status
+        src.String = char(erase(src.String,{'''','"'}));
+        [~] = checkStatus; 
     end
 
 % -------------------------------------------------------------------------
@@ -223,14 +229,23 @@ saveDataFig.Visible = 'on';
         if currMode == 1 % if in file mode, select folder
             
             % open dialogue box to select a folder
-            selPath = uigetdir(pwd,'Select save location');
+            startDir = nameTxt.String;
+            if ~exist(startDir,'dir')
+                startDir = fileparts(startDir);
+                if ~exist(startDir,'dir')
+                    startDir = pwd;
+                end
+            end
+            selPath = uigetdir(startDir,'Select save location');
             
-            if defOK(1)
-                selPath = fullfile(selPath,[defName,'.mat']);
-                nameTxt.String = selPath;
-                [~] = checkStatus;
-            else
-                nameTxt.String = selPath;
+            if selPath ~= 0 % if not clicked cancel
+                if defOK(1)
+                    selPath = fullfile(selPath,[defName,'.mat']);
+                    nameTxt.String = selPath;
+                    [~] = checkStatus;
+                else
+                    nameTxt.String = selPath;
+                end
             end
             
         else % if in variable mode, select base variable to overwrite
@@ -280,6 +295,7 @@ saveDataFig.Visible = 'on';
 % -------------------------------------------------------------------------
 
     function cancCallback(~,~)
+        uiresume(saveDataFig); 
         delete(saveDataFig); % just delete figure
     end
 
@@ -312,6 +328,7 @@ saveDataFig.Visible = 'on';
         
         % delete the figure
         success = true;
+        uiresume(saveDataFig); 
         delete(saveDataFig);
     end
 
@@ -351,7 +368,7 @@ saveDataFig.Visible = 'on';
         if isempty(currTxt)
             errInd(1) = 1;
         elseif currMode == 1 % saving as file
-            
+
             % split current text into file path and filename (adding ext.)
             [currPath,currName,currExt] = fileparts(currTxt);
             if isempty(currExt), currExt = '.mat'; end
