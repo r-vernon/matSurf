@@ -21,13 +21,13 @@ varName = defName;
 
 % main figure
 % will be modal, so no access to other figures until dealt with
-varNameFig = figure('WindowStyle','normal',...
+varNameFig = figure('WindowStyle','modal',...
     'Name',guideTxt,'Tag','varNameFig','FileName','varName.fig',...
     'Units','pixels','Position',[100, 100, 320, 95],'Visible','off',...
     'NumberTitle','off','MenuBar','none','DockControls','off','Resize','off');
 
 % guide text
-guideTxt = uicontrol(varNameFig,'Style','text','String',[guideTxt,':'],'Tag','guideTxt',...
+[~] = uicontrol(varNameFig,'Style','text','String',[guideTxt,':'],'Tag','guideTxt',...
     'HorizontalAlignment','left','Position',[10,70,300,15]);
 
 % text entry
@@ -57,7 +57,7 @@ iptSetPointerBehavior(txtEntry, txtEnterFcn);
 
 % whenever text hovers over button, change to hand
 butEnterFcn = @(fig, currentPoint) set(fig, 'Pointer', 'hand');
-iptSetPointerBehavior([resetBut,okayBut],butEnterFcn);
+iptSetPointerBehavior([resetBut,clearBut,okayBut],butEnterFcn);
 
 % create a pointer manager
 iptPointerManager(varNameFig);
