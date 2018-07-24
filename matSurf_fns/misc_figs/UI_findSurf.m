@@ -7,11 +7,11 @@ success = false;
 
 if nargin == 0, SUBJECTS_DIR = ''; end
 
-surfDet = struct('SUBJECTS_DIR',SUBJECTS_DIR,'subject','',...
-    'hemi','lh','surfType','inf');
+surfDet = struct('name','','SUBJECTS_DIR',SUBJECTS_DIR,'subject','',...
+    'hemi','lh','surfType','inf','sPath','','cPath','');
 
 % create a variable to store paths to check
-% in order: FreeSurfer, HCP, current dir, custom
+% in order: custom, FreeSurfer, HCP, current dir
 toCheck = false(4,1);
 cPath = {}; % custom path(s)
 
@@ -26,24 +26,24 @@ cFiles = [];
 % will be modal, so no access to other figures until dealt with
 findSurfFig = figure('WindowStyle','normal',...
     'Name','Enter SUBJECTS_DIR','Tag','findSurfFig','FileName','findSurf.fig',...
-    'Units','pixels','Position',[100, 100, 480, 160],'Visible','off',...
+    'Units','pixels','Position',[100, 100, 500, 160],'Visible','off',...
     'NumberTitle','off','MenuBar','none','DockControls','off','Resize','off');
 
 %--------------------------------------------------------------------------
 
 % text entry
 subDirTxt = uicontrol(findSurfFig,'Style','edit','Tag','subDirTxt',...
-    'HorizontalAlignment','left','Position',[15,120,423,25],...
+    'HorizontalAlignment','left','Position',[15,120,443,25],...
     'String',SUBJECTS_DIR,'Callback',@subDirCallback);
 
 % browse for folder
 browseBut = uicontrol(findSurfFig,'Style','pushbutton','String','...',...
-    'Tag','browseBut','Position',[440,120,25,25],'Callback',@browseCallback);
+    'Tag','browseBut','Position',[460,120,25,25],'Callback',@browseCallback);
 
 % warning text
 warnTxt = uicontrol(findSurfFig,'Style','text','String','Invalid path','Tag','warnTxt',...
     'HorizontalAlignment','right','FontSize',8,'ForegroundColor',[0.9,0,0],...
-    'FontAngle','italic','Position',[295,45,170,15],'Visible','off');
+    'FontAngle','italic','Position',[315,45,170,15],'Visible','off');
 
 %--------------------------------------------------------------------------
 
@@ -80,22 +80,22 @@ pialSurf = uicontrol(sTypePanel,'Style','radiobutton','String','Pial',...
 %--------------------------------------------------------------------------
 
 % subjects drop down
-selSubj = uicontrol(findSurfFig,'Style','popupmenu','String','Select Subject',...
-    'Tag','selSubj','Position',[255,89,120,20],'Callback',@selSubjCallback);
+selSubj = uicontrol(findSurfFig,'Style','listbox','String','Select Subject',...
+    'Tag','selSubj','Position',[180,15,120,90],'Callback',@selSubjCallback);
 
 % search button
 searchBut = uicontrol(findSurfFig,'Style','pushbutton','String','Search',...
-    'Tag','searchBut','Position',[385,85,80,25],...
+    'Tag','searchBut','Position',[405,85,80,25],...
     'Callback',@searchCallback);
 
 % cancel button
 cancBut = uicontrol(findSurfFig,'Style','pushbutton','String','Cancel',...
-    'Tag','cancBut','Position',[295,15,80,25],...
+    'Tag','cancBut','Position',[315,15,80,25],...
     'BackgroundColor',[231,76,60]/255,'Callback',@cancCallback);
 
 % load button
 loadBut = uicontrol(findSurfFig,'Style','pushbutton','String','Load',...
-    'Tag','loadBut','Position',[385,15,80,25],'Enable','off',...
+    'Tag','loadBut','Position',[405,15,80,25],'Enable','off',...
     'BackgroundColor',[46,204,113]/255,'Callback',@loadCallback);
 
 %  ========================================================================
@@ -121,7 +121,7 @@ movegui(findSurfFig,'center');
 
 % check if SUBJECTS_DIR been set
 if ~isempty(SUBJECTS_DIR)
-    checkSubjDir;
+    [~] = checkSubjDir;
 end
 
 % make visible
@@ -162,7 +162,7 @@ drawnow;
         end
         
         toCheck(:) = 0;
-        checkSubjDir;
+        [~] = checkSubjDir;
     end
 
     function browseCallback(~,~)
@@ -178,11 +178,9 @@ drawnow;
         if selPath ~= 0
             subDirTxt.String = selPath;
             toCheck(:) = 0;
-            checkSubjDir;
+            [~] = checkSubjDir;
         end
     end
-
-
 
 % -------------------------------------------------------------------------
 % select subject
@@ -198,24 +196,28 @@ drawnow;
 % -------------------------------------------------------------------------
 % search in current directory for valid files
 
-    function searchCallback(~,~)
+    function searchCallback(src,~)
         
         startDir = subDirTxt.String;
         if isempty(startDir)
             startDir = pwd;
         end
         
-        toCheck(4) = 0;
+        toCheck(1) = 0;
         
+        src.String = 'searching';
+        drawnow;
         fileChk = dir([startDir,'/**/*h.curv']);
+        src.String = 'Search';
+        
         if ~isempty(fileChk)
             
-            toCheck(4) = 1;
+            toCheck(1) = 1;
             
-            % grab folder names, cutting any instance of '/surf'
+            % grab unique folder names
             cPath = unique({fileChk.folder});
         
-            checkSubjDir;
+            [~] = checkSubjDir(1);
         end
         
     end
@@ -223,13 +225,30 @@ drawnow;
 % cancel and load
 
     function cancCallback(~,~)
-        %         uiresume(findSurfFig);
+        uiresume(findSurfFig);
         delete(findSurfFig); % just delete figure
     end
 
     function loadCallback(~,~)
+        
+        % double check status
+        canSave = checkSubjDir(1);
+        if ~canSave, return; end
+        
+        % save out file paths
+        surfDet.sPath = fullfile(strrep(surfDet.sPath,'xxREPLACExx',surfDet.subject));
+        surfDet.cPath = fullfile(strrep(surfDet.cPath,'xxREPLACExx',surfDet.subject));
+        
+        % get a valid subject name
+        surfDet.subject = UI_getVarName('Enter subject name',...
+            erase(surfDet.subject,{'.','/'}));
+        
+        % contruct a valid surface name 
+        surfName = [surfDet.subject,'_',surfDet.hemi,'_',surfDet.surfType];
+        surfDet.name = UI_getVarName('Enter surface name',surfName);
+
         success = true;
-        %         uiresume(findSurfFig);
+        uiresume(findSurfFig);
         delete(findSurfFig); % just delete figure
     end
 
@@ -242,7 +261,7 @@ drawnow;
         else
             surfDet.hemi = 'rh';
         end
-        checkSubjDir(true);
+        [~] = checkSubjDir(true);
     end
 
     function sTypeCallback(src,~)
@@ -254,14 +273,14 @@ drawnow;
             otherwise
                 surfDet.surfType = 'pial';
         end
-        checkSubjDir(true);
+        [~] = checkSubjDir(true);
     end
 
 %--------------------------------------------------------------------------
 
     function validateSubjDir
         % checks to see which search possibilies should be followed
-        % (likely only one option true so should'nt be too intensive...)
+        % (likely only one option true so shouldn't be too intensive...)
         % will also try to update with real path (i.e. no ./, /../, ~/)
         %
         % checks for curv file as otherwise too many matches
@@ -272,23 +291,23 @@ drawnow;
         % check if possible freesurfer directory
         fileChk = dir([SUBJECTS_DIR,'/*/surf/*h.curv']);
         if ~isempty(fileChk)
-            toCheck(1) = 1; 
-            SUBJECTS_DIR = regexp(fileChk(1).folder,'(.+)/\w+/surf','tokens');
-            SUBJECTS_DIR = SUBJECTS_DIR{:}{:};
+            toCheck(2) = 1; 
+            delimLoc = strfind(fileChk(1).folder,'/');
+            SUBJECTS_DIR = fileChk(1).folder(1:delimLoc(end-1)-1);
         end
         
         % check if possible hcp directory
         fileChk = dir([SUBJECTS_DIR,'/*/T1w/*/surf/*h.curv']);
         if ~isempty(fileChk)
-            toCheck(2) = 1;
-            SUBJECTS_DIR = regexp(fileChk(1).folder,'(.+)/\w+/T1w/','tokens');
-            SUBJECTS_DIR = SUBJECTS_DIR{:}{:};
+            toCheck(3) = 1;
+            delimLoc = strfind(fileChk(1).folder,'/');
+            SUBJECTS_DIR = fileChk(1).folder(1:delimLoc(end-3)-1);
         end
         
         % check if any files in current directory
         fileChk = dir([SUBJECTS_DIR,'/*h.curv']);
         if ~isempty(fileChk)
-            toCheck(3) = 1; 
+            toCheck(4) = 1; 
             SUBJECTS_DIR = fileChk(1).folder;
         end
         
@@ -315,22 +334,7 @@ drawnow;
         % preallocate for all files
         aFiles = [];
         
-        if toCheck(1)     % check freesurfer possibility
-            
-            tmp = dir([SUBJECTS_DIR,'/*/surf/',hemi,'.',surfType]);
-            aFiles = {tmp.folder};
-            
-        elseif toCheck(2) % check HCP possibility
-
-            tmp = dir([SUBJECTS_DIR,'/*/T1w/*/surf/',hemi,'.',surfType]);
-            aFiles = {tmp.folder};
-            
-        elseif toCheck(3) % check current dir possibility
-            
-            tmp = dir([SUBJECTS_DIR,'/',hemi,'.',surfType]);
-            aFiles = {tmp.folder};
-            
-        elseif toCheck(4)
+        if toCheck(1) % if ran custom search, check that first
             
             aFiles = cell(length(cPath),1);
             
@@ -341,6 +345,21 @@ drawnow;
             
             aFiles(isempty(aFiles)) = [];
             
+        elseif toCheck(2)     % check freesurfer possibility
+            
+            tmp = dir([SUBJECTS_DIR,'/*/surf/',hemi,'.',surfType]);
+            aFiles = {tmp.folder};
+            
+        elseif toCheck(3) % check HCP possibility
+            
+            tmp = dir([SUBJECTS_DIR,'/*/T1w/*/surf/',hemi,'.',surfType]);
+            aFiles = {tmp.folder};
+            
+        elseif toCheck(4) % check current dir possibility
+            
+            tmp = dir([SUBJECTS_DIR,'/',hemi,'.',surfType]);
+            aFiles = {tmp.folder};
+            
         end
         
     end
@@ -349,22 +368,52 @@ drawnow;
 
     function [subjNames] = getSubjNames(valSubjects)
         
-        if toCheck(1) || toCheck(2)
+        if toCheck(2) || toCheck(3)
             
             % if known file structure (FreeSurfer/HCP), can parse it
             subjNames = regexp(valSubjects,'\w+/(\w+)/surf','tokens');
-            subjNames = [subjNames{:}]; % expand cell of cells to just cell
+            subjNames = [subjNames{:}]'; % expand cell of cells to just cell
             
         else
             
-            % just return whole path!
-            subjNames = valSubjects;
+            % just return whole path without SUBJECT_DIR!
+            subjNames = strrep(valSubjects,subDirTxt.String,'.');
             
         end
     end
 
 %--------------------------------------------------------------------------
-    function checkSubjDir(subjDirSame)
+
+    function setFilePaths
+        % xxREPLACExx will be replaced by subject when saving out
+        
+        hemi     = [lower(hemiPanel.SelectedObject.String(1)),'h'];
+        surfType = lower(sTypePanel.SelectedObject.String);
+        
+        if toCheck(2) % if freesurfer path
+            
+            surfDet.sPath = [SUBJECTS_DIR,'/xxREPLACExx/surf/',hemi,'.',surfType];
+            surfDet.cPath = [SUBJECTS_DIR,'/xxREPLACExx/surf/',hemi,'.curv'];
+            
+        elseif toCheck(3) % if HCP path
+            
+            surfDet.sPath = [SUBJECTS_DIR,...
+                '/xxREPLACEMExx/T1w/xxREPLACExx/surf/',hemi,'.',surfType];
+            surfDet.cPath = [SUBJECTS_DIR,...
+                '/xxREPLACEMExx/T1w/xxREPLACExx/surf/',hemi,'.curv'];
+            
+        else % just stored path to file
+            
+            surfDet.sPath = [SUBJECTS_DIR,'/xxREPLACExx/',hemi,'.',surfType];
+            surfDet.cPath = [SUBJECTS_DIR,'/xxREPLACExx/',hemi,'.curv'];
+            
+        end
+    end
+
+%--------------------------------------------------------------------------
+    function canSave = checkSubjDir(subjDirSame)
+        
+        canSave = false;
         
         % if subjDirSame skips checking curvature files
         if nargin == 0, subjDirSame = false; end
@@ -383,7 +432,7 @@ drawnow;
        sFiles = checkFilesExist('surf');
        
        % if subject directory changed, check if curv files exist
-       if ~subjDirSame
+       if ~subjDirSame || isempty(cFiles)
            cFiles = checkFilesExist('curv');
        end
 
@@ -398,7 +447,8 @@ drawnow;
         
         % check there were valid subjects
         if ~isempty(subjNames)
-            selSubj.String = [subjNames{:}];
+            assignin('base','subjNames_b',subjNames);
+            selSubj.String = {subjNames{:}};
             loadBut.Enable = 'on';
             surfDet.SUBJECTS_DIR = subDirTxt.String;
             if ischar(selSubj.String)
@@ -406,6 +456,8 @@ drawnow;
             else
                 surfDet.subject = selSubj.String{selSubj.Value};
             end
+            setFilePaths;
+            canSave = true;
         else
             set(warnTxt,'String','No subjects found','Visible','on');
             set(selSubj,'String','Select Subject','Value',1);
