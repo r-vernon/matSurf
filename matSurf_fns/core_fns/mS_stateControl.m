@@ -119,12 +119,14 @@ end
         switch newState
             case 0 % disable
                 
+                handles.matSurfFig.WindowKeyReleaseFcn  = '';
                 handles.matSurfFig.WindowScrollWheelFcn = '';
                 handles.axisPanel.ButtonDownFcn         = '';
                 handles.brainPatch.ButtonDownFcn        = '';
                 
             case 1 % enable
                 
+                handles.matSurfFig.WindowKeyReleaseFcn  = @cBack_keyPress;
                 handles.matSurfFig.WindowScrollWheelFcn = @cam_scrollWhFn;
                 handles.axisPanel.ButtonDownFcn         = @cam_bDownFcn;
                 handles.brainPatch.ButtonDownFcn        = @cam_bDownFcn;
@@ -356,8 +358,8 @@ end
     function switchROIState(newState)
         
         % combine some key handles so can turn all on/off as needed
-        keyHandles = [handles.finROI,handles.delROI,handles.selROI,...
-            handles.cfgROI,handles.saveROI,handles.togROI];
+        keyHandles = [handles.undoROI,handles.finROI,handles.delROI,...
+            handles.selROI,handles.cfgROI,handles.saveROI,handles.togROI];
         
         if abs(newState) == 2 % if asked to disable or enable, and reset
             

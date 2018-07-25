@@ -91,6 +91,9 @@ handles.delROI.Callback = @cBack_ROI_delete;
 % save ROI
 handles.saveROI.Callback = @cBack_ROI_save;
 
+% undo last ROI vertex
+handles.undoROI.Callback = @cBack_ROI_undo;
+
 % finish ROI
 handles.finROI.Callback = @cBack_ROI_addPnt;
 

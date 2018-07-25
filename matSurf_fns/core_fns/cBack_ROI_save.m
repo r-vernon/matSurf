@@ -17,8 +17,6 @@ if contains(ROIname,'[e]')
     return
 end
 
-
-
 % get ROI index
 ROI_ind = find(strcmpi({currVol.ROIs.name},ROIname),1);
 
@@ -54,9 +52,9 @@ allVert = allVert - 1;
 success = write_label(allVert, allCoords, [], fileName, subject);
 
 if success
-    setStatusTxt('saved ROI successfully');
+    setStatusTxt('Saved ROI successfully');
 else
-    setStatusTxt('could not save ROI');
+    setStatusTxt('Could not save ROI');
 end
 
 end

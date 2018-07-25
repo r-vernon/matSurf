@@ -85,6 +85,10 @@ handles.setLight = uimenu(handles.surfMenu,Text,'Set Lighting',...
 %  ========================================================================
 % menu items for ROIs
 
+% undo last ROI point
+handles.undoROI = uimenu(handles.roiMenu,Text,'Undo',...
+    'Tag','undoROI','Enable','off');
+
 % finish ROI
 handles.finROI = uimenu(handles.roiMenu,Text,'Finish ROI',...
     'Tag','finROI','Enable','off');

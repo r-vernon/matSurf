@@ -8,6 +8,13 @@ currVol = getappdata(f_h,'currVol');
 % grab name of ROI to remove
 ROIname = handles.selROI.String{handles.selROI.Value};
 
+% if it's finished, check they definitely want to remove it (no as default if hit enter)
+if ~contains(ROIname,'[e]')
+    reallyDel = questdlg(sprintf('Are you sure you want to delete %s?',ROIname),...
+        'Delete ROI?','Yes','No','No');
+    if strcmp(reallyDel,'No'), return; end
+end
+
 % try to delete selected overlay
 [success,ind,vCoords] = currVol.ROI_remove(ROIname);
 

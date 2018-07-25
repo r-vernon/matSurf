@@ -238,6 +238,16 @@ classdef brainSurf < handle
         
         % -----------------------------------------------------------------
         
+        [success,ind,vCoords] = ROI_remove(obj,ROIname)
+        % function to remove an ROI
+        
+        % -----------------------------------------------------------------
+        
+        [vCoords,prevVal] = ROI_undo(obj)
+        % function to undo last added ROI vertex
+        
+        % -----------------------------------------------------------------
+        
         [roiData] = ROI_get(obj,vertInd)
         % function that returns all ROI coordinates for plotting
         
