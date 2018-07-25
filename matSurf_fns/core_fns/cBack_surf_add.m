@@ -6,20 +6,27 @@ allVol     = getappdata(f_h,'allVol');
 cmaps      = getappdata(f_h,'cmaps');
 handles    = getappdata(f_h,'handles');
 
-% add a new volume and copy out as 'current'
+% see if subjects_dir is available
+SUBJECTS_DIR = '';
+if isappdata(f_h,'SUBJECTS_DIR')
+    SUBJECTS_DIR = getappdata(f_h,'SUBJECTS_DIR');
+end
+
+% get session details
+[surfDet,success] = UI_findSurf(SUBJECTS_DIR);
+
+% if success is false (e.g. clicked cancel), do nothing
+if ~success, return; end
+
+% must have req. details, so add a new volume and copy out as 'current'
 currVol = allVol.addVol(brainSurf(cmaps));
 setappdata(f_h,'currVol',currVol);
 
-% initialise session details (TODO - get user input)
-SUBJECTS_DIR = [pwd,'/Data'];
-subject = 'R3517';
-hemi = 'rh';
-surfType = 'inflated';
+% pass surface details through to the volume 
+currVol.surface_setDetails(surfDet);
 
-% set surfName, plus surf and curv to load
-surfName = strcat(subject,'_',hemi,'_',surfType(1:2));
-fPath = fullfile(SUBJECTS_DIR,subject,'surf',{[hemi,'.',surfType],[hemi,'.curv']});
-currVol.surface_setDetails(fPath{1},fPath{2},surfName)
+% update SUBJECTS_DIR
+setappdata(f_h,'SUBJECTS_DIR',surfDet.SUBJECTS_DIR);
 
 %--------------------------------------------------------------------------
 

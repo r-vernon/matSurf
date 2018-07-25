@@ -58,7 +58,7 @@ end
 % load in data
 allVol     = getappdata(f_h,'allVol');
 camControl = getappdata(f_h,'camControl');
-handles = getappdata(f_h,'handles');
+handles    = getappdata(f_h,'handles');
 
 % load in current vol if possible
 if isappdata(f_h,'currVol')

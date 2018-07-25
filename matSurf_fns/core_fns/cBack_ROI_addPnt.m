@@ -33,20 +33,31 @@ end
 % update popup menu if needed
 if newROI
     handles.selROI.String = currVol.roiNames;
-    handles.selROI.Value = ind;
+    handles.selROI.Value  = ind;
 end
 
 % change ROI add button to continue if drawing, or back to 'add' if finished
 % Disable select ROI option whilst drawing
 % Disable finish ROI option whilst not drawing
 if finalPt
+    
+    % update ROI name
+    oldName = currVol.ROIs(ind).name;
+    newName = UI_getVarName('Enter ROI name',oldName);
+    currVol.ROI_updateName(oldName,newName);
+    
+    % move surface marker
     surf_coneMarker(f_h,currVol.ROIs(ind).selVert(1));
+    
+    % enable/disable UI options
     set(handles.selROI,'Enable','on','String',currVol.roiNames,'Value',ind);
     handles.finROI.Enable = 'off';
     handles.addROI.String = 'Add';
     handles.dataMode.Value = 1;
+    
     setStatusTxt('Finished ROI');
 else
+    % enable/disable UI options
     handles.selROI.Enable = 'off';
     handles.finROI.Enable = 'on';
     handles.addROI.String = 'Cont';

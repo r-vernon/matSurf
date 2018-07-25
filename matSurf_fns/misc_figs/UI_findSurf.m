@@ -1,4 +1,19 @@
 function [surfDet,success] = UI_findSurf(SUBJECTS_DIR)
+% function to get surface details
+% Note: only looks for FreeSurfer surfaces and folder must contain both
+% curvature file (e.g. lh.curv) and surface file (e.g. lh.white)
+% To load in other options use import function
+%
+% (opt.) SUBJECTS_DIR, initial search path for surfaces
+% (ret.) surfDet, surface details containing:
+%        - SUBJECTS_DIR, search path for surface
+%        - subject,      name of subject
+%        - surfName,     name of surface
+%        - hemi,         surface hemisphere (lh - left, rh - right)
+%        - surfType,     (inf)lated, (wh)ite or (pial)
+%        - surfPath,     path to surface file
+%        - curvPath,     path to curv file
+% (ret.) success, true if successfully acquired surface details
 
 success = false;
 
@@ -7,8 +22,8 @@ success = false;
 
 if nargin == 0, SUBJECTS_DIR = ''; end
 
-surfDet = struct('name','','SUBJECTS_DIR',SUBJECTS_DIR,'subject','',...
-    'hemi','lh','surfType','inf','sPath','','cPath','');
+surfDet = struct('SUBJECTS_DIR',SUBJECTS_DIR,'subject','',...
+    'surfName','','hemi','lh','surfType','inf','surfPath','','curvPath','');
 
 % preallocate (c)urv(Files) so it has persistent scope
 cFiles = [];
@@ -256,10 +271,8 @@ uiwait(findSurfFig);
     function loadCallback(~,~)
         
         % grab the paths to surface and curvature
-        if ischar(selPath.String)
-            currPath = selPath.String;
-        else
-            currPath = selPath.String{selPath.Value};
+        if ischar(selPath.String), currPath = selPath.String;
+        else, currPath = selPath.String{selPath.Value};
         end
         targSurf = [currPath,'/',surfDet.hemi,'.',sTypePanel.SelectedObject.String];
         targCurv = [currPath,'/',surfDet.hemi,'.curv'];
@@ -283,14 +296,14 @@ uiwait(findSurfFig);
         
         % contruct a valid surface name
         surfName = [surfDet.subject,'_',surfDet.hemi,'_',surfDet.surfType];
-        surfDet.name = UI_getVarName('Enter surface name',surfName);
+        surfDet.surfName = UI_getVarName('Enter surface name',surfName);
         
         % save out subject directory
         surfDet.SUBJECTS_DIR = subjDirTxt.String;
 
         % save out paths
-        surfDet.sPath = targSurf;
-        surfDet.cPath = targCurv;
+        surfDet.surfPath = targSurf;
+        surfDet.curvPath = targCurv;
         
         success = true;
         uiresume(findSurfFig);
@@ -312,6 +325,10 @@ uiwait(findSurfFig);
         % 1 - Freesurfer, 2 - HCP, 3 - curDir, 4 - curDir/*/
         srchPaths = {'/*/surf/*h.curv','/*/T1w/*/surf/*h.curv','/*h.curv','/*/*h.curv'};
         
+        % change search to searching
+        searchBut.String = 'Searching';
+        drawnow;
+        
         % search through search paths
         for ind = 1:4
             fileChk = dir([subjDirTxt.String,srchPaths{ind}]);
@@ -320,6 +337,9 @@ uiwait(findSurfFig);
                 break;
             end
         end
+        
+        % change back
+        searchBut.String = 'Search';
         
         % if we've found files, check if they're valid, otherwise error
         if ~isempty(cFiles)
@@ -341,35 +361,34 @@ uiwait(findSurfFig);
         
         % check for requested surface files
         % also double checking curv in case e.g. left exists but not right
-        targSurf = ['/',surfDet.hemi,'.',sTypePanel.SelectedObject.String];
-        targCurv = ['/',surfDet.hemi,'.curv'];
+        tSurf = ['/',surfDet.hemi,'.',sTypePanel.SelectedObject.String];
+        tCurv = ['/',surfDet.hemi,'.curv'];
         found_targSurf = false(length(cFiles),1);
         
         % for each curv file, check if there's a corresponding surf file
-        for currFile = 1:length(cFiles)
-            if exist([cFiles{currFile},targSurf],'file') && ...
-                    exist([cFiles{currFile},targCurv],'file')
-                
-                found_targSurf(currFile) = 1;
-                
+        indx = 1;
+        for currFile = cFiles
+            if exist([currFile{1},tSurf],'file') && exist([currFile{1},tCurv],'file')
+                found_targSurf(indx) = 1;       
+                indx = indx + 1;
             end
         end
         
         % delete any saved curv files, when couldn't find surf file
         tmp_cFiles = cFiles;
         tmp_cFiles(~found_targSurf) = [];
-
-        % use simple heuristic to preserve path string if posssible
-        if length(selPath.String) == length(tmp_cFiles)
-            newVal = selPath.Value;
-        else
-            newVal = 1;
-        end
         
         % check there were valid subjects
         if ~isempty(tmp_cFiles)
+            
+            % check to see if current path is in new selection, preserve if so
+            if ischar(selPath.String), currPath = selPath.String;
+            else, currPath = selPath.String{selPath.Value};
+            end
+            newVal = max([1,find(contains(tmp_cFiles,currPath))]);
+            
             set(selPath,'String',tmp_cFiles,'Value',newVal);
-            loadBut.Enable = 'on';    
+            loadBut.Enable = 'on';
         else
             set(warnTxt,'String','No valid paths found','Visible','on');
             set(selPath,'String','Select Path','Value',1);
@@ -380,21 +399,4 @@ uiwait(findSurfFig);
         
     end
             
-end     
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
+end                

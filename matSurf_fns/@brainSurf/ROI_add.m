@@ -75,10 +75,10 @@ if newROI
         newInd = 1;
     else
         newInd = 1 + max([0,cellfun(@str2double,...
-            regexp([obj.ROIs(:).name],'ROI ([0-9]{3})','tokens'))]);
+            regexp([obj.ROIs(:).name],'ROI_([0-9]{3})','tokens'))]);
     end
     
-    ROIname = sprintf('[e] ROI %03d',newInd); % [e] means open for editing
+    ROIname = sprintf('[e] ROI_%03d',newInd); % [e] means open for editing
     
     % preallocate space for all/selected vertices (will shrink when ROI finished)
     allV = zeros(1e5,1);
@@ -195,10 +195,7 @@ else
         obj.ROI_lineInd(lStPos:lEndPos) = sPath;
     end
     
-    %-----------------------------
-    % if final point, update names
-    
-    % remove edit symbol from ROI ([e])
+    % if final point, strip [e] from ROI name
     if finalPt
         obj.ROIs(ind).name = erase(obj.ROIs(ind).name,'[e] ');
         obj.roiNames{ind} = obj.ROIs(ind).name;

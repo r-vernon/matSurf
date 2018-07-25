@@ -11,6 +11,15 @@ classdef brainSurf < handle
     % (ret.) var, function [returns] variable var
     % (set.) obj.var, function [sets] variable var to class obj
     %
+    % Surface properties:
+    %   SUBJECTS_DIR, search path for surface
+    %   subject,      name of subject
+    %   surfName,     name of surface
+    %   hemi,         surface hemisphere (lh - left, rh - right)
+    %   surfType,     (inf)lated, (wh)ite or (pial)
+    %   surfPath,     path to surface file
+    %   curvPath,     path to curv file
+    %
     % Overlay properties:
     %   vars,    currOvrlay, baseOvrlay, dataOvrlay
     %   name,    name of data overlay
@@ -42,8 +51,12 @@ classdef brainSurf < handle
         
         % -------------------------------------------------------------
         % surface properties
-
-        surfDet  % details about surface (surfName, surfPath, curvPath)
+        
+        % details about surface
+        surfDet = struct('SUBJECTS_DIR','','subject','',...
+            'surfName','','hemi','','surfType','',...
+            'surfPath','','curvPath','');
+        
         TR       % triangulation (needed to display surface)
         centroid % surface centroid
         nVert    % number of vertices
@@ -166,7 +179,7 @@ classdef brainSurf < handle
         % gets surfDet
         % sets TR, nVert, xyzLim, cam, ROIpts, G
         
-        surface_setDetails(obj,surfPath,curvPath,surfName)
+        surface_setDetails(obj,varargin)
         % function to set surface details
         % sets surfDet
         
@@ -233,6 +246,9 @@ classdef brainSurf < handle
         [allVert] = ROI_fill(obj,bPts,midPt)
         % function to flood fill an ROI
         
+        ROI_updateName(obj,oldName,newName)
+        % function to update an ROI name
+
         % =================================================================
         % camera functions
         

@@ -26,7 +26,6 @@ mSens   - mouse sensitivity for (order): rotation, panning, zooming
 mMoved  - true if mouse moved
 mPos1   - mouse position at click (wrt. axis (normal Cl.) or fig (extend Cl.)
 mState  - normal (LClick), extend (L+R Click, ScrWh Click), alt (RClick)
-zVal    - zoom value, range 0:20
 clPatch - true if click came from patch
 ip      - intersection point between click/patch if clicked patch
 qForm   - rotation matrix in quaternion form
@@ -34,12 +33,15 @@ tStmp   - time stamp of button down
 fRate   - frame rate limit of camera
 %}
 camControl = struct(...
-    'mSens',[1.5,1.5,1.0],'mState','','mPos1',[],'mMoved',false,'zVal',10,...
+    'mSens',[1.5,1.5,1.5],'mState','','mPos1',[],'mMoved',false,...
     'clPatch',false,'ip',[],'qForm',[],'tStmp',clock,'fRate',1/60);
 setappdata(f_h,'camControl',camControl);
 
 % set marker size preferences (length, radius)
 setappdata(f_h,'markSize',[5,1]);
+
+% set SUBJECTS_DIR
+setappdata(f_h,'SUBJECTS_DIR','/scratch/home/r/rv519/matSurf/Data');
 
 % show the figure
 f_h.Visible = 'on';
@@ -85,6 +87,9 @@ handles.addROI.Callback = @cBack_mode_set;
 
 % delete ROI
 handles.delROI.Callback = @cBack_ROI_delete;
+
+% save ROI
+handles.saveROI.Callback = @cBack_ROI_save;
 
 % finish ROI
 handles.finROI.Callback = @cBack_ROI_addPnt;

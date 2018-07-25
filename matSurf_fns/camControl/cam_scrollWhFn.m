@@ -14,16 +14,17 @@ if etime(cTime,camControl.tStmp) < camControl.fRate
 end
 
 % set sensitivity
-scrAmnt = event.VerticalScrollCount * -0.1 * 1.5; %camCont.mSens(3);
+scrAmnt = event.VerticalScrollCount * -0.1 * camControl.mSens(3);
 
 % set new view angle
-newVA = camControl.zVal - scrAmnt;
+% (first undo normcdf line below)
+newVA = handles.brainAx.CameraViewAngle;
+newVA = norminv((newVA-2)/16,10,10/3) - scrAmnt;
 
 % make sure new view angle doesn't exceed range
 newVA = max([0,min([20,newVA])]);
 
 % update appdata
-camControl.zVal = newVA;
 camControl.tStmp  = cTime;
 setappdata(src,'camControl',camControl);
 

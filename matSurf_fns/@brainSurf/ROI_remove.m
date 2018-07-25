@@ -10,8 +10,10 @@ function [success,ind,vCoords] = ROI_remove(obj,ROIname)
 % (set.) currOvrlay, sets current overlay to previous overlay, next
 %        overlay or base overlay in order of preference
 
-% preset sucess to false 
+% preset sucess to false  and others to empty
 success = false;
+ind = [];
+vCoords = [];
 
 %==========================================================================
 % grab details of selected ROI
