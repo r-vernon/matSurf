@@ -359,9 +359,16 @@ uiwait(findSurfFig);
         tmp_cFiles = cFiles;
         tmp_cFiles(~found_targSurf) = [];
 
+        % use simple heuristic to preserve path string if posssible
+        if length(selPath.String) == length(tmp_cFiles)
+            newVal = selPath.Value;
+        else
+            newVal = 1;
+        end
+        
         % check there were valid subjects
         if ~isempty(tmp_cFiles)
-            set(selPath,'String',tmp_cFiles,'Value',1);
+            set(selPath,'String',tmp_cFiles,'Value',newVal);
             loadBut.Enable = 'on';    
         else
             set(warnTxt,'String','No valid paths found','Visible','on');
