@@ -59,6 +59,6 @@ if success % update popupmenu and surface
     end
 end
 
-drawnow;
+drawnow; pause(0.05);
 
 end

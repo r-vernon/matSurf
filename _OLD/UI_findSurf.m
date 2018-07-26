@@ -126,7 +126,7 @@ end
 
 % make visible
 findSurfFig.Visible = 'on';
-drawnow;
+drawnow; pause(0.05);
 
 % wait until cancel or load clicked
 % uiwait(findSurfFig);
@@ -242,11 +242,13 @@ drawnow;
         % get a valid subject name
         surfDet.subject = UI_getVarName('Enter subject name',...
             erase(surfDet.subject,{'.','/'}));
+        drawnow; pause(0.05);
         
         % contruct a valid surface name 
         surfName = [surfDet.subject,'_',surfDet.hemi,'_',surfDet.surfType];
         surfDet.name = UI_getVarName('Enter surface name',surfName);
-
+        drawnow; pause(0.05);
+        
         success = true;
         uiresume(findSurfFig);
         delete(findSurfFig); % just delete figure

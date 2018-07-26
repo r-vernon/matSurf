@@ -75,7 +75,7 @@ end
 
 % make visible
 varNameFig.Visible = 'on';
-drawnow;
+drawnow; pause(0.05);
 
 % wait until cancel or load clicked
 uiwait(varNameFig);
@@ -132,6 +132,6 @@ uiwait(varNameFig);
             okayBut.Enable = 'off';
             canSave = false;
         end
-        drawnow;
+        drawnow; pause(0.05);
     end
 end

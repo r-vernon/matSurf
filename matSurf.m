@@ -41,10 +41,14 @@ setappdata(f_h,'camControl',camControl);
 setappdata(f_h,'markSize',[5,1]);
 
 % set SUBJECTS_DIR
-setappdata(f_h,'SUBJECTS_DIR','/scratch/home/r/rv519/matSurf/Data');
+setappdata(f_h,'SUBJECTS_DIR',[pwd,'/Data']);
 
 % show the figure
 f_h.Visible = 'on';
+
+% make sure everything is fully drawn (adding pause due to: 
+% http://undocumentedmatlab.com/blog/solving-a-matlab-hang-problem)
+drawnow; pause(0.05);
 
 % =========================================================================
 % surface button callbacks

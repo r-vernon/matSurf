@@ -50,6 +50,6 @@ elseif camControl.clPatch
     
 end
 
-drawnow;
+drawnow; pause(0.05);
 
 end

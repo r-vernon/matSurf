@@ -29,5 +29,6 @@ saveName = [currVol.surfDet.subject,'_',currVol.surfDet.hemi,'_ROIs'];
 
 % pass through to save dialogue
 UI_saveData(s,saveName);
+drawnow; pause(0.05);
 
 end

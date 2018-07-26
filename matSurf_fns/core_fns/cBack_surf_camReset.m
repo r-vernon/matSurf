@@ -19,6 +19,6 @@ setappdata(f_h,'camControl',camControl);
 
 setStatusTxt('camera reset');
 
-drawnow;
+drawnow; pause(0.05);
 
 end

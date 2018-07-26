@@ -140,7 +140,7 @@ end
 
 % make visible
 findSurfFig.Visible = 'on';
-drawnow;
+drawnow; pause(0.05);
 
 % wait until cancel or load clicked
 uiwait(findSurfFig);
@@ -293,10 +293,12 @@ uiwait(findSurfFig);
             
         % get a valid subject name
         surfDet.subject = UI_getVarName('Enter subject name',subjName);
+        drawnow; pause(0.05);
         
         % contruct a valid surface name
         surfName = [surfDet.subject,'_',surfDet.hemi,'_',surfDet.surfType];
         surfDet.surfName = UI_getVarName('Enter surface name',surfName);
+        drawnow; pause(0.05);
         
         % save out subject directory
         surfDet.SUBJECTS_DIR = subjDirTxt.String;
@@ -395,7 +397,7 @@ uiwait(findSurfFig);
             loadBut.Enable = 'off';
         end
         
-        drawnow;
+        drawnow; pause(0.05);
         
     end
             

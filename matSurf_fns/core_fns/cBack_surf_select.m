@@ -14,6 +14,6 @@ mS_stateControl(f_h,'sc');
 % update status text
 setStatusTxt(sprintf('Switched to %s',currVol.surfDet.surfName));
 
-drawnow;
+drawnow; pause(0.05);
 
 end

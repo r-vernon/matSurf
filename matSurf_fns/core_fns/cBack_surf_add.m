@@ -14,6 +14,7 @@ end
 
 % get session details
 [surfDet,success] = UI_findSurf(SUBJECTS_DIR);
+drawnow; pause(0.05);
 
 % if success is false (e.g. clicked cancel), do nothing
 if ~success, return; end
@@ -46,6 +47,6 @@ mS_stateControl(f_h,'sa');
 handles.selSurf.String = allVol.vNames;
 handles.selSurf.Value =  allVol.cVol;
 
-drawnow;
+drawnow; pause(0.05);
 
 end

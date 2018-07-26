@@ -182,7 +182,7 @@ movegui(saveDataFig,'center');
 
 % make visible
 saveDataFig.Visible = 'on';
-drawnow;
+drawnow; pause(0.05);
 
 % wait until cancel or load clicked
 uiwait(saveDataFig); 
