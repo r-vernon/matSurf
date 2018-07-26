@@ -67,7 +67,7 @@ switch event.Key
     case 'r'
         
         % if in ROI mode, start ROI at point, else switch to ROI mode
-        if handles.roiMode.Value
+        if handles.roiMode.Value && ~isempty(handles.svEdit.String)
             cBack_ROI_addPnt(src,str2double(handles.svEdit.String));
         else
             handles.roiMode.Value = 1;

@@ -113,7 +113,7 @@ classdef brainSurf < handle
         % -------------------------------------------------------------
         % surface properties
         
-        G       % graph
+        G % graph
 
         % -------------------------------------------------------------
         % overlay properties
@@ -170,6 +170,13 @@ classdef brainSurf < handle
             obj.q_cur  = [1,0,0,0];
             
         end
+        
+        
+        [vol] = saveInstance(obj)
+        % save an instance
+        
+        loadInstance(obj,vol)
+        % load a saved instance (sets everything!)
         
         % =================================================================
         % Surface functions
@@ -267,5 +274,5 @@ classdef brainSurf < handle
         % sets VA_cur, q_cur
         
     end
-        
+    
 end

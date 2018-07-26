@@ -93,6 +93,10 @@ handles.undoROI = uimenu(handles.roiMenu,Text,'Undo',...
 handles.finROI = uimenu(handles.roiMenu,Text,'Finish ROI',...
     'Tag','finROI','Enable','off');
 
+% expoert ROI
+handles.expROI = uimenu(handles.roiMenu,Text,'Export ROI(s)',...
+    'Tag','expROI','Enable','off');
+
 %% ========================================================================
 
 %  ---------------------- MISC MENU ---------------------------------------
@@ -454,8 +458,12 @@ clickObj = findall(figHandle,'Style','radiobutton','-or',...
     'Style','checkbox','-or','Style','pushbutton');
 
 % whenever text hovers over button, change to hand
-enterFcn = @(fig, currentPoint) set(fig, 'Pointer', 'hand');
+enterFcn = @(fig,~) set(fig, 'Pointer', 'hand');
 iptSetPointerBehavior(clickObj, enterFcn);
+
+% whenever move over patch, set pointer to cross
+enterFcn = @(fig,~) set(fig, 'Pointer', 'cross');
+iptSetPointerBehavior(handles.brainPatch, enterFcn);
 
 % create a pointer manager
 iptPointerManager(figHandle);

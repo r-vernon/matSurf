@@ -97,6 +97,9 @@ handles.undoROI.Callback = @cBack_ROI_undo;
 % finish ROI
 handles.finROI.Callback = @cBack_ROI_addPnt;
 
+% export ROI
+handles.expROI.Callback = @cBack_ROI_export;
+
 % =========================================================================
 % misc. menu callbacks
 

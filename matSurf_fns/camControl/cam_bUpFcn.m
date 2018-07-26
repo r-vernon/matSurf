@@ -8,14 +8,21 @@ camControl = getappdata(src,'camControl');
 % callback, if mouse movement, then aim was to move surface so
 % already taken care of with mMoveFcn
 
+% reset callbacks 
+src.WindowButtonMotionFcn = '';
+src.WindowButtonUpFcn     = '';
+
+% reset pointer (dependent upon if patch click or not)
+if camControl.clPatch
+    src.Pointer = 'cross';
+else
+    src.Pointer = 'arrow';
+end
+
 % if right click detected, for now do nothing...
 if strcmp(camControl.mState,'alt')
     return;
 end
-
-% reset callbacks
-src.WindowButtonMotionFcn = '';
-src.WindowButtonUpFcn     = '';
 
 if camControl.mMoved
     % mouse moved so was a camera control click, update views

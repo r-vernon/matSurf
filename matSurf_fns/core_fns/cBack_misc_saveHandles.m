@@ -5,6 +5,6 @@ f_h = getFigHandle(src);
 handles = getappdata(f_h,'handles');
 
 % open up save dialogue with default details
-tmpFig = UI_saveData(handles,'handles',[],1,1);
+UI_saveData(handles,'handles',[],1,1);
 
 end

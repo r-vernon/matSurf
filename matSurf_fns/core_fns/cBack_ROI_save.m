@@ -23,8 +23,29 @@ ROI_ind = find(strcmpi({currVol.ROIs.name},ROIname),1);
 % get the boundary points for the ROI we want to save
 ROI_bound = currVol.ROIs(ROI_ind).allVert;
 
+%--------------------------------------------------------------------------
 % fill the ROI
+
+% try to fill automatically
 allVert = currVol.ROI_fill(ROI_bound);
+
+% if more than 25% of vertices filled, likely something went wrong!
+if length(allVert) > 0.25*currVol.nVert
+    
+    % ask user to click vertex inside ROI
+    tmpMsg = msgbox(sprintf([...
+        'Could not automatically fill ROI\n',...
+        'Please manually select any vertex inside ROI\n\n',...
+        'After selecting vertex, press ''OK'' to continue']),'ROI fill');
+    
+    % wait until user clicks okay to continue
+    uiwait(tmpMsg);
+    
+    % refill ROI with selected vertex
+    allVert = currVol.ROI_fill(ROI_bound,currVol.selVert);
+end
+
+%--------------------------------------------------------------------------
 
 % get save location
 [fileName,filePath] = uiputfile({'*.label';'*.*'},'Save ROI',[ROIname,'.label']);

@@ -59,10 +59,13 @@ switch camControl.mState(1)
         f_h.WindowButtonMotionFcn = '';
 end
 
-% set button up function
+% set pointer ('fleur' is 4 arrows) and button up function
+f_h.Pointer = 'fleur';
 f_h.WindowButtonUpFcn = @cam_bUpFcn;
 
 % update appdata
 setappdata(f_h,'camControl',camControl);
+
+drawnow;
 
 end

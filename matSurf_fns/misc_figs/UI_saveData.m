@@ -1,4 +1,4 @@
-function [saveDataFig,success] = UI_saveData(data,defName,startMode,varOnly,canOvrWrite)
+function [success] = UI_saveData(data,defName,startMode,varOnly,canOvrWrite)
 % function to allow saving data, either in .mat file or in workspace
 %
 % (req.) data, data to save
@@ -7,7 +7,6 @@ function [saveDataFig,success] = UI_saveData(data,defName,startMode,varOnly,canO
 %        to saving as var
 % (opt.) varOnly, if true, can only save as variable, not file
 % (opt.) canOvrWrite, if true, allows overwriting from start
-% (ret.) saveDataFig, figure handle to main figure
 % (ret.) success, true if saved successfully
 
 success = false;
@@ -55,11 +54,15 @@ end
 % check if can use default name
 defOK = false(2,1);
 if ~isempty(defName)
-    if ~exist([pwd,'/',defName,'.mat'],'file')
-        defOK(1) = 1;
-    end
-    if canOvrWrite || evalin('base',['~exist(''',defName,''',''var'')'])
-        defOK(2) = 1; 
+    if canOvrWrite
+        defOK(:) = 1;
+    else
+        if ~exist([pwd,'/',defName,'.mat'],'file')       
+            defOK(1) = 1; 
+        end
+        if evalin('base',['~exist(''',defName,''',''var'')'])
+            defOK(2) = 1;
+        end
     end
 end
 
@@ -77,7 +80,7 @@ invalPath =  'Invalid file path';
 
 % main figure
 % will be modal, so no access to other figures until dealt with
-saveDataFig = figure('WindowStyle','modal',...
+saveDataFig = figure('WindowStyle','normal',...
     'Name','Save Data','Tag','saveDataFig','FileName','saveData.fig',...
     'Units','pixels','Position',[100, 100, 460, 115],'Visible','off',...
     'NumberTitle','off','MenuBar','none','DockControls','off','Resize','off');
@@ -149,10 +152,9 @@ cancBut = uicontrol(saveDataFig,'Style','pushbutton','String','Cancel',...
     'BackgroundColor',[231,76,60]/255,'Callback',@cancCallback);
 
 % overwrite toggle
-ovrWrBut = uicontrol(saveDataFig,'Style','checkbox','String','Overwrite?',...
-    'Tag','ovrWrBut','FontSize',9,'Position',[101,26,100,15],...
+ovrWrBut = uicontrol(saveDataFig,'Style','checkbox','String','Allow overwriting?',...
+    'Tag','ovrWrBut','FontSize',9,'Position',[101,26,130,15],...
     'Value',canOvrWrite,'Callback',@ovrWrCallback);
-if canOvrWrite, ovrWrBut.Visible = 'on'; else, ovrWrBut.Visible = 'off'; end
 
 %  ========================================================================
 %  ---------------------- POINTER MANAGER ---------------------------------
@@ -217,6 +219,7 @@ uiwait(saveDataFig);
 % -------------------------------------------------------------------------
 
     function txtCallback(src,~) 
+        
         % make sure there's no double quotes, then check status
         src.String = char(erase(src.String,{'''','"'}));
         [~] = checkStatus; 
@@ -317,6 +320,12 @@ uiwait(saveDataFig);
             if ~strcmp(currExt,'.mat')
                 currTxt = strcat(currName,'.mat'); 
             end
+            
+            % if saving an object, see if there's a saveInstance method
+            if isobject(data) && ismethod(data,'saveInstance')
+                data = data.saveInstance; % overwrite with instance to save
+            end
+            
             save(currTxt,'data','-mat');
             prStr = sprintf('Saved %s to %s',altName,currTxt); 
         else
@@ -334,7 +343,30 @@ uiwait(saveDataFig);
 
 % -------------------------------------------------------------------------
 
-    function ovrWrCallback(~,~)
+    function ovrWrCallback(src,~)
+        
+        % check if defalt name is okay or not
+        defOK = false(2,1);
+        if ~isempty(defName)
+            if src.Value == 1
+                defOK(:) = 1;
+            else
+                if ~exist([pwd,'/',defName,'.mat'],'file')
+                    defOK(1) = 1;
+                end
+                if evalin('base',['~exist(''',defName,''',''var'')'])
+                    defOK(2) = 1;
+                end
+            end
+        end
+        
+        % if name text is currently empty, see if can fill it
+        if isempty(nameTxt.String)
+            if currMode == 1
+                if defOK(1), nameTxt.String = [pwd,'/',defName,'.mat']; end
+            elseif defOK(2), nameTxt.String = defName;
+            end
+        end
         
         % see if status changed
         [~] = checkStatus;
@@ -397,9 +429,9 @@ uiwait(saveDataFig);
         % parse error index
         
         % initialise defaults
-        butOpt = {'off','on'};   % button options, 1 for off, 2 for on
-        butVal = [2,1,1]; % butOpt ind for warnTxt, ovrwrBut, saveBut
-        txtCol = [0.9,0,0];      % color for warning text (red)
+        butOpt = {'off','on'}; % button options, 1 for off, 2 for on
+        butVal = [2,1,1];      % butOpt ind for warnTxt, ovrwrBut, saveBut
+        txtCol = [0.9,0,0];    % color for warning text (red)
         
         switch errInd
             case 1 % is empty
@@ -410,7 +442,7 @@ uiwait(saveDataFig);
                 currErr = invalName{currMode};
             case 4 % already exists
                 currErr = existsTxt{currMode};
-                butVal(2) = 2; % overwrite button on
+                butVal(2) = 2; % overwrite button necessary
                 if canOvrWrite
                     currErr = strcat(currErr,', will overwrite');
                     txtCol(2) = 0.45; % turns txtCol orange
@@ -432,13 +464,7 @@ uiwait(saveDataFig);
         warnTxt.String = currErr;
         warnTxt.ForegroundColor = txtCol;
         warnTxt.Visible = butOpt{butVal(1)};
-        
-        % update overwrite button (visibility - on/off)
-        ovrWrBut.Visible = butOpt{butVal(2)}; 
-        
-        % if turning overwrite button off, also reset it
-        if butVal(2) == 1, ovrWrBut.Value = 0; end
-        
+
         % update save button (enable - on/off)
         saveBut.Enable = butOpt{butVal(3)};
 

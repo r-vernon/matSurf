@@ -358,8 +358,9 @@ end
     function switchROIState(newState)
         
         % combine some key handles so can turn all on/off as needed
-        keyHandles = [handles.undoROI,handles.finROI,handles.delROI,...
-            handles.selROI,handles.cfgROI,handles.saveROI,handles.togROI];
+        keyHandles = [handles.undoROI,handles.finROI,handles.expROI,...
+            handles.delROI,handles.selROI,handles.cfgROI,handles.saveROI,...
+            handles.togROI];
         
         if abs(newState) == 2 % if asked to disable or enable, and reset
             
