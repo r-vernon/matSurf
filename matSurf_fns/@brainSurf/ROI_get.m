@@ -28,11 +28,16 @@ if ~isempty(roiEnds)
 end
 
 % get actual vertex coords
-roiData = obj.TR.Points(vertInd,:);
+% putting NaN at front to ensure everything is disconnected
+roiData = [nan(1,3);obj.TR.Points(vertInd,:)];
+
+% add normals to shift ROI slightly above surface
+vNorm = vertexNormal(obj.TR);
+roiData(2:end,:) = roiData(2:end,:) + 0.1*vNorm(vertInd);
 
 % put NaNs between each ROI
 if ~isempty(roiEnds)
-    roiData(roiEnds,:) = NaN;
+    roiData(roiEnds+1,:) = NaN; % +1 to account for NaN at start
 end
 
 end

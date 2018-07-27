@@ -1,7 +1,8 @@
 
 delROI = false;
-targRes = 96;
+targRes = 300;
 useTransparency = 1; % transparent background
+cropEdges = 0;
 
 % get inner size of panel (in pixels)
 oldUnits = handles.axisPanel.Units;
@@ -9,17 +10,19 @@ handles.axisPanel.Units = 'pixels';
 currSize = [1,1,handles.axisPanel.InnerPosition(3:4)];
 handles.axisPanel.Units = oldUnits;
 
+% delete any existing screenshotFigs just in case
+delete(findobj('Type','Figure','Tag','screenshotFig'));
+
 % by default print will include uipanels, so make new temp figure to print
 % from, keeping as much the same as possible
 % (InvertHardCopy (change fig/axis color to white when printing) off)
-screenshotFig = figure('Name','scrSh','Tag','scrSh_f',...
+screenshotFig = figure('Name','scrSh','Tag','screenshotFig',...
     'NumberTitle','off','FileName','scrSh.fig','Units','pixels',...
     'Position',currSize,'Visible','off','InvertHardCopy','off',...
     'MenuBar','none','DockControls','off');
 
 % copy over axis
 copyobj(handles.brainAx,screenshotFig);
-drawnow; pause(0.05);
 
 % get new figure handles
 newHandles = guihandles(screenshotFig);
@@ -27,16 +30,19 @@ newHandles = guihandles(screenshotFig);
 % delete the marker and optionally ROIs
 delete(newHandles.markPatch);
 if delROI
-    delete(newHandles.brainROI); 
+    newHandles.brainROI.Visible = 'off';
 end
-
+    
 % set all handle units to pixels (probably doesn't matter but makes
 % everything 'absolute' (ish) - want to minimise ambiguity)
 set(allchild(screenshotFig),'Units','pixels');
 
-%% --------------------------------------------------------------------------
+% make sure everything rendered
+drawnow; pause(0.05);
 
-% get the number of pixels per inch 
+%--------------------------------------------------------------------------
+
+% get the number of pixels per inch
 ppi = get(groot,'ScreenPixelsPerInch');
 
 % calculate ratio with target resolution
@@ -47,13 +53,14 @@ targResStr = ['-r' num2str(targRes)];
 
 % get screenshot with white background
 set(screenshotFig,'Color','white','Position',currSize);
-whBG = double(print(screenshotFig,'-opengl',targResStr,'-RGBImage'));
+whBG = double(print(screenshotFig,'-opengl',targResStr,'-noui','-RGBImage'));
 
 % get screenshot with black background
 set(screenshotFig,'Color','black','Position',currSize);
-blBG = double(print(screenshotFig,'-opengl',targResStr,'-RGBImage'));
+blBG = double(print(screenshotFig,'-opengl',targResStr,'-noui','-RGBImage'));
 
-% compute alpha, and shortly color
+% compute alpha, and shortly color (doing this regardless of transparency,
+% as may want to crop transparent areas)
 %{
     presumably using glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
     i.e. foreground mult. by alpha, background mult. by 1-alpha
@@ -80,15 +87,26 @@ else
 end
 
 % crop if doing that
-zeroRows = find(all(alpha==0,2));
-col(zeroRows,:,:) = [];
-zeroCols = find(all(alpha==0,1));
-col(:,zeroCols,:) = [];
+if cropEdges
+    
+    % delete all zero rows
+    zeroRows = find(~any(alpha,2));
+    col(zeroRows,:,:) = [];
+    alpha(zeroRows,:) = [];
+    
+    % delete all zero cols
+    zeroCols = find(~any(alpha,1));
+    col(:,zeroCols,:) = [];
+    alpha(:,zeroCols) = [];
+end
 
-% Compute the resolution
-res = options.magnify * get(0, 'ScreenPixelsPerInch') / 25.4e-3;
-imwrite(whBG, [options.name '.png'], 'Alpha', double(alpha), 'ResolutionUnit', 'meter', 'XResolution', res, 'YResolution', res);
-%% --------------------------------------------------------------------------
+% Compute the resolution in metres
+% (1 inch = 2.54cm = 0.0254m)
+res = targRatio * ppi/0.0254;
+imwrite(col, './test.png', 'Alpha', alpha, 'ResolutionUnit', 'meter',...
+    'XResolution', targRes, 'YResolution', targRes);
+
+%--------------------------------------------------------------------------
 
 % % delete figure
 delete(screenshotFig);

@@ -45,7 +45,9 @@ switch event.Key
         
     case 'f'
         
-        cBack_ROI_addPnt(handles.finROI,[]); % spoof source as finish ROI
+        if strcmp(handles.addROI.String,'Cont')
+            cBack_ROI_addPnt(handles.finROI,[]); % spoof source as finish ROI
+        end
         
     case 'h'
         

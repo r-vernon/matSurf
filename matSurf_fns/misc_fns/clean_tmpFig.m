@@ -4,7 +4,7 @@ function clean_tmpFig()
 tmpFig = findobj('Type','Figure','Tag','tmpFig');
 
 if ~isempty(tmpFig)
-    close(tmpFig);
+    delete(tmpFig);
 end
 
 end
