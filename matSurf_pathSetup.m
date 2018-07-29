@@ -26,7 +26,7 @@ if isempty(fsPaths)
 end
 
 % add to path, if it isn't already
-if ~contains(path,fsPaths{1})
+if ~contains(path,[fsPaths{1},pathsep])
     addpath(fsPaths{1});
     fprintf('\nAdded %s to Matlab path\n',fsPaths{1});
 end
@@ -42,7 +42,7 @@ end
 % add matSurf fns to matlab path
 
 mS_path = [baseDir, '/matSurf_fns'];
-if ~contains(path,mS_path)
+if ~contains(path,[mS_path,pathsep])
     addpath(genpath(mS_path));
     fprintf('\nAdded %s to Matlab path\n',mS_path);
 end

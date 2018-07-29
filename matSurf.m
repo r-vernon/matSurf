@@ -22,6 +22,7 @@ setappdata(f_h,'allVol',mS_volStore);
 
 % create camera control structure
 %{
+view    - if a saved view is loaded, this stores name (wiped upon rotation)
 mSens   - mouse sensitivity for (order): rotation, panning, zooming
 mMoved  - true if mouse moved
 mPos1   - mouse position at click (wrt. axis (normal Cl.) or fig (extend Cl.)
@@ -33,7 +34,7 @@ tStmp   - time stamp of button down
 fRate   - frame rate limit of camera
 %}
 camControl = struct(...
-    'mSens',[1.5,1.5,1.5],'mState','','mPos1',[],'mMoved',false,...
+    'view','','mSens',[1.5,1.5,1.5],'mState','','mPos1',[],'mMoved',false,...
     'clPatch',false,'ip',[],'qForm',[],'tStmp',clock,'fRate',1/60);
 setappdata(f_h,'camControl',camControl);
 
@@ -62,8 +63,8 @@ handles.selSurf.Callback  = @cBack_surf_select;
 % select vertex
 handles.svEdit.Callback   = @cBack_surf_setVert;
 
-% reset camera
-handles.resCam.Callback   = @cBack_surf_camReset;
+% reset camera (in this panel just for convenience)
+handles.resCam.Callback   = @cBack_cam_camReset;
 
 % save surface
 handles.saveSurf.Callback = @cBack_surf_save;
@@ -103,6 +104,12 @@ handles.finROI.Callback = @cBack_ROI_addPnt;
 
 % export ROI
 handles.expROI.Callback = @cBack_ROI_export;
+
+% =========================================================================
+% Camera menu callbacks
+
+% save screenshot
+handles.saveScrShot.Callback = @cBack_cam_screenshot;
 
 % =========================================================================
 % misc. menu callbacks

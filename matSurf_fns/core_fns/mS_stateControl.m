@@ -166,7 +166,8 @@ end
         
         % combine some key handles so can turn all on/off as needed
         keyHandles = [handles.saveSurf,handles.delSurf,handles.selSurf,...
-            handles.svTxt,handles.svEdit,handles.resCam];
+            handles.svTxt,handles.svEdit,handles.resCam,...
+            handles.saveScrShot];
         
         switch newState
             case -2 % removing one of multiple surfaces
@@ -296,14 +297,14 @@ end
         if abs(newState) == 2 % if asked to disable or enable, and reset
             
             if newState == 2
-                  handles.addData.Enable = 'on';  % enable
-            else, handles.addData.Enable = 'off'; % disable
+                handles.addData.Enable = 'on';  % enable
+            else
+                handles.addData.Enable = 'off'; % disable
             end
             newState = -1; % reset
             
         end
-        
-        
+
         switch newState
             case -1 % removed only data overlay
                 
@@ -320,10 +321,10 @@ end
 %--------------------------------------------------------------------------
 % deal with ROI states
 %
-% -2 - disable and reset (everything off)
+% -2 - disable and reset (everything off, e.g. if no surfaces loaded)
 % -1 - removing *only* ROI
 % +1 - adding *first* ROI
-% +2 - enable and reset (all but 'add' off)
+% +2 - enable and reset (all but 'add' off, e.g. if loaded 1st surface)
 
     function checkROIState
         % checks ROI state and sets it accordingly
@@ -346,12 +347,8 @@ end
                 'ZData',vertexCoords(:,3));
             
             % check if visible ROI open to editing
-            if contains(currVol.roiNames{currVol.nROIs},'[e]')
-                handles.addROI.String = 'Cont';
-                handles.selROI.Enable = 'off';
-            else
-                handles.finROI.Enable = 'off';
-            end
+            ROI_stateControl(handles);
+            
         end
     end
 
@@ -365,18 +362,19 @@ end
         if abs(newState) == 2 % if asked to disable or enable, and reset
             
             if newState == 2
-                  handles.addROI.Enable = 'on';  % enable
-            else, handles.addROI.Enable = 'off'; % disable
+                handles.addROI.Enable = 'on';  % enable
+            else
+                handles.addROI.Enable = 'off'; % disable
             end
             newState = -1; % reset
             
         end
         
-        % by default reset addROI button regardless of state
-        handles.addROI.String = 'Add';
-        
         switch newState
             case -1 % removed only ROI
+                
+                % set addROI button back to 'Add'
+                handles.addROI.String = 'Add';
                 
                 set(keyHandles,'Enable','off');
                 set(handles.selROI,'String','Select ROI','Value',1);

@@ -33,20 +33,6 @@ if success % update popupmenu and surface
         
         setStatusTxt('Deleted ROI');
         
-        % if next selected ROI is open for editing (contains '[e]'),
-        % - change addROI option to (cont)inue
-        % - disable select ROI option, enable finish ROI option
-        % otherwise, do opposite...
-        if contains(currVol.roiNames{ind},'[e]')
-            handles.addROI.String = 'Cont';
-            handles.selROI.Enable = 'off';
-            handles.finROI.Enable = 'on';
-        else
-            handles.addROI.String = 'Add';
-            handles.selROI.Enable = 'on';
-            handles.finROI.Enable = 'off';
-        end
-        
         % update select ROI text with current status
         handles.selROI.String = currVol.roiNames;
         handles.selROI.Value = ind;
@@ -56,6 +42,10 @@ if success % update popupmenu and surface
             'XData',vCoords(:,1),...
             'YData',vCoords(:,2),...
             'ZData',vCoords(:,3));
+        
+        % update UI elements based on current ROI state (editing or not)
+        ROI_stateControl(handles);
+        
     end
 end
 

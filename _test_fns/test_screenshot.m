@@ -1,7 +1,7 @@
 
 delROI = false;
-targRes = 300;
-useTransparency = 1; % transparent background
+targRes = 150;
+useTransparency = 0; % transparent background
 cropEdges = 0;
 
 % get inner size of panel (in pixels)
@@ -90,7 +90,7 @@ end
 if cropEdges
     
     % delete all zero rows
-    zeroRows = find(~any(alpha,2));
+    zeroRows = find(any(alpha,2));
     col(zeroRows,:,:) = [];
     alpha(zeroRows,:) = [];
     
@@ -103,9 +103,13 @@ end
 % Compute the resolution in metres
 % (1 inch = 2.54cm = 0.0254m)
 res = targRatio * ppi/0.0254;
-imwrite(col, './test.png', 'Alpha', alpha, 'ResolutionUnit', 'meter',...
-    'XResolution', targRes, 'YResolution', targRes);
-
+if useTransparency
+    imwrite(col, './test.png', 'Alpha', alpha, 'ResolutionUnit', 'meter',...
+        'XResolution', targRes, 'YResolution', targRes);
+else
+    imwrite(col, './test.png', 'ResolutionUnit', 'meter',...
+        'XResolution', targRes, 'YResolution', targRes);
+end
 %--------------------------------------------------------------------------
 
 % % delete figure

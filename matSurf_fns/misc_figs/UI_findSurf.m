@@ -193,7 +193,7 @@ uiwait(findSurfFig);
         pathBrowse = uigetdir(startDir,'Select subjects directory');
         
         % set path and test if it's valid
-        if pathBrowse ~= 0
+        if ~isequal(pathBrowse,0)
             subjDirTxt.String = pathBrowse;
             setCurvFiles;
         end

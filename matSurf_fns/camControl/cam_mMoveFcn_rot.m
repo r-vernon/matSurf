@@ -26,6 +26,9 @@ end
 camControl.mMoved = true;
 camControl.tStmp  = cTime;
 
+% wipe the stored view (if any)
+camControl.view = '';
+
 % calculate unit vector (u), and angle of rotation (theta, th)
 u = cross(camControl.mPos1,mPos2);             % calc vector
 normU = norm(u);                            % calc vector norm

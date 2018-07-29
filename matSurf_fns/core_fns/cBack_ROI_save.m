@@ -49,7 +49,7 @@ end
 
 % get save location
 [fileName,filePath] = uiputfile({'*.label';'*.*'},'Save ROI',[ROIname,'.label']);
-if fileName == 0, return; end % if clicked cancel
+if isequal(fileName,0), return; end % if clicked cancel
 fileName = fullfile(filePath,fileName);
 
 % subject

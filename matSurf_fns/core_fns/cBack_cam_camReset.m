@@ -1,4 +1,4 @@
-function cBack_surf_camReset(src,~)
+function cBack_cam_camReset(src,~)
 
 % get data
 f_h = getFigHandle(src);

@@ -12,7 +12,7 @@ end
 % set starting dimensions and spacings (all in pixels, made relative later)
 
  % figure height, width
-figSize = struct('h',800,'w',960);
+figSize = struct('h',790,'w',950);
 
 % default spacing around panels
 panSp = 20; 
@@ -97,6 +97,17 @@ handles.finROI = uimenu(handles.roiMenu,Text,'Finish ROI',...
 % expoert ROI
 handles.expROI = uimenu(handles.roiMenu,Text,'Export ROI(s)',...
     'Tag','expROI','Enable','off');
+
+%% ========================================================================
+
+%  ---------------------- CAMERA MENU -------------------------------------
+
+%  ========================================================================
+% menu items for camera
+
+% save screenshot
+handles.saveScrShot = uimenu(handles.camMenu,Text,'Save Screenshot',...
+    'Tag','saveScrShot','Enable','off');
 
 %% ========================================================================
 

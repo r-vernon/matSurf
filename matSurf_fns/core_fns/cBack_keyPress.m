@@ -15,25 +15,12 @@ function cBack_keyPress(src,event)
 % - u,     undo ROI vertex (also backspace)
 % - del,   delete ROI
 % - ESC,   if drawing ROI cancel, otherwise enter data mode
-% - 0,     reset camera
-% - 1:9,   if corresponding camera view exists, switch to it
 
 % get data
 currVol = getappdata(src,'currVol');
 handles = getappdata(src,'handles');
 
 switch event.Key
-    
-    case '0'
-        
-        cBack_surf_camReset(src); % reset camera
-        
-    case {'1','2','3','4','5','6','7','8','9'}
-        
-        numSel = str2double(event.Key);
-        if numSel <= currVol.nViews
-            % switch to that view
-        end
         
     case {'a','leftarrow'}
         

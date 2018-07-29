@@ -1,51 +1,51 @@
-function [success] = UI_saveData(data,defName,startMode,varOnly,canOvrWrite)
-% function to allow saving data, either in .mat file or in workspace
+function [currMode,currTxt,varToSave] = UI_saveData(defName,startMode,limUsg,canOvrWrite)
+% function to get valid file or variable name for saving data
 %
-% (req.) data, data to save
 % (opt.) defName, default name to save data as
 % (opt.) startMode, if 1, initialises to saving as file, if 2, initialises
 %        to saving as var
-% (opt.) varOnly, if true, can only save as variable, not file
+% (opt.) limUsg, if 1, can only save as file, if 2, only as variable
 % (opt.) canOvrWrite, if true, allows overwriting from start
-% (ret.) success, true if saved successfully
-
-success = false;
+% (ret.) currMode, 1 for saving as file, 2 for saving as variable
+% (ret.) currTxt, valid file or variable name for saving
+% (ret.) varToSave, the name of the variable that will be saved
 
 %  ------------------------------------------------------------------------
 % parse inputs
 
-if nargin < 2, defName = ''; end % will deal with defName shortly
+if nargin == 0, defName = ''; end % will deal with defName shortly
 
-if nargin < 3 || isempty(startMode) || (startMode ~= 1 && startMode ~= 2)
+% need isempty before ~= 1, 2 as get operator...convertible error otherwise
+if nargin < 2 || isempty(startMode) || (startMode ~= 1 && startMode ~= 2)
     startMode = 1; % by default save as file
 end     
 
-if nargin < 4 || isempty(varOnly)
-    varOnly = false; 
-elseif varOnly
+if nargin < 3 || isempty(limUsg) || (limUsg ~= 1 && limUsg ~= 2)
+    limUsg = 0;
+elseif limUsg == 2
     startMode = 2; % overwrite start mode
 end
 
 % set whether can overwrite or not
-if nargin == 5 && canOvrWrite == 1
+if nargin == 4 && canOvrWrite == 1
     canOvrWrite = true;
 else
     canOvrWrite = false;
 end
 
 % get backup name (note: inputname(1) gets var name of 'data')
-altName = inputname(1);
+varToSave = inputname(1);
 
-% check defName and altName, preferring to use defName where possible
+% check defName and varToSave, preferring to use defName where possible
 if ~isvarname(defName)
-    if isvarname(altName)
-        defName = altName;
+    if isvarname(varToSave)
+        defName = varToSave;
     else
         defName = '';
-        altName = 'data';
+        varToSave = 'data';
     end
 else
-    altName = defName;
+    varToSave = defName;
 end
 
 %  ------------------------------------------------------------------------
@@ -80,7 +80,7 @@ invalPath =  'Invalid file path';
 
 % main figure
 % will be modal, so no access to other figures until dealt with
-saveDataFig = figure('WindowStyle','normal',...
+saveDataFig = figure('WindowStyle','modal',...
     'Name','Save Data','Tag','saveDataFig','FileName','saveData.fig',...
     'Units','pixels','Position',[100, 100, 460, 115],'Visible','off',...
     'NumberTitle','off','MenuBar','none','DockControls','off','Resize','off');
@@ -96,12 +96,15 @@ savePanel = uibuttongroup(saveDataFig,'Tag','savePanel','Title','Save as',...
 saveFile = uicontrol(savePanel,'Style','radiobutton','String','File',...
     'Tag','saveFile','Position',[10 40 60 24]);
 
-% disable if varOnly
-if varOnly, saveFile.Enable = 'off'; end
+% disable if limiting to vars only
+if limUsg == 2, saveFile.Enable = 'off'; end
 
 % save as var button
 saveVar = uicontrol(savePanel,'Style','radiobutton','String','Var',...
     'Tag','saveVar','Position',[10 10 60 24]);
+
+% disable if limiting to files only
+if limUsg == 1, saveVar.Enable = 'off'; end
 
 % set starting button, depending on mode
 if currMode == 1
@@ -241,7 +244,7 @@ uiwait(saveDataFig);
             end
             selPath = uigetdir(startDir,'Select save location');
             
-            if selPath ~= 0 % if not clicked cancel
+            if ~isequal(selPath,0) % if not clicked acancel
                 if defOK(1)
                     selPath = fullfile(selPath,[defName,'.mat']);
                     nameTxt.String = selPath;
@@ -298,6 +301,10 @@ uiwait(saveDataFig);
 % -------------------------------------------------------------------------
 
     function cancCallback(~,~)
+        
+        % wipe all output variables
+        currMode = []; currTxt = ''; varToSave = '';
+        
         uiresume(saveDataFig); 
         delete(saveDataFig); % just delete figure
     end
@@ -310,33 +317,10 @@ uiwait(saveDataFig);
         [canSave] = checkStatus;
         if ~canSave, return; end
         
-        % seems like we can save, so might as well do so!
-        % get path or name to save to
+        % seems like we can save, so get final path or name to save to
         currTxt = nameTxt.String; 
-        
-        if currMode == 1
-            % make sure filename ends with .mat
-            [~,currName,currExt] = fileparts(currTxt);
-            if ~strcmp(currExt,'.mat')
-                currTxt = strcat(currName,'.mat'); 
-            end
-            
-            % if saving an object, see if there's a saveInstance method
-            if isobject(data) && ismethod(data,'saveInstance')
-                data = data.saveInstance; % overwrite with instance to save
-            end
-            
-            save(currTxt,'data','-mat');
-            prStr = sprintf('Saved %s to %s',altName,currTxt); 
-        else
-            assignin('base',currTxt,data);
-            prStr = sprintf('Saved %s to workspace as %s',altName,currTxt);
-        end
-        
-        setStatusTxt(prStr,'',1);
-        
+
         % delete the figure
-        success = true;
         uiresume(saveDataFig); 
         delete(saveDataFig);
     end

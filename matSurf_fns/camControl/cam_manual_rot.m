@@ -7,6 +7,9 @@ function cam_manual_rot(f_h,rotDir)
 camControl = getappdata(f_h,'camControl');
 handles = getappdata(f_h,'handles');
 
+% wipe the stored view (if any)
+camControl.view = '';
+
 % set rotation angle (th) - TODO: user preference
 th = 10;
 

@@ -28,7 +28,12 @@ s.saveTime = datetime('now','Format','d-MMM-y');
 saveName = [currVol.surfDet.subject,'_',currVol.surfDet.hemi,'_ROIs'];
 
 % pass through to save dialogue
-UI_saveData(s,saveName);
-drawnow; pause(0.05);
+[saveMode,saveName,varToSave] = UI_saveData(saveName);
+
+% save the data (if didn't cancel)
+if ~isempty(saveMode)
+    saveData(s,saveMode,saveName,varToSave,0)
+    drawnow; pause(0.05);
+end
 
 end

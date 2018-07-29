@@ -6,12 +6,6 @@ f_h = getFigHandle(src);
 handles = getappdata(f_h,'handles');
 currVol = getappdata(f_h,'currVol'); 
 
-% get current ROI name
-ROIname = handles.selROI.String{handles.selROI.Value};
-
-% make sure it's open for editing
-if ~contains(ROIname,'[e]'), return; end
-
 % get ROI index (should always be last ROI if editing)
 ROI_ind = currVol.nROIs;
 

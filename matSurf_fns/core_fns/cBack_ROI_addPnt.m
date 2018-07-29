@@ -45,23 +45,19 @@ if finalPt
     oldName = currVol.ROIs(ind).name;
     newName = UI_getVarName('Enter ROI name',oldName);
     currVol.ROI_updateName(oldName,newName);
+    set(handles.selROI,'String',currVol.roiNames,'Value',ind);
     
     % move surface marker
     surf_coneMarker(f_h,currVol.ROIs(ind).selVert(1));
     
-    % enable/disable UI options
-    set(handles.selROI,'Enable','on','String',currVol.roiNames,'Value',ind);
-    handles.finROI.Enable = 'off';
-    handles.addROI.String = 'Add';
+    % switch back to data mode 
     handles.dataMode.Value = 1;
     
     setStatusTxt('Finished ROI');
-else
-    % enable/disable UI options
-    handles.selROI.Enable = 'off';
-    handles.finROI.Enable = 'on';
-    handles.addROI.String = 'Cont';
 end
+
+% update UI elements based on current ROI state (editing or not)
+ROI_stateControl(handles);
 
 drawnow; 
 

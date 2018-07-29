@@ -175,7 +175,7 @@ drawnow; pause(0.05);
         selPath = uigetdir(startDir,'Select SUBJECTS_DIR');
         
         % set path and test if it's valid
-        if selPath ~= 0
+        if ~isequal(selPath,0)
             subDirTxt.String = selPath;
             toCheck(:) = 0;
             [~] = checkSubjDir;
