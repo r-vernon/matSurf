@@ -9,6 +9,7 @@ selCol = [];
 
 if nargin == 0
     rgbCol = [1,1,1]; % default colour in (r)gb format
+    valCol = false;
 else
     % validate colour and make sure it lies in range 0:1
     valCol = iscol(rgbCol);
