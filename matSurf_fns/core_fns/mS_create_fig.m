@@ -149,7 +149,7 @@ panBottom = figSize.h - panSp - panHeight;
 panPos.mode = [panLeft,panBottom,panWidth,panHeight];
 
 % surface panel
-nVItems.surf = 4;
+nVItems.surf = 5;
 panHeight = calcHeight(nVItems.surf);
 panBottom = panBottom - panSp - panHeight;
 panPos.surf = [panLeft,panBottom,panWidth,panHeight];
@@ -197,8 +197,6 @@ set(handles.dataPanel,'Tag','dataPanel','Title','Data','Position',panPos.data);
 handles.roiPanel = uipanel(figHandle,panelDef.name,panelDef.value);
 set(handles.roiPanel,'Tag','roiPanel','Title','ROI','Position',panPos.ROI);
 
-
-
 %% ========================================================================
 
 %  ---------------------- DEFINING AXIS -----------------------------------
@@ -232,15 +230,10 @@ handles.brainPatch = patch(handles.xForm,'Tag','brainPatch',...
     'SpecularStrength',0.1,'SpecularExponent',25,...
     'visible','off');
 
-% create line for ROI plots
+% create patch for ROI plots
 % (setting 'PickableParts' to 'none' means can't be clicked)
-% [NOTE: limitation of line is all ROIs are same colour, possibly switch to
-%  making patch object if want different coloured ROIs at cost of memory]
-% handles.brainROI = line(handles.xForm,'Tag','brainROI',...
-%     'Color','black','Marker','none','PickableParts','none',...
-%     'LineStyle','-','LineWidth',2,'visible','off');
 handles.brainROI = patch(handles.xForm,'Tag','brainROI',...
-    'facecolor', 'none','edgecolor','black','Marker','none',...
+    'facecolor','none','edgecolor','black','Marker','none',...
     'LineWidth',2,... % put CData here
     'FaceLighting','none','EdgeLighting','none',...
     'visible','off','PickableParts','none');
@@ -355,6 +348,14 @@ handles.svEdit = uicontrol(handles.surfPanel,'Style','edit',...
 % update current height
 currH = currH - (butHeight + butSp);  
 
+% show marker toggle
+handles.togMark = uicontrol(handles.surfPanel,'Style','checkbox',...
+    'String','Show Marker','Tag','togMark','Value',1,'Enable','off',...
+    'Position',[f_LPos,currH,f_butWidth,butHeight]);
+
+% update current height
+currH = currH - (butHeight + butSp);  
+
 % reset camera button
 handles.resCam = uicontrol(handles.surfPanel,'Style','pushbutton',...
     'String','Reset Camera','Tag','resCam','Enable','off',...
@@ -461,7 +462,7 @@ currH = currH - (butHeight + butSp);
 
 % show ROIs toggle
 handles.togROI = uicontrol(handles.roiPanel,'Style','checkbox',...
-    'String','Show ROI(s)','Tag','togROI','Value',1,'Enable','off',...
+    'String','Show ROIs','Tag','togROI','Value',1,'Enable','off',...
     'Position',[f_LPos,currH,f_butWidth,butHeight]);
 
 %% ========================================================================

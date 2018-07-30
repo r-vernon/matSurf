@@ -166,7 +166,7 @@ end
         
         % combine some key handles so can turn all on/off as needed
         keyHandles = [handles.saveSurf,handles.delSurf,handles.selSurf,...
-            handles.svTxt,handles.svEdit,handles.resCam,...
+            handles.svTxt,handles.svEdit,handles.togMark,handles.resCam,...
             handles.saveScrShot];
         
         switch newState
@@ -238,8 +238,17 @@ end
         end
         
         if ~isempty(currVol.selVert) && ~forceReset
+            
+            % work out if marker should be visible or not
+            if handles.togMark.Value == 1
+                handles.markPatch.Visible = 'on';
+            else
+                handles.markPatch.Visible = 'off';
+            end
+            
             handles.svEdit.String = num2str(currVol.selVert);
             cBack_mode_mouseEvnt(f_h,currVol.selVert);
+            
         else
             handles.svEdit.String = '';
             set(handles.markPatch,...
@@ -384,7 +393,11 @@ end
             case  1 % adding first ROI
                 
                 set(keyHandles,'Enable','on');
-                handles.brainROI.Visible = 'on';
+                if handles.togROI.Value == 1
+                    handles.brainROI.Visible = 'on';
+                else
+                    handles.brainROI.Visible = 'off';
+                end
         end
     end
 

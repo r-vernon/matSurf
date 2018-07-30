@@ -63,6 +63,9 @@ handles.selSurf.Callback  = @cBack_surf_select;
 % select vertex
 handles.svEdit.Callback   = @cBack_surf_setVert;
 
+% toggle marker
+handles.togMark.Callback = @cBack_surf_toggleMarker;
+
 % reset camera (in this panel just for convenience)
 handles.resCam.Callback   = @cBack_cam_camReset;
 
@@ -95,6 +98,9 @@ handles.delROI.Callback = @cBack_ROI_delete;
 
 % save ROI
 handles.saveROI.Callback = @cBack_ROI_save;
+
+% display ROIs toggle
+handles.togROI.Callback = @cBack_ROI_toggle;
 
 % undo last ROI vertex
 handles.undoROI.Callback = @cBack_ROI_undo;
