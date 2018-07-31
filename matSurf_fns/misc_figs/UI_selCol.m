@@ -28,7 +28,7 @@ if nargin < 2 || isempty(winTxt) || ~ischar(winTxt)
 end
 
 % convert default colour to (h)sv and he(x)
-hDfCol = hsv2rgb(rgbCol);
+hDfCol = rgb2hsv(rgbCol);
 xDfCol = sprintf('%02X',round(rgbCol*255)); 
 
 %  ========================================================================
@@ -52,7 +52,7 @@ cVB = [repmat(hsv2rgb([hDfCol(1),hDfCol(2),0]),2,1);...
 
 % and one last face for the value bar (tri)angle indicator
 % (sqrt(3)/20 = 0.1*cos(pi/6),  0.05 = 0.1*sin(pi/6))
-vTri = [1.35 + [0;1;1]*sqrt(3)/20,  hDfCol(3) + [0;-1;1]*0.05];
+vTri = [1.35 + [0;1;1]*sqrt(3)/20,  (hDfCol(3)*2)-1 + [0;-1;1]*0.05];
 fTri = [nTh+6:nTh+8,nan];
 cTri = zeros(3,3);
 

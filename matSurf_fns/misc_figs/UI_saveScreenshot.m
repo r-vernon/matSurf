@@ -351,10 +351,12 @@ uiwait(saveScrShot);
         newCol = UI_selCol([1,1,1],'Select background color');
         
         % update button colour data
-        newCData = zeros(size(src.CData));
-        newCData(:,:,1) = newCol(1);
-        newCData(:,:,2) = newCol(2);
-        newCData(:,:,3) = newCol(3);
+        %newCData = zeros(size(src.CData));
+        %newCData(:,:,1) = newCol(1);
+        %newCData(:,:,2) = newCol(2);
+        %newCData(:,:,3) = newCol(3);
+        
+        newCData = bsxfun(@times,permute(newCol,[1,3,2]),ones(size(src.CData)));
         
         src.CData = newCData;
     end
