@@ -16,6 +16,15 @@ handles = getappdata(f_h,'handles');
 
 %--------------------------------------------------------------------------
 
+% if final point, get new name for ROI and give them a chance to cancel
+if finalPt
+    newName = UI_getVarName('Enter ROI name',...
+        erase(currVol.ROIs(currVol.nROIs).name,'[e] '));
+    if isempty(newName) % clicked cancel
+        return;
+    end
+end
+
 % call ROI_add with the point clicked
 [vCoords,ind,newROI] = currVol.ROI_add(ptClicked);
 
@@ -41,9 +50,8 @@ end
 % Disable finish ROI option whilst not drawing
 if finalPt
     
-    % update ROI name
+    % update ROI name (new name acquired above)
     oldName = currVol.ROIs(ind).name;
-    newName = UI_getVarName('Enter ROI name',oldName);
     currVol.ROI_updateName(oldName,newName);
     set(handles.selROI,'String',currVol.roiNames,'Value',ind);
     

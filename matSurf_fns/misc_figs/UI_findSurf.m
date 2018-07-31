@@ -295,10 +295,19 @@ uiwait(findSurfFig);
         surfDet.subject = UI_getVarName('Enter subject name',subjName);
         drawnow; pause(0.05);
         
+         % if user clicked cancel, break load process
+        if isempty(surfDet.subject), return; end
+  
         % contruct a valid surface name
         surfName = [surfDet.subject,'_',surfDet.hemi,'_',surfDet.surfType];
         surfDet.surfName = UI_getVarName('Enter surface name',surfName);
         drawnow; pause(0.05);
+        
+        % if user clicked cancel, wipe subject then break load process
+        if isempty(surfDet.surfName)
+            surfDet.subject = '';
+            return; 
+        end
         
         % save out subject directory
         surfDet.SUBJECTS_DIR = subjDirTxt.String;

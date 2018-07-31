@@ -43,9 +43,14 @@ resetBut = uicontrol(varNameFig,'Style','pushbutton','String','reset',...
 clearBut = uicontrol(varNameFig,'Style','pushbutton','String','clear',...
     'Tag','clearBut','Position',[65,10,50,25],'Callback',@clearCallback);
 
+% cancel button
+cancBut = uicontrol(varNameFig,'Style','pushbutton','String','Cancel',...
+    'Tag','cancBut','Position',[180,10,60,25],...
+    'BackgroundColor',[231,76,60]/255,'Callback',@cancCallback);
+
 % okay button
 okayBut = uicontrol(varNameFig,'Style','pushbutton','String','Okay',...
-    'Tag','okayBut','Position',[230,10,80,25],'Enable','off',...
+    'Tag','okayBut','Position',[250,10,60,25],'Enable','off',...
     'BackgroundColor',[46,204,113]/255,'Callback',@okayCallback);
 
 %--------------------------------------------------------------------------
@@ -57,7 +62,7 @@ iptSetPointerBehavior(txtEntry, txtEnterFcn);
 
 % whenever text hovers over button, change to hand
 butEnterFcn = @(fig, currentPoint) set(fig, 'Pointer', 'hand');
-iptSetPointerBehavior([resetBut,clearBut,okayBut],butEnterFcn);
+iptSetPointerBehavior([resetBut,clearBut,cancBut,okayBut],butEnterFcn);
 
 % create a pointer manager
 iptPointerManager(varNameFig);
@@ -107,6 +112,13 @@ uiwait(varNameFig);
         txtEntry.ForegroundColor = [0.9,0,0]; % red text
         okayBut.Enable = 'off';
         
+    end
+
+    function cancCallback(~,~)
+        % wipe varname, then resume;
+        varName = '';
+        uiresume(varNameFig);
+        delete(varNameFig);
     end
 
     function okayCallback(~,~)
