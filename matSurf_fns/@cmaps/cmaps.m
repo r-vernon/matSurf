@@ -24,7 +24,7 @@ classdef cmaps < handle
     
     % =====================================================================
     
-    properties (Access = private) % only accessible within class
+    properties (SetAccess = private) % only accessible within class
         
         % colMaps will store all the colormaps to be used
         colMaps = struct('name','','desc','','cmap',[])
@@ -72,6 +72,10 @@ classdef cmaps < handle
                 'name','cool',...
                 'desc','shades of blue, increasing in lightness',...
                 'cmap',obj.colMaps(2).cmap(:,[3,2,1]));
+            obj.colMaps(4) = struct(...
+                'name','hsv',...
+                'desc','hsv colormap (placeholder until find new phase-wrapped cmap)',...
+                'cmap',flipud(hsv(obj.n)));
             
             % -------------------------------------------------------------
             

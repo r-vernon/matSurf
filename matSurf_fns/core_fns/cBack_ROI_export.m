@@ -6,23 +6,23 @@ f_h = getFigHandle(src);
 currVol = getappdata(f_h,'currVol');
 
 % grab ROIs
-s.ROIs = currVol.ROIs;
+allROIs = currVol.ROIs;
 
 % remove any unfinished ROIs
-s.ROIs(contains({s.ROIs.name},'[e]')) = [];
+allROIs(contains({allROIs.name},'[e]')) = [];
 
 % make sure there's some empty ROIs to save
-if isempty(s)
+if isempty(allROIs)
     setStatusTxt('No finished ROIs to remove');
     return;
 end
 
 % remove visible field as not relevant outside class
-s = rmfield(s.ROIs,'visible');
+allROIs = rmfield(allROIs,'visible');
 
-% add surface details and save time to ROI structure
-s.surfDet = currVol.surfDet;
-s.saveTime = datetime('now','Format','d-MMM-y');
+% put all into structure with ROIs plus surface details and save time
+s = struct('ROIs',allROIs,'surfDet',currVol.surfDet,...
+    'saveTime',datetime('now','Format','d-MMM-y'));
 
 % construct a plausible name
 saveName = [currVol.surfDet.subject,'_',currVol.surfDet.hemi,'_ROIs'];

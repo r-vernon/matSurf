@@ -1,4 +1,4 @@
-function [currMode,currTxt,varToSave] = UI_saveData(defName,startMode,limUsg,canOvrWrite)
+function [currMode,currTxt,defName] = UI_saveData(defName,startMode,limUsg,canOvrWrite)
 % function to get valid file or variable name for saving data
 %
 % (opt.) defName, default name to save data as
@@ -8,12 +8,14 @@ function [currMode,currTxt,varToSave] = UI_saveData(defName,startMode,limUsg,can
 % (opt.) canOvrWrite, if true, allows overwriting from start
 % (ret.) currMode, 1 for saving as file, 2 for saving as variable
 % (ret.) currTxt, valid file or variable name for saving
-% (ret.) varToSave, the name of the variable that will be saved
+% (ret.) defName, the name of the variable that will be saved
 
 %  ------------------------------------------------------------------------
 % parse inputs
 
-if nargin == 0, defName = ''; end % will deal with defName shortly
+if nargin == 0 || ~isvarname(defName)
+    defName = 'data'; 
+end 
 
 % need isempty before ~= 1, 2 as get operator...convertible error otherwise
 if nargin < 2 || isempty(startMode) || (startMode ~= 1 && startMode ~= 2)
@@ -31,21 +33,6 @@ if nargin == 4 && canOvrWrite == 1
     canOvrWrite = true;
 else
     canOvrWrite = false;
-end
-
-% get backup name (note: inputname(1) gets var name of 'data')
-varToSave = inputname(1);
-
-% check defName and varToSave, preferring to use defName where possible
-if ~isvarname(defName)
-    if isvarname(varToSave)
-        defName = varToSave;
-    else
-        defName = '';
-        varToSave = 'data';
-    end
-else
-    varToSave = defName;
 end
 
 %  ------------------------------------------------------------------------
@@ -303,7 +290,7 @@ uiwait(saveDataFig);
     function cancCallback(~,~)
         
         % wipe all output variables
-        currMode = []; currTxt = ''; varToSave = '';
+        currMode = []; currTxt = ''; defName = '';
         
         uiresume(saveDataFig); 
         delete(saveDataFig); % just delete figure

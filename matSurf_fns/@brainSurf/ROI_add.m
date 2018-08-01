@@ -71,14 +71,16 @@ if newROI
       tokens, so can convert resultant numbers to double
       e.g. if max ROI was 'ROI 023', newInd will be 24
     %}
+    
     if ind == 1
         newInd = 1;
     else
         newInd = 1 + max([0,cellfun(@str2double,...
-            regexp([obj.ROIs(:).name],'ROI_([0-9]{3})','tokens'))]);
+            regexp([obj.ROIs(:).name],'[LR]H_ROI_([0-9]{3})','tokens'))]);
     end
     
-    ROIname = sprintf('[e] ROI_%03d',newInd); % [e] means open for editing
+    hemi = upper(obj.surfDet.hemi);
+    ROIname = sprintf('[e] %s_ROI_%03d',hemi,newInd); % [e] means open for editing
     
     % preallocate space for all/selected vertices (will shrink when ROI finished)
     allV = zeros(1e5,1);
