@@ -24,12 +24,10 @@ if fileOrVar == 1 && contains(dataLoc,'.label')
     nV = fscanf(fid,'%d\n',1);
     
     % read in rest of data, skipping (%*) all but vertex number
-    data = fscanf(fid, '%d %*f %*f %*f %*f\n',[1 nV])'; 
+    % (add 1 to vertex to account for FreeSurfer zero indexing)
+    data = fscanf(fid, '%d %*f %*f %*f %*f\n',[1 nV])' +1; 
     fclose(fid);
-    
-    % add 1 to vertex to account for FreeSurfer zero indexing
-    data = data + 1;
-    
+
 else
     data = loadData(fileOrVar,dataLoc);   
 end
