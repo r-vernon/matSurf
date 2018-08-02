@@ -1,4 +1,4 @@
-function [currMode,currTxt,defName] = UI_saveData(defName,startMode,limUsg,canOvrWrite)
+function [fileOrVar,dataLoc] = UI_saveData(defName,startMode,limUsg,canOvrWrite)
 % function to get valid file or variable name for saving data
 %
 % (opt.) defName, default name to save data as
@@ -6,9 +6,8 @@ function [currMode,currTxt,defName] = UI_saveData(defName,startMode,limUsg,canOv
 %        to saving as var
 % (opt.) limUsg, if 1, can only save as file, if 2, only as variable
 % (opt.) canOvrWrite, if true, allows overwriting from start
-% (ret.) currMode, 1 for saving as file, 2 for saving as variable
-% (ret.) currTxt, valid file or variable name for saving
-% (ret.) defName, the name of the variable that will be saved
+% (ret.) fileOrVar, 1 for saving as file, 2 for saving as variable
+% (ret.) dataLoc, location (file or variable name) of data for saving
 
 %  ------------------------------------------------------------------------
 % parse inputs
@@ -38,23 +37,8 @@ end
 %  ------------------------------------------------------------------------
 % initial setup
 
-% check if can use default name
-defOK = false(2,1);
-if ~isempty(defName)
-    if canOvrWrite
-        defOK(:) = 1;
-    else
-        if ~exist([pwd,'/',defName,'.mat'],'file')       
-            defOK(1) = 1; 
-        end
-        if evalin('base',['~exist(''',defName,''',''var'')'])
-            defOK(2) = 1;
-        end
-    end
-end
-
 % keep track of current modes (1 - File (default), 2 - Var)
-currMode = uint8(startMode);
+fileOrVar = uint8(startMode);
 
 % set some default text options
 usageTxt  = {'Enter file path'     , 'Enter var name'    };
@@ -94,7 +78,7 @@ saveVar = uicontrol(savePanel,'Style','radiobutton','String','Var',...
 if limUsg == 1, saveVar.Enable = 'off'; end
 
 % set starting button, depending on mode
-if currMode == 1
+if fileOrVar == 1
     savePanel.SelectedObject = saveFile;
 else
     savePanel.SelectedObject = saveVar; 
@@ -108,10 +92,11 @@ nameTxt = uicontrol(saveDataFig,'Style','edit','Tag','nameTxt',...
     'HorizontalAlignment','left','Position',[100,72,323,25],...
     'Callback',@txtCallback);
 
-% if default name okay, initialise text with save possibility
-if currMode == 1 
-    if defOK(1), nameTxt.String = [pwd,'/',defName,'.mat']; end
-elseif defOK(2), nameTxt.String = defName; 
+% initialise text with save possibility
+if fileOrVar == 1 
+    nameTxt.String = [pwd,'/',defName,'.mat'];
+else
+    nameTxt.String = defName;
 end
 
 % browse for folder
@@ -119,7 +104,7 @@ browseBut = uicontrol(saveDataFig,'Style','pushbutton','String','...',...
     'Tag','browseBut','Position',[425,72,25,25],'Callback',@browseCallback);
     
 % guide text
-guideTxt = uicontrol(saveDataFig,'Style','text','String',usageTxt{currMode},...
+guideTxt = uicontrol(saveDataFig,'Style','text','String',usageTxt{fileOrVar},...
     'Tag','guideTxt','HorizontalAlignment','right','FontSize',9,...
     'Position',[335,52,100,15]);
 
@@ -191,15 +176,15 @@ uiwait(saveDataFig);
         % work out which mode we're in and set default text if possible
         switch event.NewValue.String
             case 'File'
-                currMode = 1;
-                if defOK(1), nameTxt.String = [pwd,'/',defName,'.mat']; end
+                fileOrVar = 1;
+                nameTxt.String = [pwd,'/',defName,'.mat'];
             otherwise
-                currMode = 2;
-                if defOK(2), nameTxt.String = defName; end
+                fileOrVar = 2;
+                nameTxt.String = defName;
         end
         
         % set guide text
-        guideTxt.String = usageTxt{currMode};
+        guideTxt.String = usageTxt{fileOrVar};
         
         % check status
         [~] = checkStatus;
@@ -212,6 +197,12 @@ uiwait(saveDataFig);
         
         % make sure there's no double quotes, then check status
         src.String = char(erase(src.String,{'''','"'}));
+        
+        % check if entered 'pwd'
+        if any(strcmp(src.String,{'pwd','.'}))
+            src.String = pwd;
+        end
+        
         [~] = checkStatus; 
     end
 
@@ -219,7 +210,7 @@ uiwait(saveDataFig);
 
     function browseCallback(~,~)
         
-        if currMode == 1 % if in file mode, select folder
+        if fileOrVar == 1 % if in file mode, select folder
             
             % open dialogue box to select a folder
             startDir = nameTxt.String;
@@ -231,14 +222,10 @@ uiwait(saveDataFig);
             end
             selPath = uigetdir(startDir,'Select save location');
             
-            if ~isequal(selPath,0) % if not clicked acancel
-                if defOK(1)
-                    selPath = fullfile(selPath,[defName,'.mat']);
-                    nameTxt.String = selPath;
-                    [~] = checkStatus;
-                else
-                    nameTxt.String = selPath;
-                end
+            if ~isequal(selPath,0) % if not clicked cancel
+                selPath = fullfile(selPath,[defName,'.mat']);
+                nameTxt.String = selPath;
+                [~] = checkStatus;
             end
             
         else % if in variable mode, select base variable to overwrite
@@ -290,7 +277,7 @@ uiwait(saveDataFig);
     function cancCallback(~,~)
         
         % wipe all output variables
-        currMode = []; currTxt = ''; defName = '';
+        fileOrVar = []; dataLoc = ''; defName = '';
         
         uiresume(saveDataFig); 
         delete(saveDataFig); % just delete figure
@@ -305,7 +292,7 @@ uiwait(saveDataFig);
         if ~canSave, return; end
         
         % seems like we can save, so get final path or name to save to
-        currTxt = nameTxt.String; 
+        dataLoc = nameTxt.String; 
 
         % delete the figure
         uiresume(saveDataFig); 
@@ -314,34 +301,9 @@ uiwait(saveDataFig);
 
 % -------------------------------------------------------------------------
 
-    function ovrWrCallback(src,~)
-        
-        % check if defalt name is okay or not
-        defOK = false(2,1);
-        if ~isempty(defName)
-            if src.Value == 1
-                defOK(:) = 1;
-            else
-                if ~exist([pwd,'/',defName,'.mat'],'file')
-                    defOK(1) = 1;
-                end
-                if evalin('base',['~exist(''',defName,''',''var'')'])
-                    defOK(2) = 1;
-                end
-            end
-        end
-        
-        % if name text is currently empty, see if can fill it
-        if isempty(nameTxt.String)
-            if currMode == 1
-                if defOK(1), nameTxt.String = [pwd,'/',defName,'.mat']; end
-            elseif defOK(2), nameTxt.String = defName;
-            end
-        end
-        
+    function ovrWrCallback(~,~)
         % see if status changed
         [~] = checkStatus;
-        
     end
 
 % =========================================================================
@@ -360,7 +322,7 @@ uiwait(saveDataFig);
         currErr = '';
         
         % get current text to validate
-        currTxt = nameTxt.String; 
+        dataLoc = nameTxt.String; 
         
         % get status of overwriting
         canOvrWrite(1) = ovrWrBut.Value;
@@ -368,29 +330,35 @@ uiwait(saveDataFig);
         %  ----------------------------------------------------------------
         % check if can save, depending on mode
         
-        if isempty(currTxt)
+        if isempty(dataLoc)
             errInd(1) = 1;
-        elseif currMode == 1 % saving as file
+        elseif fileOrVar == 1 % saving as file
 
-            % split current text into file path and filename (adding ext.)
-            [currPath,currName,currExt] = fileparts(currTxt);
-            if isempty(currExt), currExt = '.mat'; end
+            % split current text into file path and filename
+            [currPath,currName,currExt] = fileparts(dataLoc);
+            
+            % make sure there's a valid extension, add .mat if not
+            if ~isempty(currName) && isempty(currExt)
+                currExt = '.mat'; 
+                dataLoc = [dataLoc,'.mat'];
+                nameTxt.String = dataLoc;
+            end
             
             % check if can save
             if ~exist(currPath,'dir')
                 errInd(1) = 2; % invalid path
             elseif ~isvarname(currName)
                 errInd(1) = 3; % invalid name
-            elseif exist(strcat(currName,currExt),'file')
+            elseif exist([currName,currExt],'file')
                 errInd(1) = 4; % already exists
             end
             
         else % saving as variable
             
             % check if can save
-            if ~isvarname(currTxt)
+            if ~isvarname(dataLoc)
                 errInd(1) = 3; % invalid name
-            elseif evalin('base',['exist(''',currTxt,''',''var'')'])
+            elseif evalin('base',['exist(''',dataLoc,''',''var'')'])
                 errInd(1) = 4; % already exists
             end
             
@@ -410,9 +378,9 @@ uiwait(saveDataFig);
             case 2 % invalid path
                 currErr = invalPath;
             case 3 % invalid name
-                currErr = invalName{currMode};
+                currErr = invalName{fileOrVar};
             case 4 % already exists
-                currErr = existsTxt{currMode};
+                currErr = existsTxt{fileOrVar};
                 butVal(2) = 2; % overwrite button necessary
                 if canOvrWrite
                     currErr = strcat(currErr,', will overwrite');
@@ -438,7 +406,8 @@ uiwait(saveDataFig);
 
         % update save button (enable - on/off)
         saveBut.Enable = butOpt{butVal(3)};
-
+        
+        drawnow; pause(0.05);
     end
 
 end
