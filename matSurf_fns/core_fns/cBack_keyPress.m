@@ -16,6 +16,11 @@ function cBack_keyPress(src,event)
 % - del,   delete ROI
 % - ESC,   if drawing ROI cancel, otherwise enter data mode
 
+% make sure we're not entering text in a textbox
+if isprop(src.CurrentObject,'Style') && strcmp(src.CurrentObject.Style,'edit')
+    return
+end
+
 % get data
 currVol = getappdata(src,'currVol');
 handles = getappdata(src,'handles');
@@ -51,7 +56,7 @@ switch event.Key
         
     case 'p'
         
-        % take screenshot
+        cBack_cam_screenshot(src); % take screenshot
         
     case 'r'
         
@@ -68,7 +73,9 @@ switch event.Key
         
     case {'u','backspace'}
         
-        cBack_ROI_undo(src); % undo last ROI vertex
+        if strcmp(handles.addROI.String,'Cont')
+            cBack_ROI_undo(src); % undo last ROI vertex
+        end
         
     case {'w','uparrow'}
         
