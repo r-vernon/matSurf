@@ -59,6 +59,10 @@ loadDataFig = figure('WindowStyle','modal',...
     'Units','pixels','Position',[100, 100, 460, 115],'Visible','off',...
     'NumberTitle','off','MenuBar','none','DockControls','off','Resize','off');
 
+
+% grab context menu for copy/paste
+cpMenu = copy_paste_menu;
+
 %  ========================================================================
 %  ---------------------- MODE CHOICE -------------------------------------
 
@@ -93,7 +97,7 @@ end
 % text entry
 nameTxt = uicontrol(loadDataFig,'Style','edit','Tag','nameTxt',...
     'HorizontalAlignment','left','Position',[100,72,323,25],...
-    'Callback',@txtCallback);
+    'Callback',@txtCallback,'UIContextMenu',cpMenu);
 
 % browse for folder
 browseBut = uicontrol(loadDataFig,'Style','pushbutton','String','...',...

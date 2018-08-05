@@ -45,6 +45,9 @@ handles.statTxt = uicontrol(figHandle,'Style','text','Tag','statTxt',...
     'FontSize',8,'FontAngle','italic','ForegroundColor',[0.35,0.35,0.35],...
     'Position',[axLength+panSp-axLength,1,axLength,15]);
 
+% grab context menu for copy/paste
+handles.cpMenu = copy_paste_menu;
+
 %% ========================================================================
 
 %  ---------------------- DEFINING MENUBAR --------------------------------

@@ -185,6 +185,7 @@ end
                 handles.matSurfFig.Name = 'matSurf';
                 
                 set(keyHandles,'Enable','off');
+                handles.svEdit.UIContextMenu = '';
                 switchCallbackState(0);           % disable
                 switchModeState(-1);              % disable and reset
                 set(handles.selSurf,...
@@ -210,6 +211,7 @@ end
                 handles.matSurfFig.Name = ['matSurf - ',currVol.surfDet.surfName];
                 
                 set(keyHandles,'Enable','on');
+                handles.svEdit.UIContextMenu = handles.cpMenu;
                 switchCallbackState(1);           % enable
                 switchModeState(1);               % enable and reset
                 switchDataState(2);               % enable and reset

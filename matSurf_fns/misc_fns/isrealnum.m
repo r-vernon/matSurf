@@ -1,7 +1,7 @@
 function [B] = isrealnum(A,minA,maxA)
 % function to test if variable is a single real number
 %
-% isnumeric rules out all but single, double, int, uint
+% isnumeric/islogical rules out all but single, double, int, uint, logical
 % isfinite rules out nan, inf
 % isscalar rules out numbers with more than 1 element
 % is real rules out complex numbers
@@ -11,7 +11,12 @@ function [B] = isrealnum(A,minA,maxA)
 % (opt.) maxA, if set, tests if A <= maxA
 % (ret.) B, true if conditions met, false otherwise
 
+B = false;
+
 % parse inputs
+
+if isempty(A), return; end
+
 if nargin == 1
     
     % if no range given, just set range to infinite
@@ -34,7 +39,7 @@ else
 end
 
 % test if real number
-B = isnumeric(A) && isfinite(A) && isscalar(A) && isreal(A) && ...
+B = (isnumeric(A) || islogical(A)) && isfinite(A) && isscalar(A) && isreal(A) && ...
     A >= rangeA(1) && A <= rangeA(2);
 
 end

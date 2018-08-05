@@ -56,6 +56,10 @@ saveDataFig = figure('WindowStyle','modal',...
     'Units','pixels','Position',[100, 100, 460, 115],'Visible','off',...
     'NumberTitle','off','MenuBar','none','DockControls','off','Resize','off');
 
+
+% grab context menu for copy/paste
+cpMenu = copy_paste_menu;
+
 %  ========================================================================
 %  ---------------------- MODE CHOICE -------------------------------------
 
@@ -90,7 +94,7 @@ end
 % text entry
 nameTxt = uicontrol(saveDataFig,'Style','edit','Tag','nameTxt',...
     'HorizontalAlignment','left','Position',[100,72,323,25],...
-    'Callback',@txtCallback);
+    'Callback',@txtCallback,'UIContextMenu',cpMenu);
 
 % initialise text with save possibility
 if fileOrVar == 1 
