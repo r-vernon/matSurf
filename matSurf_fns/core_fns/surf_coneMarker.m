@@ -6,6 +6,7 @@ function surf_coneMarker(f_h,ip)
 % (req.) vn,  vertex normal for pt
 
 % get data
+currVol = getappdata(f_h,'currVol'); 
 handles = getappdata(f_h,'handles');
 markSize = getappdata(f_h,'markSize');
 
@@ -73,6 +74,10 @@ set(handles.markPatch,...
     'FaceNormals',faceNormal(coneTR),...
     'FaceVertexCData',coneC);
 
+% update selected vertex in current vol, and text
+currVol.selVert = ip;
+handles.svEdit.String = num2str(ip);
+    
 drawnow;
 
 end
