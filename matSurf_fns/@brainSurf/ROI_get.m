@@ -32,8 +32,8 @@ end
 roiData = [nan(1,3);obj.TR.Points(vertInd,:)];
 
 % add normals to shift ROI slightly above surface
-vNorm = vertexNormal(obj.TR);
-roiData(2:end,:) = roiData(2:end,:) + 0.1*vNorm(vertInd);
+% vNorm = vertexNormal(obj.TR);
+% roiData(2:end,:) = roiData(2:end,:) + 2*vNorm(vertInd);
 
 % put NaNs between each ROI
 if ~isempty(roiEnds)
