@@ -77,8 +77,8 @@ classdef brainSurf < handle
         % main overlay structure
         ROIs = struct('name','','allVert',[],'selVert',[],'visible',true);
         
-        roiNames   % cell array of all ROIs loaded
-        nROIs  = 0 % number of ROIs
+        roiNames  % cell array of all ROIs loaded
+        nROIs = 0 % number of ROIs
         
         % -------------------------------------------------------------
         % camera properties
@@ -170,7 +170,6 @@ classdef brainSurf < handle
             obj.q_cur  = [1,0,0,0];
             
         end
-        
         
         [vol] = saveInstance(obj)
         % save an instance
