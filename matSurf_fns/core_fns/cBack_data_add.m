@@ -6,7 +6,10 @@ cmaps   = getappdata(f_h,'cmaps');
 currVol = getappdata(f_h,'currVol'); 
 handles = getappdata(f_h,'handles');
 
-[file,path] = uigetfile({'*.nii.gz';'*.mat';'*.*'});
+% create filter for find file dialogue
+fileFilt = {['*',currVol.surfDet.hemi,'*.nii.gz'];'*.nii.gz';'*.mat';'*.*'};
+
+[file,path] = uigetfile(fileFilt);
 toRead = fullfile(path,file);
 if ~exist(toRead,'file'), return; end
 
