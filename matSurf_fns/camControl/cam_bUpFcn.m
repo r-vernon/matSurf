@@ -24,9 +24,9 @@ if strcmp(camControl.mState,'alt')
     return;
 end
 
+% if mouse moved, was a camera control click, update views
 if camControl.mMoved
-    % mouse moved so was a camera control click, update views
-    
+
     % get data
     currVol = getappdata(src,'currVol');
     handles = getappdata(src,'handles');
@@ -42,6 +42,8 @@ if camControl.mMoved
     camControl.mMoved = false;
     setappdata(src,'camControl',camControl);
     
+    drawnow;
+    
 elseif camControl.clPatch
     
     % no movement so if click was on patch, send intersection point for
@@ -49,7 +51,5 @@ elseif camControl.clPatch
     cBack_mode_mouseEvnt(src,camControl.ip);
     
 end
-
-drawnow; pause(0.05);
 
 end

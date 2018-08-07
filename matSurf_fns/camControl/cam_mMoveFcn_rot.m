@@ -1,8 +1,16 @@
 function cam_mMoveFcn_rot(src,~)
 % function to call for mouse movement
 
-% get data
+% get camControl
 camControl = getappdata(src,'camControl');
+
+% make sure execution rate doesn't exceed frame rate
+cTime = clock;
+if etime(cTime,camControl.tStmp) < camControl.fRate
+    return
+end
+
+% get rest of data
 handles = getappdata(src,'handles');
 
 % get current panel size
@@ -15,14 +23,10 @@ mPos2([1,3]) = (src.CurrentPoint-pSize(1:2))./(0.5*pSize(3:4)) - 1;
 currPos_SSq = sum(mPos2.^2);
 if currPos_SSq <= 1, mPos2(2) = -sqrt(1-currPos_SSq); end
 
-% get time
-cTime = clock;
-
 % make sure we've moved reasonable amount...
 % (doing this before scaling so don't magnify false +ves)
-if norm(mPos2-camControl.mPos1) < 0.01 || etime(cTime,camControl.tStmp) < camControl.fRate
-    return;
-end
+if norm(mPos2-camControl.mPos1) < 0.01, return; end
+
 camControl.mMoved = true;
 camControl.tStmp  = cTime;
 
@@ -31,12 +35,12 @@ camControl.view = '';
 
 % calculate unit vector (u), and angle of rotation (theta, th)
 u = cross(camControl.mPos1,mPos2);             % calc vector
-normU = norm(u);                            % calc vector norm
+normU = norm(u);                               % calc vector norm
 th = atan2(normU,dot(camControl.mPos1,mPos2)); % calc theta
-u = u/normU;                                % make unit vector
+u = u/normU;                                   % make unit vector
 
-% scale theta by sensitivity
-th = th*camControl.mSens(1);
+% scale theta by zoom factor and sensitivity
+th = th * camControl.zFact * camControl.mSens(1);
 
 % convert to unit quaternion and multiply by previous rotation
 qForm2 = [cos(th/2),sin(th/2)*u];

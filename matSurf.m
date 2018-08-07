@@ -30,12 +30,13 @@ mState  - normal (LClick), extend (L+R Click, ScrWh Click), alt (RClick)
 clPatch - true if click came from patch
 ip      - intersection point between click/patch if clicked patch
 qForm   - rotation matrix in quaternion form
+zFact   - zoom factor, ratio of base view angle 10deg.
 tStmp   - time stamp of button down
 fRate   - frame rate limit of camera
 %}
 camControl = struct(...
-    'view','','mSens',[1.5,1.5,1.5],'mState','','mPos1',[],'mMoved',false,...
-    'clPatch',false,'ip',[],'qForm',[],'tStmp',clock,'fRate',1/60);
+    'view','','mSens',[1.5,1.0,1.5],'mState','','mPos1',[],'mMoved',false,...
+    'clPatch',false,'ip',[],'qForm',[],'zFact',1,'tStmp',clock,'fRate',1/60);
 setappdata(f_h,'camControl',camControl);
 
 % set marker size preferences (length, radius)

@@ -52,7 +52,10 @@ switch camControl.mState(1)
         
     case 'e' % extend, pan
         
-        camControl.mPos1 = f_h.CurrentPoint;  % get mouse pos on figure
+        % get mouse pos. relative to panel as above, just not bothering with depth
+        pSize = handles.axisPanel.Position;
+        camControl.mPos1 = (f_h.CurrentPoint-pSize(1:2))./(0.5*pSize(3:4)) - 1;
+        
         f_h.WindowButtonMotionFcn = @cam_mMoveFcn_pan;
         
     otherwise % alt, do nothing

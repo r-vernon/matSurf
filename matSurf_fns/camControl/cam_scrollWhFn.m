@@ -2,16 +2,18 @@ function cam_scrollWhFn(src,event)
 % function called when patch, panel or axis button down callback triggered
 % camera locked to view angle between 2 and 18 degrees
 
-% get data
+% get camControl
 camControl = getappdata(src,'camControl');
-currVol = getappdata(src,'currVol');
-handles = getappdata(src,'handles');
 
-% make sure not zooming crazily...
+% make sure execution rate doesn't exceed frame rate
 cTime = clock;
 if etime(cTime,camControl.tStmp) < camControl.fRate
     return
 end
+
+% get rest of data
+currVol = getappdata(src,'currVol');
+handles = getappdata(src,'handles');
 
 % set sensitivity
 scrAmnt = event.VerticalScrollCount * -0.1 * camControl.mSens(3);
@@ -33,14 +35,23 @@ setappdata(src,'camControl',camControl);
 % this will also map it to between 2 and 18 deg. view angle
 newVA = normcdf(newVA,10,10/3)*16 +2;
 
-% calculate % change from base (10) and apply to line thickness (base 2)
-% formula actually 2 + 2*((10-newVA)/10) but simplifies to newVA/5
-handles.brainROI.LineWidth = 4 - newVA/5;
+% work out how much smaller/larger axis is based on new view angle
+% - xtan(a)=y1, xtan(b)=y2 -> x = y1/tan(a) = y2/tan(b)
+% - y1/y2 = tan(a)/tan(b) = tan(a) * 1/tan(b) = tan(a)*cot(b)
+% - set b to default VA
+camControl.zFact = tand(newVA)*cotd(currVol.cam.VA_def{3});
+
+% adjust line thickness based on zoom factor
+% default thickness is 2 at default view angle 10deg
+handles.brainROI.LineWidth = 2 / camControl.zFact;
 
 % set it
 handles.brainAx.CameraViewAngle = newVA;
 
 % update current camera view in volume
 currVol.VA_cur{3} = newVA;
+
+% update appdata
+setappdata(src,'camControl',camControl);
 
 end

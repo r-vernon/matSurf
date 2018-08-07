@@ -174,16 +174,17 @@ end
                 
                 handles.matSurfFig.Name = ['matSurf - ',currVol.surfDet.surfName];
                 
+                switchBrainPatchState(1);         % new or changed instance
                 switchModeState(0);               % reset only
                 checkVertState;
                 checkDataState;
                 checkROIState;
-                switchBrainPatchState(1);         % new or changed instance
-                
+                                
             case -1 % removed only surface
                 
                 handles.matSurfFig.Name = 'matSurf';
                 
+                switchBrainPatchState(0);         % reset
                 set(keyHandles,'Enable','off');
                 handles.svEdit.UIContextMenu = '';
                 switchCallbackState(0);           % disable
@@ -193,40 +194,39 @@ end
                 checkVertState(true);             % force reset
                 switchDataState(-2);              % disable and reset
                 switchROIState(-2);               % disable and reset
-                switchBrainPatchState(0);         % reset
                 setStatusTxt(handles.statTxt,'no data loaded');
                 
             case  0 % switching between multiple surfaces
                 
                 handles.matSurfFig.Name = ['matSurf - ',currVol.surfDet.surfName];
                 
+                switchBrainPatchState(1);         % new or changed instance
                 switchModeState(0);               % reset only
                 checkVertState;
                 checkDataState;
                 checkROIState;
-                switchBrainPatchState(1);         % new or changed instance
                 
             case  1 % adding first surface
                 
                 handles.matSurfFig.Name = ['matSurf - ',currVol.surfDet.surfName];
                 
+                switchBrainPatchState(1);         % new or changed instance
                 set(keyHandles,'Enable','on');
                 handles.svEdit.UIContextMenu = handles.cpMenu;
                 switchCallbackState(1);           % enable
                 switchModeState(1);               % enable and reset
                 switchDataState(2);               % enable and reset
                 switchROIState(2);                % enable and reset
-                switchBrainPatchState(1);         % new or changed instance
-                
+
             case  2 % adding additional surface
                 
                 handles.matSurfFig.Name = ['matSurf - ',currVol.surfDet.surfName];
                 
+                switchBrainPatchState(1);         % new or changed instance
                 switchModeState(0);               % reset only
                 checkVertState(true);             % force reset
                 switchDataState(2);               % enable and reset
                 switchROIState(2);                % enable and reset
-                switchBrainPatchState(1);         % new or changed instance
         end
     end
 
@@ -418,8 +418,9 @@ end
         switch newState
             case 0 % reset
                 
-                % reset camera qForm
+                % reset camera qForm and zoom factor
                 camControl.qForm = [];
+                camControl.zFact = 1;
                 
                 set(handles.brainPatch,...
                     'vertices',[],'faces',[],...
@@ -434,6 +435,8 @@ end
                 set(handles.brainAx,currVol.cam.NA,currVol.VA_cur);
                 handles.xForm.Matrix = qRotMat(currVol.q_cur);
                 camControl.qForm = currVol.q_cur;
+                camControl.zFact = tand(currVol.VA_cur{3}) * ...
+                    cotd(currVol.cam.VA_def{3});
                 
                 % update axis limits
                 xyzLim = [-1,1] * currVol.xyzLim;
@@ -446,7 +449,10 @@ end
                     'VertexNormals',vertexNormal(currVol.TR),...
                     'FaceNormals',faceNormal(currVol.TR),...
                     'visible','on');
-
+                
+                % adjust line thickness based on zoom factor
+                handles.brainROI.LineWidth = 2 / camControl.zFact;
+                
                 % update lighting...
                 
                 % set options for light position
@@ -454,8 +460,8 @@ end
                 % - for 'depth', twice min Y axis limit
                 lPos = [xyzLim(2)/2, xyzLim(1)*2];
                 
-                % for each of the 4 lights, keep depth constant, alternate between
-                % +- L/R and +- UD
+                % for each of the 4 lights, keep depth constant, alternate 
+                % between +- L/R and +- UD
                 handles.llLight.Position = [-lPos(1), lPos(2), -lPos(1)];
                 handles.ulLight.Position = [-lPos(1), lPos(2),  lPos(1)];
                 handles.lrLight.Position = [ lPos(1), lPos(2), -lPos(1)];
