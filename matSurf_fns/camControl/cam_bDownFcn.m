@@ -52,7 +52,7 @@ switch camControl.mState(1)
         
     case 'e' % extend, pan
         
-        camControl.mPos1 =   f_h.CurrentPoint;  % get mouse pos on figure
+        camControl.mPos1 = f_h.CurrentPoint;  % get mouse pos on figure
         f_h.WindowButtonMotionFcn = @cam_mMoveFcn_pan;
         
     otherwise % alt, do nothing
