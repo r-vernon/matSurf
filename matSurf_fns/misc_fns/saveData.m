@@ -47,6 +47,6 @@ end
 
 % set status text
 % (if saved to workspace, show in workspace (the fileOrVar-1 input arg))
-setStatusTxt(prStr,'',fileOrVar-1);
+setStatusTxt([],prStr,'',fileOrVar-1);
 
 end

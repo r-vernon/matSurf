@@ -17,7 +17,7 @@ currVol.cam_reset;
 camControl.qForm = currVol.cam.q_def;
 setappdata(f_h,'camControl',camControl);
 
-setStatusTxt('camera reset');
+setStatusTxt(handles.statTxt,'Reset camera');
 
 drawnow; pause(0.05);
 

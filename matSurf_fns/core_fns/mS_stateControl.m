@@ -194,7 +194,7 @@ end
                 switchDataState(-2);              % disable and reset
                 switchROIState(-2);               % disable and reset
                 switchBrainPatchState(0);         % reset
-                setStatusTxt('no data loaded');
+                setStatusTxt(handles.statTxt,'no data loaded');
                 
             case  0 % switching between multiple surfaces
                 

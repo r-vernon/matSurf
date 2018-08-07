@@ -11,14 +11,14 @@ function cBack_mode_mouseEvnt(f_h,ip)
 handles = getappdata(f_h,'handles');
 
 % save out last selected vertex
-setStatusTxt(sprintf('Selected vertex %d',ip));
+setStatusTxt(handles.statTxt,sprintf('Selected vertex %d',ip));
 
 % move cone marker to selected vertex (will also update text/currVol)
 surf_coneMarker(f_h,ip);
 
 % get current mode (1. Data mode, 2, ROI mode)
 if strcmp(handles.modePanel.SelectedObject.Tag,'dataMode')
-    % process for data mode
+    % process for data moded
 else
     % pass point clicked through to add ROI point
     cBack_ROI_addPnt(f_h,ip);

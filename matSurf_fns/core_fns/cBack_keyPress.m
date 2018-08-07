@@ -5,7 +5,8 @@ function cBack_keyPress(src,event)
 % - a,     camera left (also left arrow)
 % - d,     camera right (also down arrow)
 % - s,     camera down (also right arrow)
-% - c,     rotate through data
+% - c,     configure data overlay
+% - space, rotate through data
 % - f,     finish ROI
 % - h,     hide current ROI
 % - r,     ROI mode, press in ROI mode to start ROI at current vertex
@@ -32,12 +33,7 @@ switch event.Key
         
     case 'c'
         
-        % if more than one overlay, rotate between them
-        if currVol.nOvrlays > 1
-            handles.selData.Value = mod(handles.selData.Value,...
-                currVol.nOvrlays) +1;
-            cBack_data_select(handles.selData);
-        end
+        % configure data overlay
         
     case {'d','rightarrow'}
         
@@ -101,7 +97,15 @@ switch event.Key
         else
             cBack_ROI_delete(src);
         end
- 
+        
+    case 'space'
+        
+        % if more than one overlay, rotate between them
+        if currVol.nOvrlays > 1
+            handles.selData.Value = mod(handles.selData.Value,...
+                currVol.nOvrlays) +1;
+            cBack_data_select(handles.selData);
+        end
 end
 
 end

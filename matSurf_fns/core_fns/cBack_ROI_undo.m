@@ -25,7 +25,7 @@ else
         'YData',vCoords(:,2),...
         'ZData',vCoords(:,3));
     
-    setStatusTxt('Removed ROI point');
+    setStatusTxt(handles.statTxt,'Removed ROI point');
     drawnow;
     
 end

@@ -54,7 +54,7 @@ usageTxt  = {'Enter file path'     , 'Enter var name'    };
 
 % main figure
 % will be modal, so no access to other figures until dealt with
-loadDataFig = figure('WindowStyle','modal',...
+loadDataFig = figure('WindowStyle','normal',...
     'Name','Load Data','Tag','loadDataFig','FileName','loadData.fig',...
     'Units','pixels','Position',[100, 100, 460, 115],'Visible','off',...
     'NumberTitle','off','MenuBar','none','DockControls','off','Resize','off');
@@ -152,7 +152,7 @@ loadDataFig.Visible = 'on';
 drawnow; pause(0.05);
 
 % wait until cancel or load clicked
-uiwait(loadDataFig); 
+% uiwait(loadDataFig); 
 
 % =========================================================================
 

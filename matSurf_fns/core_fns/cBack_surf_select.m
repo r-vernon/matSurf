@@ -12,7 +12,7 @@ setappdata(f_h,'currVol',currVol);
 mS_stateControl(f_h,'sc');
 
 % update status text
-setStatusTxt(sprintf('Switched to %s',currVol.surfDet.surfName));
+setStatusTxt(f_h,sprintf('Switched to %s',currVol.surfDet.surfName));
 
 drawnow; pause(0.05);
 

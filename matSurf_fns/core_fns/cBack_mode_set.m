@@ -6,10 +6,10 @@ handles = getappdata(f_h,'handles');
 
 switch src.Tag
     case 'addROI'
-        setStatusTxt('In ROI drawing mode');
+        setStatusTxt(handles.statTxt,'In ROI drawing mode');
         handles.roiMode.Value = 1;
     otherwise
-        setStatusTxt('In data mode');
+        setStatusTxt(handles.statTxt,'In data mode');
         handles.dataMode.Value = 1;
 end
 

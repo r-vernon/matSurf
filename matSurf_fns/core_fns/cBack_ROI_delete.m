@@ -27,11 +27,11 @@ if success % update popupmenu and surface
         
         % update state (rr = ROI removed)
         mS_stateControl(f_h,'rr');  
-        setStatusTxt('All ROIs deleted');
+        setStatusTxt(handles.statTxt,'All ROIs deleted');
         
     else % still some ROIs remaining
         
-        setStatusTxt('Deleted ROI');
+        setStatusTxt(handles.statTxt,'Deleted ROI');
         
         % update select ROI text with current status
         handles.selROI.String = currVol.roiNames;

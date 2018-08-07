@@ -13,7 +13,7 @@ ROIname = handles.selROI.String{handles.selROI.Value};
 
 % make sure it's finished
 if contains(ROIname,'[e]')
-    setStatusTxt('Can''t save unfinished ROI');
+    setStatusTxt(handles.statTxt,'Can''t save unfinished ROI');
     return
 end
 
@@ -73,9 +73,9 @@ allVert = allVert - 1;
 success = write_label(allVert, allCoords, [], fileName, subject);
 
 if success
-    setStatusTxt('Saved ROI successfully');
+    setStatusTxt(handles.statTxt,'Saved ROI successfully');
 else
-    setStatusTxt('Could not save ROI');
+    setStatusTxt(handles.statTxt,'Could not save ROI');
 end
 
 end

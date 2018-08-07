@@ -13,7 +13,7 @@ allROIs(contains({allROIs.name},'[e]')) = [];
 
 % make sure there's some empty ROIs to save
 if isempty(allROIs)
-    setStatusTxt('No finished ROIs to remove');
+    setStatusTxt(f_h,'No finished ROIs to remove');
     return;
 end
 

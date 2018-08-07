@@ -61,7 +61,7 @@ if finalPt
     % switch back to data mode 
     handles.dataMode.Value = 1;
     
-    setStatusTxt('Finished ROI');
+    setStatusTxt(handles.statTxt,'Finished ROI');
 end
 
 % update UI elements based on current ROI state (editing or not)

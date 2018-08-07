@@ -17,7 +17,7 @@ we're using triangulation that doesn't seem to be true, so not doing it.
 Can double check if necessary with 'verifyNormals' script
 %}
 
-setStatusTxt('loading surface and calculating centroid');
+setStatusTxt([],'loading surface and calculating centroid');
 
 % surface
 try
@@ -69,6 +69,6 @@ st = edges(obj.TR);
 w = sqrt(sum(bsxfun(@minus,vert(st(:,1),:),vert(st(:,2),:)).^2,2));
 obj.G = graph(st(:,1),st(:,2),w);
 
-setStatusTxt('surface loaded');
+setStatusTxt([],'surface loaded');
 
 end

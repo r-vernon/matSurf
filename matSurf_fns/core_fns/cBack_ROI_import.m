@@ -15,7 +15,7 @@ if fileOrVar == 1 && contains(dataLoc,'.label')
     % if it's a label file, read in
     fid = fopen(dataLoc,'r') ;
     if fid == -1
-        setStatusTxt(sprintf('Could not read %s',dataLoc)); 
+        setStatusTxt(sprintf(handles.statTxt,'Could not read %s',dataLoc)); 
         return
     end
     

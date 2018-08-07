@@ -60,6 +60,6 @@ end
 
 cam_screenshot(f_h,currSize,saveFmt);
 
-setStatusTxt(sprintf('Saved %s in %s',file,path));
+setStatusTxt(handles.statTxt,sprintf('Saved %s in %s',file,path));
 
 end

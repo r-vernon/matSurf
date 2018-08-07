@@ -16,22 +16,26 @@ if success
         
         % deleted only overlay, update state (dr = data overlay removed)
         mS_stateControl(f_h,'dr');
-        setStatusTxt('All data overlays deleted');
+        setStatusTxt(handles.statTxt,'All data overlays deleted');
         
-        % update surface (forcing update by sending '1')
-        surf_update(handles,currVol,1); 
+        % update surface
+        handles.brainPatch.FaceVertexCData = currVol.currOvrlay.colData;
         
     else
         
-        setStatusTxt('Deleted data overlay');
+        setStatusTxt(handles.statTxt,'Deleted data overlay');
         
         % update popupmenu and surface
         handles.selData.String = currVol.ovrlayNames;
         handles.selData.Value = ind;
         
-        % update surface (will check if showData toggle is on)
-        surf_update(handles,currVol);
+        % update surface if showing data
+        if handles.togData.Value == 1
+            handles.brainPatch.FaceVertexCData = currVol.currOvrlay.colData;
+        end
     end
+    
+    drawnow; pause(0.05);
 end
 
 end
