@@ -343,7 +343,6 @@ uiwait(saveDataFig);
             
             % make sure there's a valid extension, add .mat if not
             if ~isempty(currName) && isempty(currExt)
-                currExt = '.mat'; 
                 dataLoc = [dataLoc,'.mat'];
                 nameTxt.String = dataLoc;
             end
@@ -353,7 +352,7 @@ uiwait(saveDataFig);
                 errInd(1) = 2; % invalid path
             elseif ~isvarname(currName)
                 errInd(1) = 3; % invalid name
-            elseif exist([currName,currExt],'file')
+            elseif exist(dataLoc,'file')
                 errInd(1) = 4; % already exists
             end
             
