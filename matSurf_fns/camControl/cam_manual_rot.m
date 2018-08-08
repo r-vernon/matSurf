@@ -1,9 +1,10 @@
 function cam_manual_rot(f_h,rotDir)
-% function to elicit manual camera movement
+% function to elicit manual camera movement (rotation)
 %
 % (req.) rotDir, rotation direction (1 up, 2 left, 3 right, 4 down)
 
 % get data
+currVol = getappdata(f_h,'currVol');
 camControl = getappdata(f_h,'camControl');
 handles = getappdata(f_h,'handles');
 
@@ -37,6 +38,7 @@ handles.xForm.Matrix = qForm2_R;
 
 % update rotation qForm to latest values
 camControl.qForm = qForm2;
+currVol.q_cur    = qForm2;
 
 % update appdata
 setappdata(f_h,'camControl',camControl);

@@ -1,30 +1,20 @@
-function cam_scrollWhFn(src,event)
-% function called when patch, panel or axis button down callback triggered
-% camera locked to view angle between 2 and 18 degrees
+function cam_manual_zoom(f_h,zoomDir)
+% function to elicit manual camera movement (zooming)
+%
+% (req.) zoomDir, zoom direction (1 in, -1 out)
 
-% get camControl
-camControl = getappdata(src,'camControl');
+% get data
+currVol = getappdata(f_h,'currVol');
+camControl = getappdata(f_h,'camControl');
+handles = getappdata(f_h,'handles');
 
-% make sure execution rate doesn't exceed frame rate
-cTime = clock;
-if etime(cTime,camControl.tStmp) < camControl.fRate
-    return
-end
-
-% update timestamp
-camControl.tStmp  = cTime;
-
-% get rest of data
-currVol = getappdata(src,'currVol');
-handles = getappdata(src,'handles');
-
-% set sensitivity
-scrAmnt = event.VerticalScrollCount * -0.1 * camControl.mSens(3);
+% set zoom amount - TODO: user preference
+zoomAmnt = zoomDir * 1;
 
 % set new view angle
 % (first undo normcdf line below)
 newVA = handles.brainAx.CameraViewAngle;
-newVA = norminv((newVA-2)/16,10,10/3) - scrAmnt;
+newVA = norminv((newVA-2)/16,10,10/3) - zoomAmnt;
 
 % make sure new view angle doesn't exceed range
 newVA = max([0,min([20,newVA])]);
@@ -51,6 +41,6 @@ handles.brainAx.CameraViewAngle = newVA;
 currVol.VA_cur{3} = newVA;
 
 % update appdata
-setappdata(src,'camControl',camControl);
+setappdata(f_h,'camControl',camControl);
 
 end

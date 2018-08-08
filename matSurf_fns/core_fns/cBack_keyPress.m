@@ -29,7 +29,15 @@ switch event.Key
     
     case {'a','leftarrow'}
         
-        cam_manual_rot(src,2); % move camera left
+        if isempty(event.Modifier)
+            cam_manual_rot(src,2); % rotate camera left
+        elseif isscalar(event.Modifier)
+            if strcmp(event.Modifier{1},'shift')
+                cam_manual_pan(src,2); % pan camera left
+            elseif strcmp(event.Modifier{1},'control')
+                cam_manual_zoom(src,-1); % zoom camera out
+            end
+        end
         
     case 'c'
         
@@ -37,7 +45,15 @@ switch event.Key
         
     case {'d','rightarrow'}
         
-        cam_manual_rot(src,3); % move camera right
+        if isempty(event.Modifier)
+            cam_manual_rot(src,3); % rotate camera right
+        elseif isscalar(event.Modifier)
+            if strcmp(event.Modifier{1},'shift')
+                cam_manual_pan(src,3); % pan camera right
+            elseif strcmp(event.Modifier{1},'control')
+                cam_manual_zoom(src,1); % zoom camera in
+            end
+        end
         
     case 'f'
         
@@ -73,7 +89,15 @@ switch event.Key
         
     case {'s','downarrow'}
         
-        cam_manual_rot(src,4); % move camera down
+        if isempty(event.Modifier)
+            cam_manual_rot(src,4); % rotate camera down
+        elseif isscalar(event.Modifier)
+            if strcmp(event.Modifier{1},'shift')
+                cam_manual_pan(src,4); % pan camera down
+            elseif strcmp(event.Modifier{1},'control')
+                cam_manual_zoom(src,-1); % zoom camera out
+            end
+        end
         
     case {'u','backspace'}
         
@@ -83,7 +107,15 @@ switch event.Key
         
     case {'w','uparrow'}
         
-        cam_manual_rot(src,1); % move camera up
+        if isempty(event.Modifier)
+            cam_manual_rot(src,1); % rotate camera up
+        elseif isscalar(event.Modifier)
+            if strcmp(event.Modifier{1},'shift')
+                cam_manual_pan(src,1); % pan camera up
+            elseif strcmp(event.Modifier{1},'control')
+                cam_manual_zoom(src,1); % zoom camera in
+            end
+        end
         
     case 'delete'
         
