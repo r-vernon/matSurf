@@ -30,9 +30,9 @@ newVA = normcdf(newVA,10,10/3)*16 +2;
 % - set b to default VA
 camControl.zFact = tand(newVA)*cotd(currVol.cam.VA_def{3});
 
-% adjust line thickness based on zoom factor
-% default thickness is 2 at default view angle 10deg
-handles.brainROI.LineWidth = 2 / camControl.zFact;
+% adjust line thickness based on zoom factor (clipped to max. 4.5)
+% default thickness is 1.5 at default view angle 10deg
+handles.brainROI.LineWidth = min([1.5/camControl.zFact, 4.5]);
 
 % set it
 handles.brainAx.CameraViewAngle = newVA;

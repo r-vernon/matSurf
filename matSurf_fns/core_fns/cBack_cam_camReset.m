@@ -12,7 +12,7 @@ handles.xForm.Matrix = qRotMat(currVol.cam.q_def);
 
 % reset zoom factor and ROI line thickness
 camControl.zFact = 1;
-handles.brainROI.LineWidth = 2;
+handles.brainROI.LineWidth = 1.5;
 
 % tell surface we've reset
 currVol.cam_reset;

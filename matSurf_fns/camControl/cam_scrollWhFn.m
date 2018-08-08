@@ -29,6 +29,7 @@ newVA = norminv((newVA-2)/16,10,10/3) - scrAmnt;
 % make sure new view angle doesn't exceed range
 newVA = max([0,min([20,newVA])]);
 
+% TODO - replace 10s here with VA_def as below
 % pass it through cumulative guassian (mu 10, sigma 10/3) so fast zooming
 % at centre but slows at extremes (sigmoidal basically)
 % this will also map it to between 2 and 18 deg. view angle
@@ -40,9 +41,9 @@ newVA = normcdf(newVA,10,10/3)*16 +2;
 % - set b to default VA
 camControl.zFact = tand(newVA)*cotd(currVol.cam.VA_def{3});
 
-% adjust line thickness based on zoom factor
-% default thickness is 2 at default view angle 10deg
-handles.brainROI.LineWidth = 2 / camControl.zFact;
+% adjust line thickness based on zoom factor (clipped to max. 4.5)
+% default thickness is 1.5 at default view angle 10deg
+handles.brainROI.LineWidth = min([1.5/camControl.zFact, 4.5]);
 
 % set it
 handles.brainAx.CameraViewAngle = newVA;

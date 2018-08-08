@@ -450,8 +450,8 @@ end
                     'FaceNormals',faceNormal(currVol.TR),...
                     'visible','on');
                 
-                % adjust line thickness based on zoom factor
-                handles.brainROI.LineWidth = 2 / camControl.zFact;
+                % adjust line thickness based on zoom factor (clipped to max. 4.5)
+                handles.brainROI.LineWidth = min([1.5/camControl.zFact, 4.5]);
                 
                 % update lighting...
                 
