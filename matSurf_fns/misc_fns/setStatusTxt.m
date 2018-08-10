@@ -56,13 +56,16 @@ if iscell(txt), txt = txt{:}; end
 if ~ischar(txt), return; end
 
 % check whether displaying an error message
+isErr = false;
 strCol = [0.35,0.35,0.35];
 if nargin >= 3 && ~isempty(errMsg) && ischar(errMsg)
     switch lower(errMsg(1))
         case 'w' % warning
             strCol = [0.9,0.45,0]; % orange
+            isErr = true;
         case 'e' % error 
             strCol = [0.9,0,0];    % red
+            isErr = true;
     end
 end
 
@@ -100,7 +103,11 @@ drawnow;
 
 % if showing in workspace, print there too
 if showWS
-    disp(txt);
+    if isErr
+        warning(txt);
+    else
+        disp(txt);
+    end
 end
 
 end

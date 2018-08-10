@@ -17,18 +17,18 @@ end
 % otherwise, do opposite and set addROI to 'add'
 
 if contains(roiName,'[e]')
-    handles.addROI.String  = 'Cont';
+    handles.addROI.String = 'Cont';
     
-    handles.selROI.Enable  = 'off';
+    handles.selROI.Enable = 'off';
     handles.impROI.Enable = 'off';
     handles.expROI.Enable = 'off';
     
     handles.undoROI.Enable = 'on';
     handles.finROI.Enable  = 'on';
 else
-    handles.addROI.String  = 'Add';
+    handles.addROI.String = 'Add';
     
-    handles.selROI.Enable  = 'on';
+    handles.selROI.Enable = 'on';
     handles.impROI.Enable = 'on';
     handles.expROI.Enable = 'on';
     

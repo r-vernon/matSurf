@@ -169,17 +169,20 @@ end
             handles.svTxt,handles.svEdit,handles.togMark,handles.resCam,...
             handles.saveScrShot];
         
+        % hide everything while changing over
+        set(allchild(handles.xForm),'Visible','off');
+        
         switch newState
             case -2 % removing one of multiple surfaces
                 
                 handles.matSurfFig.Name = ['matSurf - ',currVol.surfDet.surfName];
-                
+
                 switchBrainPatchState(1);         % new or changed instance
                 switchModeState(0);               % reset only
                 checkVertState;
                 checkDataState;
                 checkROIState;
-                                
+
             case -1 % removed only surface
                 
                 handles.matSurfFig.Name = 'matSurf';
@@ -228,6 +231,8 @@ end
                 switchDataState(2);               % enable and reset
                 switchROIState(2);                % enable and reset
         end
+        
+        set(allchild(handles.xForm),'Visible','on'); % show everything
     end
 
     function checkVertState(forceReset)
@@ -366,7 +371,7 @@ end
     function switchROIState(newState)
         
         % combine some key handles so can turn all on/off as needed
-        keyHandles = [handles.undoROI,handles.finROI,handles.impROI,...
+        keyHandles = [handles.undoROI,handles.finROI,...
             handles.expROI,handles.delROI,handles.selROI,handles.cfgROI,...
             handles.saveROI,handles.togROI];
         
@@ -374,8 +379,10 @@ end
             
             if newState == 2
                 handles.addROI.Enable = 'on';  % enable
+                handles.impROI.Enable = 'on';
             else
                 handles.addROI.Enable = 'off'; % disable
+                handles.impROI.Enable = 'off';
             end
             newState = -1; % reset
             

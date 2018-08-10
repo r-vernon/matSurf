@@ -13,13 +13,16 @@ function [fileOrVar,dataLoc] = UI_loadData(fileTypes,startMode,limUsg)
 % parse inputs
 
 % make sure fileTypes (extensions) are valid, must start with *.
-if nargin == 0 || isempty(fileTypes) || (~ischar(fileTypes) || ~iscell(fileTypes)) || ...
+if nargin == 0 || isempty(fileTypes) || (~ischar(fileTypes) && ~iscell(fileTypes)) || ...
         (iscell(fileTypes) && ~all(cellfun(@ischar,fileTypes)))
     fileTypes = '*.*';
 else
     fileTypes(~contains(fileTypes,'*.')) = [];
     if isempty(fileTypes), fileTypes = '*.*'; end
 end
+
+% make sure filetypes is column vector
+fileTypes = fileTypes(:);
 
 % check what extensions are allowed
 if any(contains(fileTypes,'*.*'))
@@ -54,7 +57,7 @@ usageTxt  = {'Enter file path'     , 'Enter var name'    };
 
 % main figure
 % will be modal, so no access to other figures until dealt with
-loadDataFig = figure('WindowStyle','normal',...
+loadDataFig = figure('WindowStyle','modal',...
     'Name','Load Data','Tag','loadDataFig','FileName','loadData.fig',...
     'Units','pixels','Position',[100, 100, 460, 115],'Visible','off',...
     'NumberTitle','off','MenuBar','none','DockControls','off','Resize','off');
@@ -152,7 +155,7 @@ loadDataFig.Visible = 'on';
 drawnow; pause(0.05);
 
 % wait until cancel or load clicked
-% uiwait(loadDataFig); 
+uiwait(loadDataFig); 
 
 % =========================================================================
 
@@ -286,12 +289,12 @@ drawnow; pause(0.05);
         %  ----------------------------------------------------------------
         % check if can load, depending on mode
         
-        if fileOrVar == 1 && exist(dataLoc,'file') && ~isempty(allowedFiles)
+        if fileOrVar == 1 && exist(dataLoc,'file')
             % if loading a file
             
             % make  sure there's a valid extension
             [~,~,ext] = fileparts(dataLoc);
-            if any(contains(ext,allowedFiles))
+            if isempty(allowedFiles) || any(contains(ext,allowedFiles))
                 doesExist = true;
             end
             

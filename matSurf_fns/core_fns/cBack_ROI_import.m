@@ -1,5 +1,9 @@
 function cBack_ROI_import(src,~)
 
+% preallocate some flags
+removedDuplicate = false;
+firstROIadded = false;
+
 % get data
 f_h = getFigHandle(src);
 currVol = getappdata(f_h,'currVol'); 
@@ -42,19 +46,63 @@ aFiles(~toKeep) = [];
 % work out how many ROIs there are
 nROIs = sum(structfun(@(x)length(x.ROIs),data));
 
-tmpROIs(nROIs+10) = struct('name','','allVert',[],'selVert',[]);
+newROIs(nROIs,1) = struct('name','','allVert',[],'selVert',[]);
 ind = 1;
 
+% for every file in 'data', if surfName matches currVol's surfName, add ROIs
 for cFile = 1:length(aFiles)
     if strcmp(data.(aFiles{cFile}).surfDet.surfName,currVol.surfDet.surfName)
         
         n2add = length(data.(aFiles{cFile}).ROIs);
-        tmpROIs(ind:ind+n2add-1) = data.(aFiles{cFile}).ROIs;
+        newROIs(ind:ind+n2add-1) = data.(aFiles{cFile}).ROIs;
         ind = ind + n2add;
         
     end
 end
-tmpROIs(all(isempty(tmpROIs),'rows')) = [];
 
-[~, idx] = unique({tmpROIs.name}, 'stable');
-tmpROIs = tmpROIs(idx);
+% delete any rows that haven't been filled
+newROIs(ind:end) = [];
+
+% check haven't deleted all ROIs!
+if isempty(newROIs)
+    setStatusTxt(handles.statTxt,'No ROIs to import');
+    return;
+end
+
+% only keep ROIs with unique names
+[~, idx] = unique({newROIs.name}, 'stable');
+if length(idx) ~= length(newROIs), removedDuplicate = 1; end
+newROIs = newROIs(idx);
+
+% add in visible field
+[newROIs.visible] = deal(true);
+
+%--------------------------------------------------------------------------
+
+% work out if this will be first ROI (+) or not
+if currVol.nROIs == 0, firstROIadded = 1; end
+
+% get vertex coords and ind
+[vCoords,ind] = currVol.ROI_import(newROIs);
+
+% display the new ROIs
+set(handles.brainROI,...
+    'XData',vCoords(:,1),...
+    'YData',vCoords(:,2),...
+    'ZData',vCoords(:,3));
+
+% update ROI popupmenu
+handles.selROI.String = currVol.roiNames;
+handles.selROI.Value  = ind;
+
+% if added first ROI, update state, then customise state based on curr. ROI
+if firstROIadded, mS_stateControl(f_h,'ra'); end
+ROI_stateControl(handles);
+
+if removedDuplicate
+   setStatusTxt(handles.statTxt,'Imported ROIs, but removed duplicates','w',1); 
+else
+    setStatusTxt(handles.statTxt,'Imported ROIs');
+end
+
+end

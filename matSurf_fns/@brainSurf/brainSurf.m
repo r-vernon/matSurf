@@ -262,6 +262,13 @@ classdef brainSurf < handle
         [allVert] = ROI_fill(obj,bPts,midPt)
         % function to flood fill an ROI
         
+        % -----------------------------------------------------------------
+        
+        [vCoords,ind] = ROI_import(obj,newROIs)
+        % function to import ROIs
+        
+        % -----------------------------------------------------------------
+        
         ROI_updateName(obj,oldName,newName)
         % function to update an ROI name
 
