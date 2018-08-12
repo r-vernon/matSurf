@@ -11,6 +11,9 @@ vol.q_cur = obj.q_cur;
 % store selected vertex
 vol.selVert = obj.selVert;
 
+% store current ROI
+vol.currROI = obj.currROI;
+        
 % -------------------------------------------------------------------------
 % private access properties
 
@@ -27,7 +30,6 @@ vol.nOvrlays = obj.nOvrlays;
 
 % ROI properties
 vol.ROIs = obj.ROIs;
-vol.roiNames = obj.roiNames;
 vol.nROIs = obj.nROIs;
 
 % camera properties
@@ -35,7 +37,6 @@ vol.xyzLim = obj.xyzLim;
 vol.cam = obj.cam;
 vol.viewStore = obj.viewStore;
 vol.nViews = obj.nViews;
-vol.viewNames = obj.viewNames;
 
 % -------------------------------------------------------------------------
 % private properties
@@ -50,9 +51,7 @@ vol.baseOvrlay = obj.baseOvrlay;
 vol.dataOvrlay = obj.dataOvrlay;
 
 % ROI properties
-vol.pROIs = obj.pROIs;
-vol.ROI_lineInd = obj.ROI_lineInd(1:nnz(obj.ROI_lineInd));
-vol.ROI_sPaths = obj.ROI_sPaths;
+vol.ROI_lineInd = obj.ROI_lineInd;
 
 % -------------------------------------------------------------------------
 % additional properties

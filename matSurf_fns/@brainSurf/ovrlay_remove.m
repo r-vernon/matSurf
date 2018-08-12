@@ -48,7 +48,7 @@ end
 
 % update ovrlayNames and nOvrlays
 obj.ovrlayNames = {obj.dataOvrlay(:).name};
-obj.nOvrlays = length(obj.dataOvrlay);
+obj.nOvrlays = numel(obj.dataOvrlay);
 
 success = true; % yay
 

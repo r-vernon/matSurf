@@ -6,11 +6,11 @@ f_h = getFigHandle(src);
 handles = getappdata(f_h,'handles');
 currVol = getappdata(f_h,'currVol'); 
 
-% get ROI index (should always be last ROI if editing)
-ROI_ind = currVol.nROIs;
+% get ROI index
+ind = currVol.currROI;
 
 % if only one selected vertex, just delete ROI instead
-if nnz(currVol.ROIs(ROI_ind).selVert) == 1
+if nnz(currVol.ROIs.selVert{ind}) == 1
     cBack_ROI_delete(f_h);
 else
     % undo the point

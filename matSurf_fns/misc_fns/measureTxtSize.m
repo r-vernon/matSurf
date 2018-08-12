@@ -45,11 +45,11 @@ if iscell(txt)
     end
     
     % if only one element, extract from cell, else count number to process
-    if length(txt) == 1
+    if isscalar(txt)
         txt = txt{1};
     else
         % save number to process and preallocate txtSize with new size
-        numTxt = length(txt);
+        numTxt = numel(txt);
         txtSize = zeros(numTxt,2);
     end
 
@@ -101,7 +101,7 @@ delete(tmpTxtFig);
 
 % if nargout is 0, and only one entry tested print to terminal
 if nargout == 0 && ~iscell(txt)
-    if length(txt) >= 10
+    if numel(txt) >= 10
         fmtTxt = ': \n''%s''\nIs ';
     else
         fmtTxt = ' ''%s'' is ';

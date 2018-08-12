@@ -1,4 +1,4 @@
-function [vCoords,ind] = ROI_import(obj,newROIs)
+function [vCoords] = ROI_import(obj,newROIs)
 % TODO - implement this properly!
 
 % get current ROI index
@@ -20,8 +20,8 @@ ind = ind + 1;
 n2add = length(newROIs);
 rInd = ind:ind+n2add-1;
 
-% update ind
-ind = ind + n2add - 1;
+% update currVol
+obj.currVol = ind + n2add - 1;
 
 % get vertices of all new ROIs
 newVert = {newROIs.allVert};

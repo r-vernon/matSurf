@@ -3,7 +3,7 @@ function calcCentroid(obj,vert)
 %
 % (req.) vert, set of vertices for volume
 % (set.) centroid, centroid of the volume
-
+obj.centroid = [0,0,0]; return;
 % make copy of vertices, appending mean point so ensure volume is filled
 % (may not be nessary, but shouldn't hurt...)
 vert = [vert;mean(vert)];
