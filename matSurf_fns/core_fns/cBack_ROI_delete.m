@@ -15,13 +15,16 @@ if ~contains(ROIname,'[e]')
     if strcmp(reallyDel,'No'), return; end
 end
 
-% try to delete selected overlay
-[success,ind,vCoords] = currVol.ROI_remove(ROIname);
+% try to delete selected ROI
+[success,vCoords] = currVol.ROI_remove(ROIname);
 
 if success % update popupmenu and surface
     
     % switch back to data mode
     handles.dataMode.Value = 1;
+    
+    % get the index of the current ROI
+    ind = currVol.currROI;
     
     if ind == 0 % if deleted all ROIs
         
@@ -34,7 +37,7 @@ if success % update popupmenu and surface
         setStatusTxt(handles.statTxt,'Deleted ROI');
         
         % update select ROI text with current status
-        handles.selROI.String = currVol.roiNames;
+        handles.selROI.String = currVol.ROIs.name;
         handles.selROI.Value = ind;
         
         % update lines with new ROI vertices
@@ -47,6 +50,8 @@ if success % update popupmenu and surface
         ROI_stateControl(handles);
         
     end
+else
+    setStatusTxt(handles.statTxt,'Could not delete ROI','w');
 end
 
 drawnow; pause(0.05);

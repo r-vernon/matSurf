@@ -11,7 +11,7 @@ function [f_h] = matSurf()
 matSurf_pathSetup(baseDir);
 
 % create the figure and associated handles
-[f_h,handles] = mS_create_fig(0);
+f_h = mS_create_fig(0);
 
 % initialise the colormaps
 setappdata(f_h,'cmaps',cmaps);
@@ -51,80 +51,5 @@ f_h.Visible = 'on';
 % make sure everything is fully drawn (adding pause due to: 
 % http://undocumentedmatlab.com/blog/solving-a-matlab-hang-problem)
 drawnow; pause(0.05);
-
-% =========================================================================
-% surface button callbacks
-
-% load surface
-handles.addSurf.Callback  = @cBack_surf_add;
-
-% select surface
-handles.selSurf.Callback  = @cBack_surf_select;
-
-% select vertex
-handles.svEdit.Callback   = @cBack_surf_setVert;
-
-% toggle marker
-handles.togMark.Callback = @cBack_surf_toggleMarker;
-
-% reset camera (in this panel just for convenience)
-handles.resCam.Callback   = @cBack_cam_camReset;
-
-% save surface
-handles.saveSurf.Callback = @cBack_surf_save;
-
-% =========================================================================
-% data button callbacks
-
-% load data
-handles.addData.Callback = @cBack_data_add;
-
-% select data
-handles.selData.Callback = @cBack_data_select;
-
-% delete data
-handles.delData.Callback = @cBack_data_delete;
-
-% display data toggle
-handles.togData.Callback = @cBack_data_toggle;
-
-% =========================================================================
-% ROI button callbacks
-
-% add ROI
-handles.addROI.Callback = @cBack_mode_set;
-
-% delete ROI
-handles.delROI.Callback = @cBack_ROI_delete;
-
-% save ROI
-handles.saveROI.Callback = @cBack_ROI_save;
-
-% display ROIs toggle
-handles.togROI.Callback = @cBack_ROI_toggle;
-
-% undo last ROI vertex
-handles.undoROI.Callback = @cBack_ROI_undo;
-
-% finish ROI
-handles.finROI.Callback = @cBack_ROI_addPnt;
-
-% import ROI
-handles.impROI.Callback = @cBack_ROI_import;
-
-% export ROI
-handles.expROI.Callback = @cBack_ROI_export;
-
-% =========================================================================
-% Camera menu callbacks
-
-% save screenshot
-handles.saveScrShot.Callback = @cBack_cam_screenshot;
-
-% =========================================================================
-% misc. menu callbacks
-
-% save handles
-handles.saveHndls.Callback = @cBack_misc_saveHandles; 
 
 end

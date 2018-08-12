@@ -1,39 +1,64 @@
-function [roiData] = ROI_get(obj,vertInd)
-% function that returns all ROI coordinates for plotting
+function [vCoords] = ROI_get(obj,vertInd)
+% function that returns all ROI vertex coordinates for plotting
 %
-% (opt.) vertInd, list of all current ROI vertices
-% (ret.) roiData, Vertex coords corresponding to vertices
+% (opt.) vertInd, additional ROI vertices to add to lineInd
+% (ret.) vCoords, Vertex coords corresponding to vertices
 
-% get all current vertices if not provided
-if nargin < 2 || isempty(vertInd)
+% look for any additional vertices if not provided
+if nargin < 2
     
-    [mSt,mStInd] = max(obj.pROIs(:,2)); % find last starting pos.
-    mEnd = obj.pROIs(mStInd,3);         % get end pos. of last starting pos.
+    % find ROIs that haven't been finished yet (+1 due to end nan)
+    unfinROI = cellfun(@numel,obj.ROIs.allVert) > obj.ROIs.nVert +1;
     
-    if mEnd == 0
-        mEnd = mSt + nnz(obj.ROIs(mStInd).allVert) - 1;
+    if any(unfinROI)
+        
+        % grab the last one, should only ever be one!
+        ind = find(unfinROI,1,'last');
+        
+        % get end index
+        allV_end = obj.ROIs.nVert(ind);
+        
+        % add ROIs vertices to vertInd
+        vertInd = [obj.ROIs.allVert{ind}(1:allV_end); nan];
     else
-        mEnd = mEnd + 1;
+        vertInd = [];
     end
+end
+
+%--------------------------------------------------------------------------
+
+% get length of main ROI list 
+mLen = numel(obj.ROI_lineInd);
+
+% find NaNs in main ROI list
+mNaN = isnan(obj.ROI_lineInd);
+
+% preallocate space for vCoords
+vCoords = zeros(mLen + numel(vertInd),3,'single');
+
+% set main vertex coords
+vCoords(~mNaN,:) = obj.TR.Points(obj.ROI_lineInd(~mNaN),:);
+
+% put main NaNs in
+vCoords(mNaN,:) = nan;
+
+% add on vertInd if any provided
+if ~isempty(vertInd)
+
+    % make sure vertInd ends with nan, then check in case additional nans
+    if ~isnan(vertInd(end)), vertInd(end+1) = nan; end
+    aNaN = isnan(vertInd);
+
+    % convert to actual indices
+    aReal = find(~aNaN);
+    aNaN  = find(aNaN);
+
+    % set additional vertex coords
+    vCoords(mLen + aReal,:) = obj.TR.Points(vertInd(aReal),:);
     
-    vertInd = obj.ROI_lineInd(1:mEnd);
-end
+    % put additional NaNs in
+    vCoords(mLen + aNaN,:) = nan;
 
-% find NaNs in data set
-roiEnds = obj.pROIs(:,3);  % find endpoints
-roiEnds(roiEnds==0) = [];  % ignore unfinished ROIs
-if ~isempty(roiEnds)
-    roiEnds = roiEnds + 1; % find NaNs (one after valid endpoints)
-    vertInd(roiEnds) = 1;  % temporarily replace NaNs with valid ind
-end
-
-% get actual vertex coords
-% putting NaN at front to ensure everything is disconnected
-roiData = [nan(1,3);obj.TR.Points(vertInd,:)];
-
-% put NaNs between each ROI
-if ~isempty(roiEnds)
-    roiData(roiEnds+1,:) = NaN; % +1 to account for NaN at start
 end
 
 end

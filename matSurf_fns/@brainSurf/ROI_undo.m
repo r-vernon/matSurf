@@ -5,34 +5,25 @@ function [vCoords,prevVal] = ROI_undo(obj)
 % (ret.) prevVal, index of previously selected vertex
 % (set.) ROIs, clears seleced/all vertices associated with removed point
 % (set.) ROI_lineInd, as above 
-% (set.) ROI_sPaths, shortest paths to previous point
 
-% get current ROI index (will be last ROI as open for editing)
-ind = obj.nROIs;
+% get current ROI index
+ind = obj.currROI;
 
 % find and delete last selected marker
-svEndPos = nnz(obj.ROIs(ind).selVert);       % get loc. of last sel. vertex
-obj.ROIs(ind).selVert(svEndPos) = 0;         % delete last sel. vertex
+selV_end = nnz(obj.ROIs.selVert{ind}); % get loc. of last sel. vertex 
+obj.ROIs.selVert{ind}(selV_end) = 0;   % delete last sel. vertex
 
 % get val. of prev. sel. vertex
-prevVal = obj.ROIs(ind).selVert(svEndPos-1); 
+prevVal = obj.ROIs.selVert{ind}(selV_end-1); 
 
 % delete all vertex after last marker
-avEndPos = nnz(obj.ROIs(ind).allVert);
-avStPos = find(obj.ROIs(ind).allVert(1:avEndPos) == prevVal,1,'last');
-obj.ROIs(ind).allVert(avStPos+1:avEndPos) = 0;
-
-% delete all vertices in global list
-lEndPos = nnz(obj.ROI_lineInd);
-lStPos = lEndPos - (avEndPos - avStPos);
-obj.ROI_lineInd(lStPos+1:lEndPos) = 0;
-
-% update shortest paths with shortest paths from every point to prevVal
-obj.ROI_sPaths = shortestpathtree(obj.G,prevVal,...
-    'Method','positive','OutputForm','vector');
+allV_end = obj.ROIs.nVert(ind);
+allV_newEnd = find(obj.ROIs.allVert{ind}(1:allV_end) == prevVal,1,'last');
+obj.ROIs.allVert{ind}(allV_newEnd+1:allV_end) = 0;
+obj.ROIs.nVert(ind) = allV_newEnd;
 
 % return updated vertex coords
-vertInd = obj.ROI_lineInd(1:lStPos);
+vertInd = [obj.ROIs.allVert{ind}(1:allV_newEnd); nan];
 vCoords = obj.ROI_get(vertInd);
 
 end

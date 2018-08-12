@@ -83,7 +83,7 @@ newROIs = newROIs(idx);
 if currVol.nROIs == 0, firstROIadded = 1; end
 
 % get vertex coords and ind
-[vCoords,ind] = currVol.ROI_import(newROIs);
+[vCoords] = currVol.ROI_import(newROIs);
 
 % display the new ROIs
 set(handles.brainROI,...
@@ -92,8 +92,8 @@ set(handles.brainROI,...
     'ZData',vCoords(:,3));
 
 % update ROI popupmenu
-handles.selROI.String = currVol.roiNames;
-handles.selROI.Value  = ind;
+handles.selROI.String = currVol.ROIs.name;
+handles.selROI.Value  = currVol.currROI;
 
 % if added first ROI, update state, then customise state based on curr. ROI
 if firstROIadded, mS_stateControl(f_h,'ra'); end

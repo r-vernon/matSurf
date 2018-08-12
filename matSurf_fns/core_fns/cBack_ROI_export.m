@@ -9,11 +9,11 @@ currVol = getappdata(f_h,'currVol');
 allROIs = currVol.ROIs;
 
 % remove any unfinished ROIs
-allROIs(contains({allROIs.name},'[e]')) = [];
+allROIs(contains(allROIs.name,'[e]')) = [];
 
 % make sure there's some empty ROIs to save
 if isempty(allROIs)
-    setStatusTxt(f_h,'No finished ROIs to remove');
+    setStatusTxt(f_h,'No finished ROIs to remove','w');
     return;
 end
 

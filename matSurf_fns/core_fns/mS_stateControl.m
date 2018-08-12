@@ -12,7 +12,7 @@ function mS_stateControl(f_h,updateCode)
 %        - da, dr         - add first/remove only data overlay
 %        - ra, rr         - add first/remove only ROI
 
-if ~ischar(updateCode) || length(updateCode) ~= 2
+if ~ischar(updateCode) || numel(updateCode) ~= 2
     return
 end
 
@@ -355,7 +355,7 @@ end
             % enable buttons
             switchROIState(1);
             
-            set(handles.selROI,'String',currVol.roiNames,'Value',currVol.nROIs);
+            set(handles.selROI,'String',currVol.ROIs.name,'Value',currVol.currROI);
             vertexCoords = currVol.ROI_get;
             set(handles.brainROI,...
                 'XData',vertexCoords(:,1),...
@@ -371,7 +371,7 @@ end
     function switchROIState(newState)
         
         % combine some key handles so can turn all on/off as needed
-        keyHandles = [handles.undoROI,handles.finROI,...
+        keyHandles = [handles.undoROI,handles.renROI,handles.finROI,...
             handles.expROI,handles.delROI,handles.selROI,handles.cfgROI,...
             handles.saveROI,handles.togROI];
         

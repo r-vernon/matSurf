@@ -1,4 +1,4 @@
-function [figHandle,handles] = mS_create_fig(showFig)
+function [figHandle] = mS_create_fig(showFig)
 
 if nargin <1 || isempty(showFig)
     showFig = true;
@@ -76,7 +76,7 @@ handles.udateMenu = uimenu(figHandle,Text,'&Update',  'Tag', 'udateMenu');
 
 % save surface
 handles.saveSurf = uimenu(handles.surfMenu,Text,'Save Surface',...
-    'Tag','saveSurf','Enable','off');
+    'Tag','saveSurf','Enable','off','Callback',@cBack_surf_save);
 
 % set lighting properties
 handles.setLight = uimenu(handles.surfMenu,Text,'Set Lighting',...
@@ -91,19 +91,23 @@ handles.setLight = uimenu(handles.surfMenu,Text,'Set Lighting',...
 
 % undo last ROI point
 handles.undoROI = uimenu(handles.roiMenu,Text,'Undo',...
-    'Tag','undoROI','Enable','off');
+    'Tag','undoROI','Enable','off','Callback',@cBack_ROI_undo);
+
+% rename ROI
+handles.renROI = uimenu(handles.roiMenu,Text,'Rename ROI',...
+    'Tag','renROI','Enable','off','Callback',@cBack_ROI_rename);
 
 % finish ROI
 handles.finROI = uimenu(handles.roiMenu,Text,'Finish ROI',...
-    'Tag','finROI','Enable','off');
+    'Tag','finROI','Enable','off','Callback',@cBack_ROI_addPnt);
 
 % import ROI
 handles.impROI = uimenu(handles.roiMenu,Text,'Import ROI(s)',...
-    'Tag','impROI','Enable','off');
+    'Tag','impROI','Enable','off','Callback',@cBack_ROI_import);
 
 % export ROI
 handles.expROI = uimenu(handles.roiMenu,Text,'Export ROI(s)',...
-    'Tag','expROI','Enable','off');
+    'Tag','expROI','Enable','off','Callback',@cBack_ROI_export);
 
 %% ========================================================================
 
@@ -114,7 +118,7 @@ handles.expROI = uimenu(handles.roiMenu,Text,'Export ROI(s)',...
 
 % save screenshot
 handles.saveScrShot = uimenu(handles.camMenu,Text,'Save Screenshot',...
-    'Tag','saveScrShot','Enable','off');
+    'Tag','saveScrShot','Enable','off','Callback',@cBack_cam_screenshot);
 
 %% ========================================================================
 
@@ -125,7 +129,7 @@ handles.saveScrShot = uimenu(handles.camMenu,Text,'Save Screenshot',...
 
 % save handles
 handles.saveHndls = uimenu(handles.miscMenu,Text,'Save Graphics Handles',...
-    'Tag','saveHndls');
+    'Tag','saveHndls','Callback',@cBack_misc_saveHandles);
 
 %% ========================================================================
 
@@ -324,7 +328,8 @@ currH = (nVItems.surf * butSp) + ((nVItems.surf-1) * butHeight);
 % add surface button
 handles.addSurf = uicontrol(handles.surfPanel,'Style','pushbutton',...
     'String','Add','Tag','addSurf',...
-    'Position',[h_LPos1,currH,h_butWidth,butHeight]);
+    'Position',[h_LPos1,currH,h_butWidth,butHeight],...
+    'Callback',@cBack_surf_add);
 
 % delete surface button
 handles.delSurf = uicontrol(handles.surfPanel,'Style','pushbutton',...
@@ -337,7 +342,8 @@ currH = currH - (butHeight + butSp);
 % select surface menu
 handles.selSurf = uicontrol(handles.surfPanel,'Style','popupmenu',...
     'String','Select Surface','Tag','selSurf','Enable','off',...
-    'Position',[f_LPos,currH,f_butWidth,butHeight]);
+    'Position',[f_LPos,currH,f_butWidth,butHeight],...
+    'Callback',@cBack_surf_select);
 
 % update current height
 currH = currH - (butHeight + butSp);  
@@ -350,7 +356,8 @@ handles.svTxt = uicontrol(handles.surfPanel,'Style','text',...
 % selected vertex edit
 handles.svEdit = uicontrol(handles.surfPanel,'Style','edit',...
     'String','','Tag','svEdit','Enable','off',...
-    'Position',[t_LPos2,currH,2*t_butWidth,butHeight]);
+    'Position',[t_LPos2,currH,2*t_butWidth,butHeight],...
+    'Callback',@cBack_surf_setVert);
 
 % update current height
 currH = currH - (butHeight + butSp);  
@@ -358,15 +365,17 @@ currH = currH - (butHeight + butSp);
 % show marker toggle
 handles.togMark = uicontrol(handles.surfPanel,'Style','checkbox',...
     'String','Show Marker','Tag','togMark','Value',1,'Enable','off',...
-    'Position',[f_LPos,currH,f_butWidth,butHeight]);
+    'Position',[f_LPos,currH,f_butWidth,butHeight],...
+    'Callback',@cBack_surf_toggleMarker);
 
 % update current height
 currH = currH - (butHeight + butSp);  
 
-% reset camera button
+% reset camera button (in this panel just for convenience)
 handles.resCam = uicontrol(handles.surfPanel,'Style','pushbutton',...
     'String','Reset Camera','Tag','resCam','Enable','off',...
-    'Position',[f_LPos,currH,f_butWidth,butHeight]);
+    'Position',[f_LPos,currH,f_butWidth,butHeight],...
+    'Callback',@cBack_cam_camReset);
 
 %% ========================================================================
 
@@ -381,12 +390,14 @@ currH = (nVItems.data * butSp) + ((nVItems.data-1) * butHeight);
 % add data button
 handles.addData = uicontrol(handles.dataPanel,'Style','pushbutton',...
     'String','Add','Tag','addData','Enable','off',...
-    'Position',[h_LPos1,currH,h_butWidth,butHeight]);
+    'Position',[h_LPos1,currH,h_butWidth,butHeight],...
+    'Callback',@cBack_data_add);
 
 % delete data button
 handles.delData = uicontrol(handles.dataPanel,'Style','pushbutton',...
     'String','Del.','Tag','delData','Enable','off',...
-    'Position',[h_LPos2,currH,h_butWidth,butHeight]);
+    'Position',[h_LPos2,currH,h_butWidth,butHeight],...
+    'Callback',@cBack_data_delete);
 
 % update current height
 currH = currH - (butHeight + butSp); 
@@ -394,7 +405,8 @@ currH = currH - (butHeight + butSp);
 % select data menu
 handles.selData = uicontrol(handles.dataPanel,'Style','popupmenu',...
     'String','Select Data','Tag','selData','Enable','off',...
-    'Position',[f_LPos,currH,f_butWidth,butHeight]);
+    'Position',[f_LPos,currH,f_butWidth,butHeight],...
+    'Callback',@cBack_data_select);
 
 % update current height
 currH = currH - (butHeight + butSp);  
@@ -418,7 +430,8 @@ currH = currH - (butHeight + butSp);
 % show data toggle
 handles.togData = uicontrol(handles.dataPanel,'Style','checkbox',...
     'String','Show Data','Tag','togData','Value',1,'Enable','off',...
-    'Position',[f_LPos,currH,f_butWidth,butHeight]);
+    'Position',[f_LPos,currH,f_butWidth,butHeight],...
+    'Callback',@cBack_data_toggle);
 
 %% ========================================================================
 
@@ -433,12 +446,14 @@ currH = (nVItems.ROI * butSp) + ((nVItems.ROI-1) * butHeight);
 % add ROI button
 handles.addROI = uicontrol(handles.roiPanel,'Style','pushbutton',...
     'String','Add','Tag','addROI','Enable','off',...
-    'Position',[h_LPos1,currH,h_butWidth,butHeight]);
+    'Position',[h_LPos1,currH,h_butWidth,butHeight],...
+    'Callback',@cBack_mode_set);
 
 % delete ROI button
 handles.delROI = uicontrol(handles.roiPanel,'Style','pushbutton',...
     'String','Del.','Tag','delROI','Enable','off',...
-    'Position',[h_LPos2,currH,h_butWidth,butHeight]);
+    'Position',[h_LPos2,currH,h_butWidth,butHeight],...
+    'Callback',@cBack_ROI_delete);
 
 % update current height
 currH = currH - (butHeight + butSp);  
@@ -446,7 +461,8 @@ currH = currH - (butHeight + butSp);
 % select ROI menu
 handles.selROI = uicontrol(handles.roiPanel,'Style','popupmenu',...
     'String','Select ROI','Tag','selROI','Enable','off',...
-    'Position',[f_LPos,currH,f_butWidth,butHeight]);
+    'Position',[f_LPos,currH,f_butWidth,butHeight],...
+    'Callback',@cBack_ROI_select);
 
 % update current height
 currH = currH - (butHeight + butSp);  
@@ -462,7 +478,8 @@ currH = currH - (butHeight + butSp);
 % save ROI button
 handles.saveROI = uicontrol(handles.roiPanel,'Style','pushbutton',...
     'String','Save ROI','Tag','saveROI','Enable','off',...
-    'Position',[f_LPos,currH,f_butWidth,butHeight]);
+    'Position',[f_LPos,currH,f_butWidth,butHeight],...
+    'Callback',@cBack_ROI_save);
 
 % update current height
 currH = currH - (butHeight + butSp);  
@@ -470,7 +487,8 @@ currH = currH - (butHeight + butSp);
 % show ROIs toggle
 handles.togROI = uicontrol(handles.roiPanel,'Style','checkbox',...
     'String','Show ROIs','Tag','togROI','Value',1,'Enable','off',...
-    'Position',[f_LPos,currH,f_butWidth,butHeight]);
+    'Position',[f_LPos,currH,f_butWidth,butHeight],...
+    'Callback',@cBack_ROI_toggle);
 
 %% ========================================================================
 
@@ -504,7 +522,7 @@ iptPointerManager(figHandle);
 allHandles = fieldnames(handles);
 
 % set all units to 'normalized' to allow resizing and non-interruptible
-for currHandle = 1:length(allHandles)
+for currHandle = 1:numel(allHandles)
     try handles.(allHandles{currHandle}).Units = 'normalized';
     catch % handle doesn't have units property so can't set
     end

@@ -175,7 +175,7 @@ if ~isempty(altBase), obj.dataOvrlay(ind).addInfo.altBase = altBase; end
 
 % update ovrlayNames and nOvrlays
 obj.ovrlayNames = {obj.dataOvrlay(:).name};
-obj.nOvrlays = length(obj.dataOvrlay);
+obj.nOvrlays = numel(obj.dataOvrlay);
 
 % and also save out as current overlay
 obj.currOvrlay = obj.dataOvrlay(ind);

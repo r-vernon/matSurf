@@ -482,7 +482,7 @@ uiwait(selColFig);
         hexStr = erase(src.String,'#');
         
         % check if remaining digits are hexadecimal, and 6 of them
-        isHex = all(isstrprop(hexStr,'xdigit')) && length(hexStr) == 6;
+        isHex = all(isstrprop(hexStr,'xdigit')) && numel(hexStr) == 6;
         
         % parse it
         if isHex

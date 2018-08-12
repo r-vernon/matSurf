@@ -3,11 +3,7 @@ function ROI_stateControl(handles)
 % of current ROI - i.e. whether it's open for editing or not
 
 % get current ROI name
-if ischar(handles.selROI.String)
-    roiName = handles.selROI.String;
-else
-    roiName = handles.selROI.String{handles.selROI.Value};
-end
+roiName = handles.selROI.String{handles.selROI.Value};
 
 % if current ROI is open for editing (contains '[e]'),
 % - change addROI option to (cont)inue
@@ -21,6 +17,7 @@ if contains(roiName,'[e]')
     
     handles.selROI.Enable = 'off';
     handles.impROI.Enable = 'off';
+    handles.renROI.Enable = 'off';
     handles.expROI.Enable = 'off';
     
     handles.undoROI.Enable = 'on';
@@ -29,6 +26,7 @@ else
     handles.addROI.String = 'Add';
     
     handles.selROI.Enable = 'on';
+    handles.renROI.Enable = 'on';
     handles.impROI.Enable = 'on';
     handles.expROI.Enable = 'on';
     
