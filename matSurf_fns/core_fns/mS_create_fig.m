@@ -136,10 +136,6 @@ handles.saveHndls = uimenu(handles.miscMenu,Text,'Save Graphics Handles',...
 %  ---------------------- DEFINE PANEL DEFAULTS ---------------------------
 
 %  ========================================================================
-% define panel defaults - come in a 'name', 'value' pair
-
-panelDef.name = {'TitlePosition','FontSize','Units'};
-panelDef.value = {'centertop',11,'pixels'};
 
 % calculate dimensions and spacings for each panel
 % > panWidth/panHeight - width and height of panel
@@ -189,24 +185,29 @@ panPos.axis = [panSp-2, panSp-2, axLength+4, axLength+4];
 % create the panels that will contain/border buttons etc
 
 % axis panel
-handles.axisPanel = uipanel(figHandle,panelDef.name,panelDef.value);
-set(handles.axisPanel,'Tag','axisPanel','Position',panPos.axis);
+handles.axisPanel = uipanel(figHandle,'Tag','axisPanel',...
+    'Units','pixels','Position',panPos.axis);
 
 % mode button group
-handles.modePanel = uibuttongroup(figHandle,panelDef.name,panelDef.value);
-set(handles.modePanel,'Tag','modePanel','Title','Mode','Position',panPos.mode);
+handles.modePanel = uibuttongroup(figHandle,'Tag','modePanel',...
+    'Title','Mode','Units','pixels','Position',panPos.mode);
 
 % surface panel
-handles.surfPanel = uipanel(figHandle,panelDef.name,panelDef.value);
-set(handles.surfPanel,'Tag','surfPanel','Title','Surface','Position',panPos.surf);
+handles.surfPanel = uipanel(figHandle,'Tag','surfPanel',...
+    'Title','Surface','Units','pixels','Position',panPos.surf);
 
 % data panel
-handles.dataPanel = uipanel(figHandle,panelDef.name,panelDef.value);
-set(handles.dataPanel,'Tag','dataPanel','Title','Data','Position',panPos.data);
+handles.dataPanel = uipanel(figHandle,'Tag','dataPanel',...
+    'Title','Data','Units','pixels','Position',panPos.data);
 
 % ROI panel
-handles.roiPanel = uipanel(figHandle,panelDef.name,panelDef.value);
-set(handles.roiPanel,'Tag','roiPanel','Title','ROI','Position',panPos.ROI);
+handles.roiPanel = uipanel(figHandle,'Tag','roiPanel',...
+    'Title','ROI','Units','pixels','Position',panPos.ROI);
+
+% set defaults
+set([handles.axisPanel, handles.modePanel, handles.surfPanel, ...
+    handles.dataPanel, handles.roiPanel],...
+    'TitlePosition','centertop','FontSize',11);
 
 %% ========================================================================
 

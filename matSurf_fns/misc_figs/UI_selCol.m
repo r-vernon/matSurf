@@ -67,8 +67,6 @@ cCP = repmat(rgbCol,2,1);
 %  ========================================================================
 %  ---------------------- CREATE FIGURE -----------------------------------
 
-delete(findobj('Type','Figure','Tag','selColFig'));
-
 % main figure
 % will be modal, so no access to other figures until dealt with
 selColFig = figure('WindowStyle','modal',...
