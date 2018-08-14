@@ -44,38 +44,58 @@ data = rmfield(data,aFiles(~toKeep));
 aFiles(~toKeep) = [];
 
 % work out how many ROIs there are
-nROIs = sum(structfun(@(x)length(x.ROIs),data));
+nROIs = sum(structfun(@(x)length(x.ROIs.name),data));
 
-newROIs(nROIs,1) = struct('name','','allVert',[],'selVert',[]);
+newROIs.name = cell(nROIs,1);
+newROIs.nVert = zeros(nROIs,1);
+newROIs.allVert = cell(nROIs,1);
+newROIs.selVert = cell(nROIs,1);
 ind = 1;
 
-% for every file in 'data', if surfName matches currVol's surfName, add ROIs
+% for every file in 'data', if subject and hemi matches currVol's subject/hemi, add ROIs
 for cFile = 1:length(aFiles)
-    if strcmp(data.(aFiles{cFile}).surfDet.surfName,currVol.surfDet.surfName)
+    if strcmp(data.(aFiles{cFile}).surfDet.subject,currVol.surfDet.subject) && ...
+        strcmp(data.(aFiles{cFile}).surfDet.hemi,currVol.surfDet.hemi)
         
-        n2add = length(data.(aFiles{cFile}).ROIs);
-        newROIs(ind:ind+n2add-1) = data.(aFiles{cFile}).ROIs;
+        n2add = length(data.(aFiles{cFile}).ROIs.name);
+        
+        newROIs.name(ind:ind+n2add-1) = data.(aFiles{cFile}).ROIs.name;
+        
+        newROIs.nVert(ind:ind+n2add-1) = data.(aFiles{cFile}).ROIs.nVert;
+        
+        newROIs.allVert(ind:ind+n2add-1) = cellfun(@single,...
+            data.(aFiles{cFile}).ROIs.allVert,'UniformOutput',false);
+        
+        newROIs.selVert(ind:ind+n2add-1) = cellfun(@single,...
+            data.(aFiles{cFile}).ROIs.selVert,'UniformOutput',false);
+        
         ind = ind + n2add;
         
     end
 end
 
 % delete any rows that haven't been filled
-newROIs(ind:end) = [];
+newROIs.name(ind:end) = [];
+newROIs.nVert(ind:end) = [];
+newROIs.allVert(ind:end) = [];
+newROIs.selVert(ind:end) = [];
 
 % check haven't deleted all ROIs!
-if isempty(newROIs)
+if isempty(newROIs.name)
     setStatusTxt(handles.statTxt,'No ROIs to import');
     return;
 end
 
 % only keep ROIs with unique names
-[~, idx] = unique({newROIs.name}, 'stable');
-if length(idx) ~= length(newROIs), removedDuplicate = 1; end
-newROIs = newROIs(idx);
+[~, idx] = unique(newROIs.name, 'stable');
+if length(idx) ~= length(newROIs.name), removedDuplicate = 1; end
+newROIs.name = newROIs.name(idx);
+newROIs.nVert = newROIs.nVert(idx);
+newROIs.allVert = newROIs.allVert(idx);
+newROIs.selVert = newROIs.selVert(idx);
 
 % add in visible field
-[newROIs.visible] = deal(true);
+newROIs.visible = ones(length(newROIs.name),1,'logical');
 
 %--------------------------------------------------------------------------
 
