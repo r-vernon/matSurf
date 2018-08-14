@@ -6,6 +6,7 @@ obj.ROIs.name    = [obj.ROIs.name    ; newROIs.name];
 obj.ROIs.nVert   = [obj.ROIs.nVert   ; newROIs.nVert];
 obj.ROIs.allVert = [obj.ROIs.allVert ; newROIs.allVert];
 obj.ROIs.selVert = [obj.ROIs.selVert ; newROIs.selVert];
+obj.ROIs.visible = [obj.ROIs.visible ; newROIs.visible];
 
 % update nROIs
 obj.nROIs = obj.nROIs + length(newROIs.name);

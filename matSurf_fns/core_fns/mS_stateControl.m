@@ -170,7 +170,7 @@ end
             handles.saveScrShot];
         
         % hide everything while changing over
-        set(allchild(handles.xForm),'Visible','off');
+        handles.xForm.Visible = 'off';
         
         switch newState
             case -2 % removing one of multiple surfaces
@@ -232,7 +232,7 @@ end
                 switchROIState(2);                % enable and reset
         end
         
-        set(allchild(handles.xForm),'Visible','on'); % show everything
+        handles.xForm.Visible = 'on'; % show everything
     end
 
     function checkVertState(forceReset)
@@ -379,10 +379,8 @@ end
             
             if newState == 2
                 handles.addROI.Enable = 'on';  % enable
-                handles.impROI.Enable = 'on';
             else
                 handles.addROI.Enable = 'off'; % disable
-                handles.impROI.Enable = 'off';
             end
             newState = -1; % reset
             
@@ -393,6 +391,9 @@ end
                 
                 % set addROI button back to 'Add'
                 handles.addROI.String = 'Add';
+                
+                % if we can add ROIs, also enable importing
+                handles.impROI.Enable = handles.addROI.Enable;
                 
                 set(keyHandles,'Enable','off');
                 set(handles.selROI,'String','Select ROI','Value',1);
