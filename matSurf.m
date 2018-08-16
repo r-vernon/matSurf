@@ -43,7 +43,11 @@ setappdata(f_h,'camControl',camControl);
 setappdata(f_h,'markSize',[5,1]);
 
 % set SUBJECTS_DIR
-setappdata(f_h,'SUBJECTS_DIR',[pwd,'/Data']);
+if exist('/scratch/sg3/P1283/Data_2018/Anatomy/FS','dir')
+    setappdata(f_h,'SUBJECTS_DIR','/scratch/sg3/P1283/Data_2018/Anatomy/FS');
+else
+    setappdata(f_h,'SUBJECTS_DIR',[pwd,'/Data']);
+end
 
 % show the figure
 f_h.Visible = 'on';
