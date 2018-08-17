@@ -8,10 +8,12 @@ function cBack_mode_mouseEvnt(f_h,ip)
 % (req.) ip,  vertex intersection point where mouse click occured
 
 % get data
+currVol = getappdata(f_h,'currVol');
 handles = getappdata(f_h,'handles');
 
 % save out last selected vertex
-setStatusTxt(handles.statTxt,sprintf('Selected vertex %d',ip));
+setStatusTxt(handles.statTxt,sprintf('Selected vertex %d (Value: %.2f)',...
+    ip,currVol.currOvrlay.data(ip)));
 
 % move cone marker to selected vertex (will also update text/currVol)
 surf_coneMarker(f_h,ip);

@@ -10,11 +10,12 @@ currVol = getappdata(f_h,'currVol');
 handles = getappdata(f_h,'handles');
 
 % get valid path
-fileTypes = {'*.mat','*.label','*.*'};
+fileTypes = {['*',currVol.surfDet.hemi,'*.mat']; ...
+    ['*',currVol.surfDet.hemi,'*.label']; '*.mat'; '*.label'; '*.*'};
 [fileOrVar,dataLoc] = UI_loadData(fileTypes);
 
 % load in data
-if fileOrVar == 1 && contains(dataLoc,'.label')
+if fileOrVar == 1 && any(contains(dataLoc,'.label'))
     
     % if it's a label file, read in
     fid = fopen(dataLoc,'r') ;

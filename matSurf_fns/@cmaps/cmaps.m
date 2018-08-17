@@ -77,6 +77,14 @@ classdef cmaps < handle
                 'desc','hsv colormap (placeholder until find new phase-wrapped cmap)',...
                 'cmap',flipud(hsv(obj.n)));
             
+            % create mirrored version of parula
+            revParula = parula(obj.n/2 +1);
+            revParula = [revParula(end-1:-1:1,[2,1,3]); revParula(2:end,:)];
+            obj.colMaps(5) = struct(...
+                'name','cyclic parula',...
+                'desc','alt. cyclic colormap (placeholder until find new phase-wrapped cmap)',...
+                'cmap', revParula);
+            
             % -------------------------------------------------------------
             
             % update number of colormaps
