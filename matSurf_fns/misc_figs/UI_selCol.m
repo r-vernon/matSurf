@@ -74,7 +74,6 @@ selColFig = figure('WindowStyle','modal',...
     'Units','pixels','Position',[100, 100, 615, 325],'Visible','off',...
     'NumberTitle','off','MenuBar','none','DockControls','off','Resize','off');
 
-
 % grab context menu for copy/paste
 cpMenu = copy_paste_menu;
 
