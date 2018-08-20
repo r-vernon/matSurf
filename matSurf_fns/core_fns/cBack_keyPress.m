@@ -7,6 +7,7 @@ function cBack_keyPress(src,event)
 % - s,     camera down (also right arrow)
 % - c,     configure data overlay
 % - space, rotate through data
+% - t,     toggle data (normal), ROI (shift), marker (control)
 % - f,     finish ROI
 % - h,     hide current ROI
 % - r,     ROI mode, press in ROI mode to start ROI at current vertex
@@ -96,6 +97,31 @@ switch event.Key
                 cam_manual_pan(src,4); % pan camera down
             elseif strcmp(event.Modifier{1},'control')
                 cam_manual_zoom(src,-1); % zoom camera out
+            end
+        end
+        
+    case {'t'}
+        
+        if isempty(event.Modifier) && strcmpi(handles.togData.Enable,'on')
+            
+            % toggle data
+            handles.togData.Value = 1 - handles.togData.Value;
+            cBack_data_toggle(handles.togData);
+            
+        elseif isscalar(event.Modifier)
+            
+            if strcmp(event.Modifier{1},'shift')&& strcmpi(handles.togROI.Enable,'on')
+                
+                % toggle ROI
+                handles.togROI.Value = 1 - handles.togROI.Value;
+                cBack_ROI_toggle(handles.togROI);
+                
+            elseif strcmp(event.Modifier{1},'control') && strcmpi(handles.togMark.Enable,'on')
+                
+                % toggle marker
+                handles.togMark.Value = 1 - handles.togMark.Value;
+                cBack_surf_toggleMarker(handles.togMark);
+                
             end
         end
         
