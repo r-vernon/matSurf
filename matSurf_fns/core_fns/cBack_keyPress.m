@@ -145,7 +145,9 @@ switch event.Key
         
     case 'delete'
         
-        cBack_ROI_delete(src);
+        if strcmpi(handles.delData.Enable,'on')
+            cBack_ROI_delete(src);
+        end
         
     case 'escape'
         
