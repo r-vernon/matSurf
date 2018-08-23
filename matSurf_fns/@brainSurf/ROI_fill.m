@@ -10,7 +10,27 @@ function [allVert] = ROI_fill(obj,bPts,midPt)
 % if not provided, calculate the mid point of the ROI
 % (used as source for filling region)
 if nargin < 3 || isempty(midPt)
-    midPt  = nearestNeighbor(obj.TR,mean(obj.TR.Points(bPts,:)));
+    
+    boundCent = mean(obj.TR.Points(bPts,:));
+    midPt  = nearestNeighbor(obj.TR,boundCent);
+    
+    % if midPt is member of boundary, find one that isn't
+    if ismember(midPt,bPts)
+        nMidPt = [];
+        while isempty(nMidPt)
+            % find neighbors that aren't on boundary
+            nMidPt = neighbors(obj.G,midPt);
+            nMidPt(ismember(nMidPt,bPts)) = [];
+            
+            % if all neighbours on boundary (unlikely!) pick another point
+            % otherwise, pick new point closest to centre
+            if isempty(nMidPt)
+                midPt = bPts(randi(numel(bPts,1)));
+            else
+                [~,clPt] = min(sqrt(sum(bsxfun(@minus,obj.TR.Points(nMidPt,:),boundCent),2).^2));
+                midPt = nMidPt(clPt);
+            end
+        end
 end
 
 % create index to record which points have been visited, search won't
