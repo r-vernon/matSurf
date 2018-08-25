@@ -145,7 +145,7 @@ switch event.Key
         
     case 'delete'
         
-        if strcmpi(handles.delData.Enable,'on')
+        if strcmpi(handles.delROI.Enable,'on')
             cBack_ROI_delete(src);
         end
         
