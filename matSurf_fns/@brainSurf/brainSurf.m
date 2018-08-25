@@ -149,7 +149,7 @@ classdef brainSurf < handle
             
             % save out color map
             if nargin < 1
-                obj.colMap = cmaps;
+                obj.colMap = create_cmaps;
             else
                 obj.colMap = colMap;
             end

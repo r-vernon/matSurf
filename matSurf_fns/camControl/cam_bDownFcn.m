@@ -24,6 +24,12 @@ pSize = handles.axisPanel.Position;
 mPos = (f_h.CurrentPoint-pSize(1:2))./(0.5*pSize(3:4)) - 1;
 
 %--------------------------------------------------------------------------
+% set pointer ('fleur' is 4 arrows) and button up function
+
+f_h.Pointer = 'fleur';
+f_h.WindowButtonUpFcn = @cam_bUpFcn;
+
+%--------------------------------------------------------------------------
 % set mouse movement function if relevant button press
 % (normal - LClick, alt - RClick, extend - ScrollClick/LRClick)
 % only using normal (rotate) and extend (pan) currently
@@ -64,10 +70,6 @@ else % extend, pan
     
     f_h.WindowButtonMotionFcn = @cam_mMoveFcn_pan;
 end
-
-% set pointer ('fleur' is 4 arrows) and button up function
-f_h.Pointer = 'fleur';
-f_h.WindowButtonUpFcn = @cam_bUpFcn;
 
 % update appdata
 setappdata(f_h,'camControl',camControl);

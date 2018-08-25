@@ -14,7 +14,7 @@ matSurf_pathSetup(baseDir);
 f_h = mS_create_fig(0);
 
 % initialise the colormaps
-setappdata(f_h,'cmaps',cmaps);
+setappdata(f_h,'cmaps',create_cmaps);
 
 % initialise a volStore class, this will store handles to all surface vols
 % loaded, so can swap between them

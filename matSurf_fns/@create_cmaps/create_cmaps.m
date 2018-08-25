@@ -1,5 +1,5 @@
-classdef cmaps < handle
-    % cmaps class that contains all required colormap info for overlays
+classdef create_cmaps < handle
+    % create_cmaps class that creates all required colormaps for overlays
     %
     % Note:
     % (req.) var, var is [required] input variable
@@ -39,7 +39,7 @@ classdef cmaps < handle
     
     methods
         
-        function obj = cmaps
+        function obj = create_cmaps
             % Constructor - initialises the object
             %
             % (set.) obj.x, linear range 0:1, size obj.n
