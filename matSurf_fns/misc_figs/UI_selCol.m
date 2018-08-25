@@ -15,7 +15,7 @@ else
     valCol = iscol(rgbCol);
     if ~valCol
         rgbCol = [1,1,1];
-    elseif isa(rgbCol,'uint8') || max(rgbCol) > 1
+    elseif isa(rgbCol,'uint8') || any(rgbCol > 1)
         rgbCol = double(rgbCol)/255;
     end  
 end
@@ -30,6 +30,15 @@ end
 % convert default colour to (h)sv and he(x)
 hDfCol = rgb2hsv(rgbCol);
 xDfCol = sprintf('%02X',round(rgbCol*255)); 
+
+% store default colour as default, in case user resets
+defCol = rgbCol;
+
+% store flags and timer for mouse move fcn
+mDown = false;
+inCW = false;
+inVB = false;
+tStmp = clock;
 
 %  ========================================================================
 %  ---------------------- CREATE COLORWHEEL -------------------------------
@@ -245,17 +254,23 @@ vEdit = uicontrol(hsvPan,'Style','edit','String','1',...
 
 % hex text
 [~] = uicontrol(selColFig,'Style','text','String','#',...
-    'FontSize',10,'Tag','hexTxt','Position',[530 90 10 16]);
+    'FontSize',10,'Tag','hexTxt','Position',[530 91 10 16]);
 % hex edit
 hexEdit = uicontrol(selColFig,'Style','edit','String',xDfCol,...
     'FontSize',9,'Tag','hexEdit','Position',[545 90 60 20],...
     'Callback',@hexEdit_cBack,'UIContextMenu',cpMenu);
 
+% reset button
+resetBut = uicontrol(selColFig,'Style','pushbutton','String',...
+    '<HTML>(<i>R</i>)</HTML>','TooltipString','Reset',...
+    'FontSize',9,'Tag','resetBut','Position',[465,15,28,23],...
+    'BackgroundColor',[237,118,105]/255,'Callback',@resetBut_cBack);
+
 % preset dropdown
 presCol = uicontrol(selColFig,'Style','popupmenu','String',...
     {'Presets','Red','Yellow','Green','Cyan',...
     'Blue','Magenta','White','Black'},...
-    'FontSize',10,'Tag','presCol','Position',[370 20 110 20],...
+    'FontSize',10,'Tag','presCol','Position',[370 18 90 20],...
     'Value',1,'Callback',@presCol_cBack);
 
 % cancel button
@@ -268,7 +283,6 @@ selBut = uicontrol(selColFig,'Style','pushbutton','String','Select',...
     'Tag','selBut','Position',[525,15,80,25],'BackgroundColor',...
     [46,204,113]/255,'Callback',@selBut_cBack);
 
-
 %  ========================================================================
 %  ---------------------- POINTER MANAGER ---------------------------------
 
@@ -279,7 +293,7 @@ iptSetPointerBehavior([rEdit,gEdit,bEdit,hEdit,sEdit,vEdit,hexEdit],...
 
 % whenever mouse hovers over button, change to hand
 butEnterFcn = @(fig, ~) set(fig, 'Pointer', 'hand');
-iptSetPointerBehavior([cancBut,selBut,previewPatch],butEnterFcn);
+iptSetPointerBehavior([resetBut,cancBut,selBut,previewPatch],butEnterFcn);
 
 % whenever mouse hovers over colour wheel, change to cross
 cwEnterFcn = @(fig, ~) set(fig, 'Pointer', 'cross');
@@ -318,10 +332,18 @@ uiwait(selColFig);
             return;
         end
         
+        % set mouse move details
+        mDown = true;
+        tStmp = clock;
+        selColFig.WindowButtonUpFcn = @bUpFcn;
+        selColFig.WindowButtonMotionFcn = @mMoveFcn;
+
         % get current colour
         newCol = [hSlide.Value,sSlide.Value,vSlide.Value];
 
         if ip(1) > 1 % clicked value bar
+            
+            inVB = true;
             
             % update value
             newCol(3) = (ip(2)+1)/2; % convert -1:1 to 0:1
@@ -330,6 +352,8 @@ uiwait(selColFig);
             selColPatch.Vertices(nTh+6:nTh+8,2) = ip(2) + [0;-1;1]*0.05;
             
         else % clicked colour wheel
+            
+            inCW = true;
             
             % get theta, dealing with -pi:pi to 0:2pi
             th = atan2(ip(2),ip(1));
@@ -340,6 +364,8 @@ uiwait(selColFig);
             newCol(2) = hypot(ip(1),ip(2));
             
             % update marker
+            % hiding it whilst cursor is in CW as may look laggy...
+            selColMark.Visible = 'off';
             selColMark.XData = ip(1);
             selColMark.YData = ip(2);
             
@@ -350,6 +376,81 @@ uiwait(selColFig);
             
         end
         updateStatus(newCol,1);
+
+    end
+
+% -------------------------------------------------------------------------
+
+    function mMoveFcn(~,~)
+        
+        % make sure execution rate doesn't exceed 1/60s
+        cTime = clock;
+        if etime(cTime,tStmp) < 1/60, return; end
+        tStmp = cTime;
+        
+        % get axis intersection point
+        ip = selColAx.CurrentPoint(1,1:2);
+        
+        % get current colour
+        newCol = [hSlide.Value,sSlide.Value,vSlide.Value];
+        
+        % calculate based on which object we're in
+        if inCW
+            
+            % get theta, dealing with -pi:pi to 0:2pi
+            th = atan2(ip(2),ip(1));
+            if th < 0, th = 2*pi + th; end
+            
+            % update hue and saturaturation
+            newCol(1) = th/(2*pi);
+            newCol(2) = hypot(ip(1),ip(2));
+            
+            % make sure we're in color wheel
+            if newCol(2) > 1
+                newCol(2) = 1;
+                ip = [cos(th),sin(th)];
+                selColMark.Visible = 'on';
+            else
+                selColMark.Visible = 'off';
+            end
+            
+            % update marker
+            selColMark.XData = ip(1);
+            selColMark.YData = ip(2);
+            
+            % update value bar
+            selColPatch.FaceVertexCData(nTh+2:nTh+5,:) = [...
+                repmat(hsv2rgb([newCol(1),newCol(2),0]),2,1);...
+                repmat(hsv2rgb([newCol(1),newCol(2),1]),2,1)];
+            
+        elseif inVB
+            
+            % make sure ip is in range
+            ip(2) = max([-1; min([1; ip(2)])]);
+
+            % update value
+            newCol(3) = (ip(2)+1)/2; % convert -1:1 to 0:1
+
+            % update triangle marker
+            selColPatch.Vertices(nTh+6:nTh+8,2) = ip(2) + [0;-1;1]*0.05;
+
+        end
+        
+        % update with new colour
+        updateStatus(newCol,1); 
+
+    end
+
+% -------------------------------------------------------------------------
+
+    function bUpFcn(~,~)
+        selColFig.WindowButtonMotionFcn = '';
+        selColFig.WindowButtonUpFcn = '';
+        mDown = false;
+        inCW = false;
+        inVB = false;
+        selColMark.Visible = 'on';
+        drawnow; pause(0.05);
     end
 
 % -------------------------------------------------------------------------
@@ -376,28 +477,29 @@ uiwait(selColFig);
         % callback when RGB text edited
         
         % make sure it's a valid number
-        newNum = str2double(src.String)/255;
-        isNum = isrealnum(newNum,0,1);
+        newNum = round(str2double(src.String));
+        isNum = isrealnum(newNum,0,255);
         
         % work out which text was edited
         switch src.Tag(1)
             case 'r'
-                if isNum, rSlide.Value = newNum;
+                if isNum, rSlide.Value = newNum/255;
                 else
                     src.String = num2str(round(rSlide.Value*255));
                 end
             case 'g'
-                if isNum, gSlide.Value = newNum;
+                if isNum, gSlide.Value = newNum/255;
                 else
                     src.String = num2str(round(gSlide.Value*255));
                 end
             otherwise
-                if isNum, bSlide.Value = newNum;
+                if isNum, bSlide.Value = newNum/255;
                 else
                     src.String = num2str(round(bSlide.Value*255));
                 end
         end
         if isNum
+            src.String = sprintf('%d',newNum); % force formatting
             newCol = [rSlide.Value,gSlide.Value,bSlide.Value];
             updateStatus(newCol,2);
         end
@@ -449,6 +551,7 @@ uiwait(selColFig);
                 end
         end
         if isNum
+            src.String = sprintf('%.2f',newNum); % force formatting
             newCol = [hSlide.Value,sSlide.Value,vSlide.Value];
             updateStatus(newCol,3);
         end
@@ -523,6 +626,13 @@ uiwait(selColFig);
         updateStatus(newCol,6)
     end
 
+% -------------------------------------------------------------------------
+
+    function resetBut_cBack(~,~)
+        previewPatch.FaceVertexCData(2,:) = defCol;
+        updateStatus(defCol,4);
+    end
+        
 % -------------------------------------------------------------------------
 
     function cancBut_cBack(~,~)
@@ -614,7 +724,9 @@ uiwait(selColFig);
             presCol.Value = 1;
         end
         
-        drawnow; pause(0.05);
+        if ~mDown
+            drawnow; pause(0.05);
+        end
     end
 
 end
