@@ -59,7 +59,8 @@ browseBut = uicontrol(findSurfFig,'Style','pushbutton','String','...',...
 
 % path select drop down
 selPath = uicontrol(findSurfFig,'Style','popupmenu','String','Select path',...
-    'Tag','selPath','Position',[15,120,385,25]);
+    'Tag','selPath','Position',[15,120,385,25],...
+    'TooltipString','Select path','Callback',@selPathCallback);
 
 % warning text
 warnTxt = uicontrol(findSurfFig,'Style','text','String','Invalid path','Tag','warnTxt',...
@@ -203,6 +204,18 @@ uiwait(findSurfFig);
     end
 
 % -------------------------------------------------------------------------
+% changed selected subject
+
+    function selPathCallback(src,~)
+        
+        % grab new value of selpath to set as tooltip
+        if ischar(src.String), currPath = src.String;
+        else, currPath = src.String{src.Value};
+        end
+        src.TooltipString = currPath;
+    end
+
+% -------------------------------------------------------------------------
 % hemisphere and surface type callbacks
 
     function hemiCallback(src,~)
@@ -254,7 +267,7 @@ uiwait(findSurfFig);
             checkSubjDir;
         else
             set(warnTxt,'String','No valid paths found','Visible','on');
-            set(selPath,'String','Select Path','Value',1);
+            set(selPath,'String','Select Path','TooltipString','Select Path','Value',1);
             loadBut.Enable = 'off';
         end
         
@@ -360,7 +373,7 @@ uiwait(findSurfFig);
             checkSubjDir;
         else
             set(warnTxt,'String','No valid paths found (try searching)','Visible','on');
-            set(selPath,'String','Select Path','Value',1);
+            set(selPath,'String','Select Path','TooltipString','Select Path','Value',1);
             loadBut.Enable = 'off';
         end
     end
@@ -401,11 +414,16 @@ uiwait(findSurfFig);
             end
             newVal = max([1,find(contains(tmp_cFiles,currPath))]);
             
-            set(selPath,'String',tmp_cFiles,'Value',newVal);
+            % grab new value of selpath to set as tooltip
+            if ischar(tmp_cFiles), newPath = tmp_cFiles;
+            else, newPath = tmp_cFiles{newVal};
+            end
+            
+            set(selPath,'String',tmp_cFiles,'TooltipString',newPath,'Value',newVal);
             loadBut.Enable = 'on';
         else
             set(warnTxt,'String','No valid paths found','Visible','on');
-            set(selPath,'String','Select Path','Value',1);
+            set(selPath,'String','Select Path','TooltipString','Select Path','Value',1);
             loadBut.Enable = 'off';
         end
         
