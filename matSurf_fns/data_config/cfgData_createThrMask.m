@@ -67,7 +67,20 @@ else
     % if using gradient filter, or double/non-sigmoidal filter, discretize
     % casting to uint8 as at most 6 bins, may be slower but less memory
     if any(thrCode(2:3)==2) && can_ovrwr_dataBins
-        dataBins = uint8(discretize(data,[-inf;thrVals;inf]));
+        
+        % by default only left side of bin edges are included, add tiny
+        % amount to bin edges so right side included for main bins
+        tmp_thrVals = thrVals;
+        if numel(thrVals) == 2
+            tmp_thrVals(end) = thrVals(end) + eps(thrVals(end));
+        else
+            tmp_thrVals([2,4]) = thrVals([2,4]) + eps(thrVals([2,4]));
+            if tmp_thrVals(2) >= thrVals(3)
+                tmp_thrVals(2) = thrVals(3) - eps(thrVals(3)); 
+            end
+        end
+        
+        dataBins = uint8(discretize(data,[-inf;tmp_thrVals;inf]));
     end
     
 end

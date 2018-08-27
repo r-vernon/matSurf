@@ -8,7 +8,7 @@ if ~exist('coData','var')
 end
 
 if ~exist('colmaps','var')
-    colmaps = cmaps;
+    colmaps = create_cmaps;
 end
 
 % get some descriptive stats

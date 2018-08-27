@@ -39,7 +39,11 @@ end
         h = src.Parent.Parent.CurrentObject;
         
         try
-            clipboard('copy',h.String);
+            if ~isempty(h.UserData)
+                clipboard('copy',h.UserData);
+            else
+                clipboard('copy',h.String);
+            end
         catch
             disp('Could not copy value');
         end
