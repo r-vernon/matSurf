@@ -189,7 +189,16 @@ uiwait(loadDataFig);
         
         if fileOrVar == 1 % if in file mode, select file
             
-            [selFile,selPath] = uigetfile(fileTypes,'Select file to load');
+            startDir = nameTxt.String;
+            if ~isempty(startDir)
+                if ~exist(startDir,'file')
+                    startDir = fileparts(startDir);
+                    if ~exist(startDir,'file')
+                        startDir = '';
+                    end
+                end
+            end
+            [selFile,selPath] = uigetfile(fileTypes,'Select file to load',startDir);
             
             if ~isequal(selFile,0) % if not clicked cancel
                 selPath = fullfile(selPath,selFile);
@@ -289,7 +298,7 @@ uiwait(loadDataFig);
         %  ----------------------------------------------------------------
         % check if can load, depending on mode
         
-        if fileOrVar == 1 && exist(dataLoc,'file')
+        if fileOrVar == 1 && exist(dataLoc,'file')==2
             % if loading a file
             
             % make  sure there's a valid extension

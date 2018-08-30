@@ -14,6 +14,9 @@ fileTypes = {['*',currVol.surfDet.hemi,'*.mat']; ...
     ['*',currVol.surfDet.hemi,'*.label']; '*.mat'; '*.label'; '*.*'};
 [fileOrVar,dataLoc] = UI_loadData(fileTypes);
 
+% check if cancelled
+if isempty(fileOrVar), return; end
+
 % load in data
 if fileOrVar == 1 && any(contains(dataLoc,'.label'))
     
