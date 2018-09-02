@@ -15,13 +15,50 @@ thrVals = thrPref.thrVals;
 % get x, y data for plot
 
 % get x vals
-thrX = linspace(minMax(1),minMax(2),1e5)';
+if thrPref.useLog(2)
+    minMax = log10(minMax);
+    thrX = logspace(minMax(1),minMax(2),1e5)';
+else
+    thrX = linspace(minMax(1),minMax(2),1e5)';
+end
 
 % get y vals
 thrY = cfgData_createThrMask(thrX,thrPref.thrCode,thrVals(:));
 
-% plot results
+%---------------------
+% set filter line data
+
+% set limits back to auto (can override later if needed)
+set(h.thrAx,'XLimMode','auto','YLimMode','auto');
+
+% plot main line
 set(h.thrPlot,'XData',thrX,'YData',thrY);
+
+% a1
+if ~isnan(thrVals(1))
+    set(h.thrFilt_a1,'XData',[thrVals(1),thrVals(1)],'YData',[-0.1,1.1]); 
+end
+
+% b1
+if ~isnan(thrVals(2))
+    set(h.thrFilt_a2,'XData',[thrVals(2),thrVals(2)],'YData',[-0.1,1.1]); 
+end
+
+% a2
+if ~isnan(thrVals(3))
+    set(h.thrFilt_b1,'XData',[thrVals(3),thrVals(3)],'YData',[-0.1,1.1]); 
+end
+
+% b2
+if ~isnan(thrVals(4))
+    set(h.thrFilt_b2,'XData',[thrVals(4),thrVals(4)],'YData',[-0.1,1.1]); 
+end
+
+% draw to make sure everything rendered/set
+drawnow;
+
+% x/y limits back to manual
+set(h.thrAx,'XLimMode','manual','YLimMode','manual');
 
 %------------------
 % deal with XLimits
@@ -33,31 +70,11 @@ else
     h.thrAx.XLim = thrPref.thrXLim;
 end
 
+% set background image limits
+set(h.thrAxBG,'XData',h.thrAx.XLim,'YData',h.thrAx.YLim);
+
 % set the XLim
 set(h.thrXLim1Edit,'String',formatNum(h.thrAx.XLim(1)),'UserData',h.thrAx.XLim(1));
 set(h.thrXLim2Edit,'String',formatNum(h.thrAx.XLim(2)),'UserData',h.thrAx.XLim(2));    
-
-%---------------------
-% set filter line data
-
-% a1
-if ~isnan(thrVals(1))
-    set(h.thrFilt_a1,'XData',[thrVals(1),thrVals(1)],'YData',[-0.05,1.05]); 
-end
-
-% b1
-if ~isnan(thrVals(2))
-    set(h.thrFilt_a2,'XData',[thrVals(2),thrVals(2)],'YData',[-0.05,1.05]); 
-end
-
-% a2
-if ~isnan(thrVals(3))
-    set(h.thrFilt_b1,'XData',[thrVals(3),thrVals(3)],'YData',[-0.05,1.05]); 
-end
-
-% b2
-if ~isnan(thrVals(4))
-    set(h.thrFilt_b2,'XData',[thrVals(4),thrVals(4)],'YData',[-0.05,1.05]); 
-end
 
 end

@@ -1,4 +1,4 @@
-function [thrPref] = cfgData_plotHist(data2proc,h,cmaps,thrPref,hInd)
+function [thrPref,alphaData] = cfgData_plotHist(data2proc,h,cmaps,thrPref,hInd)
 % function to create a histogram to represent data
 % - actually using patch objects as gives more control over results
 %   (and bar graph CData only provided in Matlab 2017+...)
@@ -9,6 +9,8 @@ function [thrPref] = cfgData_plotHist(data2proc,h,cmaps,thrPref,hInd)
 % (req.) thrPref, thresholding preferences for data overlay
 % (req.) hInd, histogram index, 1 if data, 2 if significance
 % (ret.) thrPref, updated thresholding preferences
+% (ret.) alphaData, histogram alpha data, so can be modulated by global
+%          transparency
 
 %---------------------
 % check if need to log
@@ -34,8 +36,6 @@ nF = thrPref.histNBins(hInd); % number of faces (bars)
 nE = 3*nF +1;                 % number of edges
 
 hV = zeros(nE,2); % vertices
-hCD = ones(nE,3); % color data
-hAD = ones(nE,1); % alpha data
 
 % ---------------------
 % set vertex x/y coords 
@@ -54,31 +54,6 @@ hV(vY_ind1(:),2) = N(vY_ind2(:));
 
 hF = (0:3:3*(nF-1))' + (1:4);
 
-%-----------------------
-% bin the histogram data 
-%
-% (1 for normal cmap, 2 for -ve cmap)
-
-histBins = cfgData_binHist(hV(:,1),thrPref.cmapVals,thrPref.outlierMode);
-
-%--------------
-% set colordata
-
-% first set set positive colormap
-hCD(histBins==1,:) = cmaps.getColVals(hV(histBins==1,1),...
-    thrPref.cmapNames{1}, thrPref.cmapVals(1,:));
-
-% add second (-ve) colormap if using
-if thrPref.numCmaps == 2
-    hCD(histBins==2,:) = cmaps.getColVals(hV(histBins==2,1),...
-        thrPref.cmapNames{2}, thrPref.cmapVals(2,:));
-end
-
-%--------------
-% set alphadata
-
-hAD(isnan(histBins)) = 0;
-
 %-------------------------------------------------
 % get line coords (goes [1],[2,3],[5,6],...,[end])
 
@@ -87,12 +62,25 @@ lXY_ind = [1; vY_ind1(:); nE];
 %--------------------------------------------------------------------------
 % plot the results
 
+% set limits back to auto (can override later if needed)
+set(h.statsAx,'XLimMode','auto','YLimMode','auto');
+
 % set patch objects
-set(h.stHist,'Faces',hF,'Vertices',hV,'FaceVertexCData',hCD,...
-    'FaceVertexAlphaData',hAD);
+% setting CData/AlphaData temporarily to avoid warnings
+set(h.stHist,'Faces',hF,'Vertices',hV,...
+    'FaceVertexCData',ones(nE,3),'FaceVertexAlphaData',ones(nE,1));
+
+% set alpha/color data
+alphaData = cfgData_histAlphaColor(h.stHist,cmaps,thrPref,hInd);
 
 % set line
 set(h.stPlot,'XData',hV(lXY_ind,1),'YData',hV(lXY_ind,2));
+
+% draw to make sure everything rendered/set
+drawnow;
+
+% x/y limits back to manual
+set(h.statsAx,'XLimMode','manual','YLimMode','manual');
 
 %--------------------------------------------------------------------------
 % deal with XLimits
@@ -103,6 +91,9 @@ if ~any(isnan(thrPref.histXLim(hInd,:)))
 else
     thrPref.histXLim(hInd,:) = h.statsAx.XLim;
 end
+
+% set background image limits
+set(h.statsAxBG,'XData',h.statsAx.XLim,'YData',h.statsAx.YLim);
 
 % set hist. XLim and nBins edit boxes
 set(h.histXLim1Edit,'String',formatNum(h.statsAx.XLim(1)),'UserData',h.statsAx.XLim(1));

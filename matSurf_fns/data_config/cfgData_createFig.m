@@ -1,20 +1,23 @@
 function [h] = cfgData_createFig
 
 
-%  ========================================================================
+%%  =======================================================================
 %  ---------------------- CREATE FIGURE -----------------------------------
 
 % main figure
 h.confDataFig = figure('Name','Config. data overlay',...
     'Tag','confDataFig','FileName','confData.fig',...
-    'Units','pixels','Position',[100, 100, 1055, 670],'Visible','on',...
+    'Units','pixels','Position',[100, 100, 1055, 670],'Visible','off',...
     'NumberTitle','off','MenuBar','none','DockControls','off','Resize','off');
+
+% Move the window to the center of the screen.
+movegui(h.confDataFig,'center');
 
 % grab context menus for copy, and copy/paste
 h.cMenu  = copy_paste_menu(0);
 h.cpMenu = copy_paste_menu;
 
-%  ========================================================================
+%%  =======================================================================
 %  ---------------------- OPACITY PANEL ----------------------------------
 
 % panel
@@ -41,7 +44,7 @@ h.transEdit = uicontrol(opacPan,'Style','edit','String','1.00',...
     'FontSize',10,'Tag','transEdit','Position',[285 10 60 25],...
     'UIContextMenu',h.cpMenu);
 
-%  ========================================================================
+%%  =======================================================================
 %  ---------------------- COLORMAP PANEL ----------------------------------
 
 % panel
@@ -133,7 +136,7 @@ h.clipCol = uicontrol(h.colLimBG,'Style','radiobutton','String',...
 h.autoBut = uicontrol(cmapPan,'Style','pushbutton','String','Auto',...
     'Tag','autoBut','Position',[265,10,80,25]);
 
-%  ========================================================================
+%%  =======================================================================
 %  ---------------------- STATS PANEL -------------------------------------
 
 % panel
@@ -243,6 +246,28 @@ h.statsAx = axes(statsPan,'Tag','statsAx','Box','on','FontSize',10,...
 % set ylabel
 ylabel(h.statsAx,'Frequency','FontSize',10);
 
+%---------------------
+% histogram background
+
+chSize = 5;
+whCh = ones(chSize,'uint8');
+grCh = whCh*215;
+whCh = whCh*255;
+
+chSq = [grCh,whCh; whCh, grCh];
+chIm = repmat(repmat(chSq,...
+    [1,ceil(h.statsAx.Position(3)/(2*chSize))]),...
+    [ceil(h.statsAx.Position(4)/(2*chSize)),1]);
+chIm = chIm(:,1:h.statsAx.Position(3));
+chIm = chIm(1:h.statsAx.Position(4),:);
+chIm = repmat(chIm,[1,1,3]);
+
+h.statsAxBG = image(h.statsAx,'XData',h.statsAx.XLim,'YData',h.statsAx.YLim,...
+    'CData',chIm,'Tag','statsAxBG');
+
+%----------------
+% histogram plots
+
 % plot bar chart (histogram, but using bar as greater control)
 h.stHist = patch(h.statsAx,'Faces',[],'Vertices',[],'Tag','stHist',...
     'FaceAlpha','interp','AlphaDataMapping','none',...
@@ -278,7 +303,7 @@ h.histXLim2Edit = uicontrol(histXLimPan,'Style','edit','String','',...
 h.histNBinsEdit = uicontrol(histXLimPan,'Style','edit','String','',...
     'Tag','histNBinsEdit','Position',[10 10 80 25],'UIContextMenu',h.cpMenu);
 
-%  ========================================================================
+%%  =======================================================================
 %  ---------------------- THRESHOLDING PANEL ------------------------------
 
 % panel
@@ -421,6 +446,33 @@ h.thrAx = axes(threshPan,'Tag','thrAx','Box','on','FontSize',10,...
 % set ylabel
 ylabel(h.thrAx,'Opacity (0:1)','FontSize',10);
 
+%---------------------
+% threshold background
+
+% create checkIm as above (stats background), but double
+chIm = repmat(repmat(double(chSq),...
+    [1,ceil(h.statsAx.Position(3)/(2*chSize))]),...
+    [ceil(h.statsAx.Position(4)/(2*chSize)),1]);
+chIm = chIm(:,1:h.statsAx.Position(3));
+chIm = chIm(1:h.statsAx.Position(4),:);
+
+% set transparency vertically
+chImTransp = linspace(-0.1,1.1,h.statsAx.Position(4))';
+chImTransp(chImTransp > 1) = 1;
+chImTransp(chImTransp < 0) = 0;
+chImTransp = repmat(chImTransp,[1,h.statsAx.Position(3)]);
+baseImg = repmat(255,size(chIm)) .* chImTransp;
+chIm = chIm .* (1-chImTransp);
+chIm = uint8(baseImg + chIm);
+
+chIm = repmat(chIm,[1,1,3]);
+
+h.thrAxBG = image(h.thrAx,'XData',h.thrAx.XLim,'YData',h.thrAx.YLim,...
+    'CData',chIm,'Tag','thrAxBG');
+
+%----------------
+% threshold plots
+
 % plot line
 h.thrPlot = line(h.thrAx,'XData',[],'YData',[],'LineWidth',1,'Tag','thrPlot');
 
@@ -453,7 +505,7 @@ h.thrXLim1Edit = uicontrol(thrXLimPan,'Style','edit','String','',...
 h.thrXLim2Edit = uicontrol(thrXLimPan,'Style','edit','String','',...
     'Tag','thrXLim2Edit','Position',[10 10 80 25],'UIContextMenu',h.cpMenu);
 
-%  ========================================================================
+%%  =======================================================================
 %  ---------------------- OKAY/CANCEL/PREVIEW -----------------------------
 
 % done button
@@ -469,6 +521,27 @@ h.cancBut = uicontrol(h.confDataFig,'Style','pushbutton','String','Cancel',...
 % preview button
 h.prevBut = uicontrol(h.confDataFig,'Style','pushbutton','String','Preview',...
     'Tag','prevBut','Position',[925,505,120,30]);
+
+%% ========================================================================
+
+%  ---------------------- POINTER MANAGER ---------------------------------
+
+%  ========================================================================
+
+% find handles want to show 'hand' over (popupmenus don't work...)
+clickObj = findall(h.confDataFig,'Style','radiobutton','-or','Style',...
+    'checkbox','-or','Style','pushbutton','-or','Style','togglebutton');
+
+% add stats edit textboxes to that, as can't change those
+clickObj = [clickObj; h.meanEdit; h.nMinEdit; h.nMaxEdit; h.othEdit; ...
+    h.sdEdit; h.pMaxEdit; h.pMinEdit];
+
+% whenever text hovers over button, change to hand
+enterFcn = @(fig,~) set(fig, 'Pointer', 'hand');
+iptSetPointerBehavior(clickObj, enterFcn);
+
+% create a pointer manager
+iptPointerManager(h.confDataFig);
 
 end
 

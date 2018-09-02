@@ -9,11 +9,18 @@ function [dataBins] = cfgData_binHist(data2proc,binEdges,outlierMode)
 % initially preallocate everything to cmap 1 (+ve)
 dataBins = ones(size(data2proc),'uint8');
 
-% remove nans in binEdges
+% remove nans in binEdges (deleting 2nd colmap if both edges not set)
+if any(isnan(binEdges(2,:))), binEdges(2,:) = nan; end
 binEdges(isnan(binEdges)) = [];
 
+% make sure there's either 2 or 4 bin edges
+nBins = numel(binEdges);
+if nBins ~= 2 || nBins ~= 4
+    return
+end
+
 % work out whether 1 or 2 colormaps
-if numel(binEdges) == 2 % one colormap
+if nBins == 2 % one colormap
     
     % if in map mode (outlierMode(1) = 'm'), everything should just be set
     % to cmap 1, which is already true!

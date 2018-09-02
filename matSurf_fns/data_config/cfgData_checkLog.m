@@ -26,11 +26,11 @@ end
 %-----------------------
 % check if can use log10
 
-% check if min value in data is >= 0
-dataLogPos = dataMin >= 0;
+% check if min value in data is > 0
+dataLogPos = dataMin > 0;
 
-% check if min value in sig. data is >= 0
-sigLogPos = sigMin >= 0;
+% check if min value in sig. data is > 0
+sigLogPos = sigMin > 0;
 
 %-----------------------------------
 % update log possibility/use for thr
