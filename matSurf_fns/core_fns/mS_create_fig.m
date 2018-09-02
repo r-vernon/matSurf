@@ -36,7 +36,7 @@ axLength = figSize.h - 2*panSp;
 handles.matSurfFig = figure('Name','matSurf','Tag','matSurfFig','NumberTitle','off',...
     'FileName','matSurf.fig','Position',[100, 100, figSize.w, figSize.h],...
     'Visible','off','MenuBar','none','DockControls','off',...
-    'Renderer','opengl','UserData',now,'DeleteFcn',@cBack_figDelete);
+    'Renderer','opengl','UserData',now);
 figHandle = handles.matSurfFig;
 
 % create a status text entry in lower left corner
@@ -542,14 +542,5 @@ movegui(figHandle,'center');
 if showFig
     figHandle.Visible = 'on';
 end
-
-%% ========================================================================
-% additional callbacks
-
-    function cBack_figDelete(~,~)
-        
-        % clearing functions that contain persistent variables
-        clear cfgData_createThrMask;
-    end
 
 end

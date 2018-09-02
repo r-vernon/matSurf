@@ -24,29 +24,9 @@ switch thrInd
     case {9,10,11,12},  numExp = 4; % double gradient/sigmoid
 end
 if numel(thrVals) ~= numExp
-    error('%d threshold value(s) expected, %d given',numExp,numel(thrVals));
+    thrMask = [];
+    return
 end
-
-%--------------------------------------------------------------------------
-% memory saving...
-
-% create persistent variable dataBins, will need to be cleared by
-% cfgData_createFig when needs regenerating, but doing this avoids
-% potentially costly recalculation step
-% (also creating persistant store for thrVals as check, see below)
-persistent dataBins;
-persistent prev_thrVals;
-
-% some safety checks for dataBins...
-% make sure threshold values and number of elements match
-% overwriting rather than setting to [] as likely can use same mem. chunk
-if isempty(dataBins) || ~isequal(prev_thrVals,thrVals) || numel(data) ~= numel(dataBins)
-    can_ovrwr_dataBins = true;
-else, can_ovrwr_dataBins = false;
-end
-
-% after check, store new thrVals as prev
-prev_thrVals = thrVals;
 
 %--------------------------------------------------------------------------
 % preliminaries
@@ -66,7 +46,7 @@ else
     
     % if using gradient filter, or double/non-sigmoidal filter, discretize
     % casting to uint8 as at most 6 bins, may be slower but less memory
-    if any(thrCode(2:3)==2) && can_ovrwr_dataBins
+    if any(thrCode(2:3)==2)
         
         % by default only left side of bin edges are included, add tiny
         % amount to bin edges so right side included for main bins
