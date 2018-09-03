@@ -34,24 +34,24 @@ set(h.thrAx,'XLimMode','auto','YLimMode','auto');
 % plot main line
 set(h.thrPlot,'XData',thrX,'YData',thrY);
 
-% a1
+% 1a
 if ~isnan(thrVals(1))
-    set(h.thrFilt_a1,'XData',[thrVals(1),thrVals(1)],'YData',[-0.1,1.1]); 
+    set(h.thrFilt_1a,'XData',[thrVals(1),thrVals(1)],'YData',[-0.1,1.1]); 
 end
 
-% b1
+% 1b
 if ~isnan(thrVals(2))
-    set(h.thrFilt_a2,'XData',[thrVals(2),thrVals(2)],'YData',[-0.1,1.1]); 
+    set(h.thrFilt_2a,'XData',[thrVals(2),thrVals(2)],'YData',[-0.1,1.1]); 
 end
 
-% a2
+% 2a
 if ~isnan(thrVals(3))
-    set(h.thrFilt_b1,'XData',[thrVals(3),thrVals(3)],'YData',[-0.1,1.1]); 
+    set(h.thrFilt_1b,'XData',[thrVals(3),thrVals(3)],'YData',[-0.1,1.1]); 
 end
 
-% b2
+% 2b
 if ~isnan(thrVals(4))
-    set(h.thrFilt_b2,'XData',[thrVals(4),thrVals(4)],'YData',[-0.1,1.1]); 
+    set(h.thrFilt_2b,'XData',[thrVals(4),thrVals(4)],'YData',[-0.1,1.1]); 
 end
 
 % draw to make sure everything rendered/set

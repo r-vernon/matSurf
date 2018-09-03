@@ -13,7 +13,7 @@ function [thrPref] = cfgData_createThrPref
 %                 respectively
 % - thrCode:      code (1:12) indicating type of thresholding to use
 % - thrVals:      values representing the limits of the threshold
-%                 order: [a1, a2; b1, b2]
+%                 order: [1a, 2a; 1b, 2b]
 % - thrXLim:      x-axis limits for the threshold preview
 % - histXLim:     x-axis limits for the histogram
 %                 order: [data(min), data(max); sig(min), sig(max)]

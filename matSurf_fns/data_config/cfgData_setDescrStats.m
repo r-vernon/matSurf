@@ -84,8 +84,8 @@ if set_allCust
     % update everything
     newDescr.prctile = prctile(data2Proc,stats_xVal.prctile);
     newDescr.CI = newDescr.mean + norminv(0.5 + stats_xVal.CI/200)*newDescr.SEM;
-    newDescr.meanPlSD = newDescr.mean + stats_xVal.meanPlusSD*newDescr.SD;
-    newDescr.meanPlSEM = newDescr.mean + stats_xVal.meanPlusSEM*newDescr.SEM;
+    newDescr.meanPlusSD = newDescr.mean + stats_xVal.meanPlusSD*newDescr.SD;
+    newDescr.meanPlusSEM = newDescr.mean + stats_xVal.meanPlusSEM*newDescr.SEM;
     newDescr.trMean = trimmean(data2Proc,stats_xVal.trMean);
     
 else
@@ -103,11 +103,11 @@ else
             
         case 3 % mean plus x*SD
             newCustSt = newDescr.mean + stats_xVal.meanPlusSD*newDescr.SD;
-            newDescr.meanPlSD = newCustSt;
+            newDescr.meanPlusSD = newCustSt;
             
         case 4 % mean plus x*SEM
             newCustSt = newDescr.mean + stats_xVal.meanPlusSEM*newDescr.SEM;
-            newDescr.meanPlSEM = newCustSt;
+            newDescr.meanPlusSEM = newCustSt;
             
         case 5 % timmed mean (exclding x%)
             newCustSt = trimmean(data2Proc,stats_xVal.trMean);

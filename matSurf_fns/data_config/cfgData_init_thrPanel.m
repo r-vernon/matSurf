@@ -31,19 +31,16 @@ else
     h.twoFilt.Value = 1; % two filters
 end
 
-%-------------------------
-% set the images correctly
+%---------------------------------
+% set images/enable filter options
 
-h.normFilt.CData = squeeze(h.thrPics(1,thrCode(2),thrCode(3),:,:,:));
-h.revFilt.CData  = squeeze(h.thrPics(2,thrCode(2),thrCode(3),:,:,:));
+cfgData_config_thrPanel(h,thrCode);
 
 %-----------------------------------------------
-% set filter threshold ranges ([a1, a2; b1, b2])
+% set filter threshold ranges ([1a, 2a; 1b, 2b])
 
 if ~isnan(thrVals(1,1))
-    set(h.f1_lEdit,'String',formatNum(thrVals(1,1)),'UserData',thrVals(1,1),...
-        'Enable','on','UIContextMenu',h.cpMenu); 
-    h.f1_lTxt.Enable = 'on';
+    set(h.f1_lEdit,'String',formatNum(thrVals(1,1)),'UserData',thrVals(1,1)); 
 end
 if ~isnan(thrVals(2,1))
     set(h.f1_hEdit,'String',formatNum('%.2f',thrVals(2,1)),'UserData',thrVals(2,1),...

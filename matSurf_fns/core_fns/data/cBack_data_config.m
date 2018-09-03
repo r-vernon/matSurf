@@ -125,6 +125,15 @@ h.transEdit.Callback = @cBack_transEdit;
 set([h.cm_pMinEdit,h.cm_pMaxEdit,h.cm_nMinEdit,h.cm_nMaxEdit],...
     'Callback',@cBack_cmEdit);
 
+% stats other popupmenu
+h.othStats.Callback = @cBack_othStats;
+h.xEdit.Callback = @cBack_xEdit;
+
+% filter edit callbacks
+h.normRevFiltBG.SelectionChangedFcn = @cBack_filtChange;
+h.typeFiltBG.SelectionChangedFcn = @cBack_filtChange;
+h.numFiltBG.SelectionChangedFcn = @cBack_filtChange;
+
 %% ========================================================================
 
 %  ---------------------- CALLBACKS ---------------------------------------
@@ -146,6 +155,7 @@ set([h.cm_pMinEdit,h.cm_pMaxEdit,h.cm_nMinEdit,h.cm_nMaxEdit],...
         if h.dStats.Value == 1
             h.stHist.FaceVertexAlphaData = hAD * src.Value;
         end
+        drawnow;
     end
 
     function cBack_transEdit(src,~)
@@ -165,6 +175,7 @@ set([h.cm_pMinEdit,h.cm_pMaxEdit,h.cm_nMinEdit,h.cm_nMaxEdit],...
         else
             src.String = sprintf('%.2f',h.transSlide.Value);
         end
+        drawnow;
     end
 
 %% ========================================================================
@@ -218,8 +229,101 @@ set([h.cm_pMinEdit,h.cm_pMaxEdit,h.cm_nMinEdit,h.cm_nMaxEdit],...
             else
                 hAD = cfgData_histAlphaColor(h.stHist,cmaps,thrPref,2);
             end
-            
+        end       
+        drawnow;
+    end
+
+%% ========================================================================
+% stats panel
+
+    function cBack_othStats(src,~)
+        
+        % get new descr name from userdata
+        newDescr = src.UserData{src.Value};
+        
+        % work out what to do with 'x'
+        if src.Value < 4
+            % if 1:3, disable x edit option
+            h.xTxt.Enable = 'off';
+            set(h.xEdit,'String','','UIContextMenu','','Enable','off');
+            h.xGuideTxt.Visible = 'off';
+        else
+            % otherwise, enable and set x edit option
+            h.xTxt.Enable = 'on';
+            set(h.xEdit,'String',formatNum(stats_xVal.(newDescr)),...
+                'UIContextMenu',h.cpMenu,'Enable','on');
+            if any(strcmp(newDescr,{'prctile','CI','trMean'}))
+                h.xGuideTxt.Visible = 'on';
+            else
+                h.xGuideTxt.Visible = 'off';
+            end
         end
+        
+        % update text
+        if h.dStats.Value == 1
+            newVal = descr.(newDescr);
+        else
+            newVal = descrSig.(newDescr);
+        end
+        set(h.othEdit, 'String',formatNum(newVal), 'UserData',newVal);
+        
+        drawnow;
+    end
+
+    function cBack_xEdit(src,~)
+        
+        % get current descr name/val from popupmenu userdata
+        currDescr = h.othStats.UserData{h.othStats.Value};
+        curr_xVal = stats_xVal.(currDescr);
+        
+        % make sure new xVal is valid
+        new_xVal = str2double(src.String);
+        if any(strcmp(currDescr,{'prctile','CI','trMean'}))
+            isNum = isrealnum(new_xVal,1,99);
+        else
+            isNum = isrealnum(new_xVal);
+        end
+        
+        % if it's not valid replace with old, otherwise update vals
+        if ~isNum
+            src.String = formatNum(curr_xVal);
+        else
+            src.String = formatNum(new_xVal);
+            stats_xVal.(currDescr) = new_xVal;
+            if h.dStats.Value == 1
+                descr = cfgData_setDescrStats(valData,stats_xVal,h,descr,currDescr);
+                newVal = descr.(currDescr);
+            else
+                descrSig = cfgData_setDescrStats(valData,stats_xVal,h,descrSig,currDescr);
+                newVal = descrSig.(currDescr);
+            end
+            set(h.othEdit, 'String',formatNum(newVal), 'UserData',newVal);
+        end
+        
+        drawnow;
+    end
+
+%% ========================================================================
+% threshold panel
+
+    function cBack_filtChange(src,~)
+        
+        % get new filter code
+        thrCode = zeros(3,1,'uint8');
+        thrCode(1) = h.normRevFiltBG.SelectedObject.UserData; % normal/reversed
+        thrCode(2) = h.typeFiltBG.SelectedObject.UserData;    % filter type
+        thrCode(3) = h.numFiltBG.SelectedObject.UserData;     % num. filters
+        
+        % update relevant threshold preference
+        switch src.Tag
+            case 'normRevFiltBG', thrPref.thrCode(1) = thrCode(1);
+            case 'typeFiltBG',    thrPref.thrCode(2) = thrCode(2);
+            case 'numFiltBG',     thrPref.thrCode(3) = thrCode(3);
+        end
+        
+        % set the images correctly, enable/disable filter value options
+        cfgData_config_thrPanel(h,thrCode);
+        
     end
 
 end
