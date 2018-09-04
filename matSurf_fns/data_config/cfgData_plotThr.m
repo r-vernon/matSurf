@@ -28,8 +28,8 @@ thrY = cfgData_createThrMask(thrX,thrPref.thrCode,thrVals(:));
 %---------------------
 % set filter line data
 
-% set limits back to auto (can override later if needed)
-set(h.thrAx,'XLimMode','auto','YLimMode','auto');
+% set x limits to auto (can override later if needed)
+set(h.thrAx,'XLimMode','auto');
 
 % plot main line
 set(h.thrPlot,'XData',thrX,'YData',thrY);
@@ -58,7 +58,7 @@ end
 drawnow;
 
 % x/y limits back to manual
-set(h.thrAx,'XLimMode','manual','YLimMode','manual');
+set(h.thrAx,'XLimMode','manual');
 
 %------------------
 % deal with XLimits

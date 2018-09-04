@@ -43,19 +43,13 @@ if ~isnan(thrVals(1,1))
     set(h.f1_lEdit,'String',formatNum(thrVals(1,1)),'UserData',thrVals(1,1)); 
 end
 if ~isnan(thrVals(2,1))
-    set(h.f1_hEdit,'String',formatNum('%.2f',thrVals(2,1)),'UserData',thrVals(2,1),...
-        'Enable','on','UIContextMenu',h.cpMenu); 
-    h.f1_hTxt.Enable = 'on';
+    set(h.f1_hEdit,'String',formatNum(thrVals(2,1)),'UserData',thrVals(2,1)); 
 end
 if ~isnan(thrVals(1,2))
-    set(h.f2_lEdit,'String',formatNum('%.2f',thrVals(1,2)),'UserData',thrVals(1,2),...
-        'Enable','on','UIContextMenu',h.cpMenu); 
-    h.f2_lTxt.Enable = 'on';
+    set(h.f2_lEdit,'String',formatNum(thrVals(1,2)),'UserData',thrVals(1,2)); 
 end
 if ~isnan(thrVals(2,2))
-    set(h.f2_hEdit,'String',formatNum('%.2f',thrVals(2,2)),'UserData',thrVals(2,2),...
-        'Enable','on','UIContextMenu',h.cpMenu); 
-    h.f2_hTxt.Enable = 'on';
+    set(h.f2_hEdit,'String',formatNum(thrVals(2,2)),'UserData',thrVals(2,2)); 
 end
 
 end

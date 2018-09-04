@@ -25,8 +25,8 @@ if (~thrPref.useSig && hInd == 1) || (thrPref.useSig && hInd == 2)
     
     % if thresholding mode and histogram mode match up, use thresholding to
     % set alpha data of histogram
-    hAD(:) = cfgData_createThrMask(data2proc,thrPref.thrCode,thrPref.thrVals(:));
-    
+    thrAD = cfgData_createThrMask(data2proc,thrPref.thrCode,thrPref.thrVals(:));
+    if ~isempty(thrAD), hAD(:) = thrAD; end
 end
 
 %----------
