@@ -2,6 +2,7 @@ function cBack_data_config(~,~)
 
 % create empty figure
 h = cfgData_createFig;
+assignin('base','h',h);
 
 %% ========================================================================
 % load in data
@@ -82,15 +83,6 @@ clearvars valInd;
 cfgData_init_thrPanel(h,thrPref.thrCode,thrPref.thrVals)
 
 %% ========================================================================
-% Check if using log10
-
-if ~isempty(ovrlay.dataSig)
-    thrPref = cfgData_checkLog(h,thrPref,descr.MinMax(1),descrSig.MinMax(1));
-else
-    thrPref = cfgData_checkLog(h,thrPref,descr.MinMax(1));
-end
-
-%% ========================================================================
 % Graphs
 
 % set the histogram
@@ -129,10 +121,14 @@ set([h.cm_pMinEdit,h.cm_pMaxEdit,h.cm_nMinEdit,h.cm_nMaxEdit],...
 h.othStats.Callback = @cBack_othStats;
 h.xEdit.Callback = @cBack_xEdit;
 
-% filter edit callbacks
+% filter option callbacks
 h.normRevFiltBG.SelectionChangedFcn = @cBack_filtChange;
 h.typeFiltBG.SelectionChangedFcn = @cBack_filtChange;
 h.numFiltBG.SelectionChangedFcn = @cBack_filtChange;
+
+% filter value callbacks
+set([h.xLt_edit,h.xGt_edit,h.xBt1_edit,h.xBt2_edit],...
+    'Callback',@cBack_filtValEdit);
 
 %% ========================================================================
 
@@ -170,7 +166,7 @@ h.numFiltBG.SelectionChangedFcn = @cBack_filtChange;
             h.transSlide.Value = newVal;
             thrPref.transparency = newVal;
             if h.dStats.Value == 1
-                h.stHist.FaceVertexAlphaData = hAD *newVal;
+                h.stHist.FaceVertexAlphaData = hAD * newVal;
             end
         else
             src.String = sprintf('%.2f',h.transSlide.Value);
@@ -324,6 +320,55 @@ h.numFiltBG.SelectionChangedFcn = @cBack_filtChange;
         % set the images correctly, enable/disable filter value options
         cfgData_config_thrPanel(h,thrCode);
         
+    end
+
+    function cBack_filtValEdit(src,~)
+       
+        % check for valid strings
+        valString = strcmpi(src.String,{'inf','max','-inf','min'});
+        if any(valString(1:2))
+            if thrPref.useSig
+                newVal = descrSig.MinMax(2);
+            else
+                newVal = descr.MinMax(2);
+            end
+        elseif any(valString(3:4))
+            if thrPref.useSig
+                newVal = descrSig.MinMax(1);
+            else
+                newVal = descr.MinMax(1);
+            end
+        else
+            % presume numeric, convert to num
+            newVal = str2double(src.String);
+        end
+        
+        % make sure it's a valid number
+        isNum = isrealnum(newVal);
+        
+        if ~isNum
+            src.String = formatNum(src.UserData);
+        else
+            % make sure new value is between lower/upper bounds, then update thrPref
+            switch src.Tag
+                case 'f1_lEdit'
+                    ub = min(thrPref.thrVals(2:4));
+                    newVal = min([newVal; ub-eps(ub)]);
+                    thrPref.thrVals(1,1) = newVal;
+                case 'f1_hEdit'
+                    lb = max(thrPref.thrVals(1));
+                    ub = min(thrPref.thrVals(3:4));
+                    newVal = max([min([newVal; ub]); lb]);
+                    thrPref.thrVals(1,1) = newVal;
+                case 'f2_lEdit'
+                    lb = max(thrPref.thrVals(1:2));
+                    ub = min(thrPref.thrVals(4));
+                case 'f2_hEdit'
+                    lb = max(thrPref.thrVals(1:3));
+                    newVal = max([newVal; lb+eps(lb)]);
+                    thrPref.thrVals(2,2) = newVal;
+            end
+        end
     end
 
 end

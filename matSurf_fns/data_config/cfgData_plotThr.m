@@ -15,12 +15,7 @@ thrVals = thrPref.thrVals;
 % get x, y data for plot
 
 % get x vals
-if thrPref.useLog(2)
-    minMax = log10(minMax);
-    thrX = logspace(minMax(1),minMax(2),1e5)';
-else
-    thrX = linspace(minMax(1),minMax(2),1e5)';
-end
+thrX = linspace(minMax(1),minMax(2),1e5)';
 
 % get y vals
 thrY = cfgData_createThrMask(thrX,thrPref.thrCode,thrVals(:));

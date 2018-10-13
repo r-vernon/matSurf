@@ -36,20 +36,20 @@ end
 
 cfgData_config_thrPanel(h,thrCode);
 
-%-----------------------------------------------
-% set filter threshold ranges ([1a, 2a; 1b, 2b])
+%----------------------------
+% set filter threshold ranges
 
 if ~isnan(thrVals(1,1))
-    set(h.f1_lEdit,'String',formatNum(thrVals(1,1)),'UserData',thrVals(1,1)); 
-end
-if ~isnan(thrVals(2,1))
-    set(h.f1_hEdit,'String',formatNum(thrVals(2,1)),'UserData',thrVals(2,1)); 
+    set(h.xLt_edit,'String',formatNum(thrVals(1,1)),'UserData',thrVals(1,1)); 
 end
 if ~isnan(thrVals(1,2))
-    set(h.f2_lEdit,'String',formatNum(thrVals(1,2)),'UserData',thrVals(1,2)); 
+    set(h.xGt_edit,'String',formatNum(thrVals(1,2)),'UserData',thrVals(1,2)); 
+end
+if ~isnan(thrVals(2,1))
+    set(h.xBt1_edit,'String',formatNum(thrVals(2,1)),'UserData',thrVals(2,1)); 
 end
 if ~isnan(thrVals(2,2))
-    set(h.f2_hEdit,'String',formatNum(thrVals(2,2)),'UserData',thrVals(2,2)); 
+    set(h.xBt2_edit,'String',formatNum(thrVals(2,2)),'UserData',thrVals(2,2)); 
 end
 
 end

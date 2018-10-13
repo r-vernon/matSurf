@@ -12,13 +12,6 @@ function [thrPref,alphaData] = cfgData_plotHist(data2proc,h,cmaps,thrPref,hInd)
 % (ret.) alphaData, histogram alpha data, so can be modulated by global
 %          transparency
 
-%---------------------
-% check if need to log
-
-if thrPref.useLog(1)
-    data2proc = log10(data2proc);
-end
-
 %----------------------
 % create histogram data
 

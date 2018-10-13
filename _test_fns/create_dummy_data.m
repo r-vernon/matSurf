@@ -28,6 +28,6 @@ data.zeroNanInf = sparse([absData-0 < tol, isnan(dataVals(:)), isinf(dataVals(:)
 data.thrPref = cfgData_createThrPref;
 data.thrPref.cmapVals(1,1) = min(dataVals(~any(data.zeroNanInf,2)));
 data.thrPref.cmapVals(1,2) = max(dataVals(~any(data.zeroNanInf,2)));
-data.thrPref.thrVals(1)    = data.thrPref.cmapVals(1,1);
+data.thrPref.thrVals(3)    = data.thrPref.cmapVals(1,1);
 
 end
