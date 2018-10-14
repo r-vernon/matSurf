@@ -14,8 +14,13 @@ thrVals = thrPref.thrVals;
 %-----------------------
 % get x, y data for plot
 
-% get x vals
-thrX = linspace(minMax(1),minMax(2),1e5)';
+% get x vals (based on whether using log or not)
+if (h.dThr.Value == 1 && thrPref.useLog4data == 1) || (h.sThr.Value == 1 && thrPref.useLog4sig == 1)
+    minMax = log10(minMax);
+    thrX = logspace(minMax(1),minMax(2),1e5)';
+else
+    thrX = linspace(minMax(1),minMax(2),1e5)';
+end
 
 % get y vals
 thrY = cfgData_createThrMask(thrX,thrPref.thrCode,thrVals(:));
@@ -28,26 +33,6 @@ set(h.thrAx,'XLimMode','auto');
 
 % plot main line
 set(h.thrPlot,'XData',thrX,'YData',thrY);
-
-% 1a
-if ~isnan(thrVals(1))
-    set(h.thrFilt_1a,'XData',[thrVals(1),thrVals(1)],'YData',[-0.1,1.1]); 
-end
-
-% 1b
-if ~isnan(thrVals(2))
-    set(h.thrFilt_2a,'XData',[thrVals(2),thrVals(2)],'YData',[-0.1,1.1]); 
-end
-
-% 2a
-if ~isnan(thrVals(3))
-    set(h.thrFilt_1b,'XData',[thrVals(3),thrVals(3)],'YData',[-0.1,1.1]); 
-end
-
-% 2b
-if ~isnan(thrVals(4))
-    set(h.thrFilt_2b,'XData',[thrVals(4),thrVals(4)],'YData',[-0.1,1.1]); 
-end
 
 % draw to make sure everything rendered/set
 drawnow;

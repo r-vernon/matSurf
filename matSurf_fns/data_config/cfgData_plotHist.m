@@ -15,11 +15,23 @@ function [thrPref,alphaData] = cfgData_plotHist(data2proc,h,cmaps,thrPref,hInd)
 %----------------------
 % create histogram data
 
+% check if using log or not
+usedLog = false;
+if (h.dStats.Value == 1 && thrPref.useLog4data == 1) || (h.dStats.Value == 1 && thrPref.useLog4sig == 1)
+    data2proc = log10(data2proc);
+    usedLog = true;
+end
+
 if isnan(thrPref.histNBins(hInd))
     [N,edges] = histcounts(data2proc);   
     thrPref.histNBins(hInd) = numel(N);
 else
     [N,edges] = histcounts(data2proc,thrPref.histNBins(hInd));
+end
+
+% if usedLog, update edges to undo log10 xform
+if usedLog
+    edges = 10.^edges;
 end
 
 %---------------------

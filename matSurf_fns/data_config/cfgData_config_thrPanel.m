@@ -16,38 +16,40 @@ h.revFilt.CData  = squeeze(h.thrPics(2,thrCode(2),thrCode(3),:,:,:));
 %-----------------------------------------
 % work out which filters should be enabled
 
-% lessThan on unless nas (111), nad (112) or rad (212)
+thrInd = sub2ind([2,3,2],thrCode(1),thrCode(2),thrCode(3));
+
+% lessThan on unless nas (1), nad (7)
 % val is 1 when reverse, 0 when normal
-if thrCode(2)==1 && (thrCode(1)~=2 || thrCode(3)~=1)
-    set(h.xLt_txt,'String','? if x <','Enable','off');
-    set(h.xLt_edit,'String','','Enable','off','UIContextMenu','');
+if thrInd == 1 || thrInd == 7
+    set(h.xLt_txt,'String','? if x <=','Enable','off');
+    set(h.xLt_edit,'String','','Enable','off','UserData','','UIContextMenu','');
 else
-    newTxt = sprintf('%d if x <',thrCode(1)-1);
+    newTxt = sprintf('%d if x <=',thrCode(1)-1);
     set(h.xLt_txt,'String',newTxt,'Enable','on');
     set(h.xLt_edit,'Enable','on','UIContextMenu',h.cpMenu);
 end
 
-% gtrThan on unless ras (211), nad (112) or rad (212)
-if thrCode(2)==1 && (thrCode(1)~=1 || thrCode(3)~=1)
-    set(h.xGt_txt,'String','? if x >','Enable','off');
-    set(h.xGt_edit,'String','','Enable','off','UIContextMenu','');
+% gtrThan on unless ras (2), nad (7)
+if thrInd == 2 || thrInd == 7
+    set(h.xGt_txt,'String','? if x >=','Enable','off');
+    set(h.xGt_edit,'String','','Enable','off','UserData','','UIContextMenu','');
 else
     if thrCode(3) ==  1
         % if single, val is 1 when normal, 0 when reverse
-        newTxt = sprintf('%d if x >',2-thrCode(1));
+        newTxt = sprintf('%d if x >=',2-thrCode(1));
     else
         % if double, val is 1 when reverse, 0 when normal
-        newTxt = sprintf('%d if x >',thrCode(1)-1);
+        newTxt = sprintf('%d if x >=',thrCode(1)-1);
     end
     set(h.xGt_txt,'String',newTxt,'Enable','on');
     set(h.xGt_edit,'Enable','on','UIContextMenu',h.cpMenu);
 end
 
-% between off unless double
-if thrCode(3) == 1
+% between off unless double or rad (8)
+if thrCode(3) == 1 || thrInd == 8
     h.xBt1_txt.String = '? if';
     set([h.xBt1_txt,h.xBt2_txt],'Enable','off');
-    set([h.xBt1_edit,h.xBt2_edit],'String','','Enable','off','UIContextMenu','');
+    set([h.xBt1_edit,h.xBt2_edit],'String','','Enable','off','UserData','','UIContextMenu','');
 else
     h.xBt1_txt.String = sprintf('%d if',2-thrCode(1)); % 1 when normal, 0 when reverse
     set([h.xBt1_txt,h.xBt2_txt],'Enable','on');

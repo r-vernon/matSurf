@@ -28,10 +28,10 @@ end
 %-------------------------------------------
 % work out if we should update figure or not
 
-updFig = false; 
-
 if nargin >= 3 && (set_allStd || ~set_allCust)
     updFig = true;
+else
+    updFig = false;
 end
 
 %-------------------------------------
@@ -45,7 +45,7 @@ if set_allStd
     newDescr = struct(...
         'mean',      mean(data2Proc), ...
         'SD',        std(data2Proc),...
-        'nnz',       numel(data2Proc), ...
+        'nnz',       nnz(data2Proc), ...
         'med',       med_95prc(2), ...
         'ptile95',   med_95prc([1,3]), ...
         'negMinMax', [nan; nan], ...
@@ -67,12 +67,12 @@ if set_allStd
     
     % (optionally) update fig.
     if updFig
-        set(h.meanEdit, 'String',formatNum(newDescr.mean),         'UserData',newDescr.mean);
-        set(h.sdEdit,   'String',formatNum(newDescr.SD),           'UserData',newDescr.SD);
-        set(h.pMinEdit, 'String',formatNum(newDescr.posMinMax(1)), 'UserData',newDescr.posMinMax(1));
-        set(h.pMaxEdit, 'String',formatNum(newDescr.posMinMax(2)), 'UserData',newDescr.posMinMax(2));
-        set(h.nMaxEdit, 'String',formatNum(newDescr.negMinMax(2)), 'UserData',newDescr.negMinMax(2));
-        set(h.nMinEdit, 'String',formatNum(newDescr.negMinMax(1)), 'UserData',newDescr.negMinMax(1));
+        set(h.meanVal, 'String',formatNum(newDescr.mean),         'UserData',newDescr.mean);
+        set(h.sdVal,   'String',formatNum(newDescr.SD),           'UserData',newDescr.SD);
+        set(h.pMinVal, 'String',formatNum(newDescr.posMinMax(1)), 'UserData',newDescr.posMinMax(1));
+        set(h.pMaxVal, 'String',formatNum(newDescr.posMinMax(2)), 'UserData',newDescr.posMinMax(2));
+        set(h.nMaxVal, 'String',formatNum(newDescr.negMinMax(2)), 'UserData',newDescr.negMinMax(2));
+        set(h.nMinVal, 'String',formatNum(newDescr.negMinMax(1)), 'UserData',newDescr.negMinMax(1));
     end
 end
 
@@ -116,7 +116,7 @@ else
     
     % (optionally) update fig.
     if updFig
-        set(h.othEdit, 'String',formatNum(newCustSt), 'UserData',newCustSt);
+        set(h.othVal, 'String',formatNum(newCustSt), 'UserData',newCustSt);
     end
 end
 

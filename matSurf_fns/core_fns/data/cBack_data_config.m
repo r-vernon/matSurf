@@ -22,11 +22,12 @@ if ~isempty(ovrlay.dataSig)
     
     % if using sig., turn on 'threshold based on sig. map' option
     if thrPref.useSig
-        h.sThr.Value = 1; 
+        h.sThr.Value = 1;
     end
     
 else
     dataSig = [];
+    iptSetPointerBehavior([h.sStats;h.sThr], '');
 end
 
 %% ========================================================================
@@ -72,7 +73,7 @@ if ~isempty(dataSig)
 end
 
 % set 'other' option to nnz (setting UserData to allow copying of exact value)
-set(h.othEdit, 'String',sprintf('%d',descr.nnz), 'UserData',descr.nnz);
+set(h.othVal, 'String',sprintf('%d',descr.nnz), 'UserData',descr.nnz);
 
 clearvars valInd;
 
@@ -81,6 +82,15 @@ clearvars valInd;
 
 % initialise all the filter values
 cfgData_init_thrPanel(h,thrPref.thrCode,thrPref.thrVals)
+
+%% ========================================================================
+% Check if using log axis for data or sig
+
+if ~isempty(ovrlay.dataSig)
+    thrPref = cfgData_checkLog(h,thrPref,descr.MinMax(1),descrSig.MinMax(1));
+else
+    thrPref = cfgData_checkLog(h,thrPref,descr.MinMax(1));
+end
 
 %% ========================================================================
 % Graphs
@@ -225,7 +235,7 @@ set([h.xLt_edit,h.xGt_edit,h.xBt1_edit,h.xBt2_edit],...
             else
                 hAD = cfgData_histAlphaColor(h.stHist,cmaps,thrPref,2);
             end
-        end       
+        end
         drawnow;
     end
 
@@ -261,7 +271,7 @@ set([h.xLt_edit,h.xGt_edit,h.xBt1_edit,h.xBt2_edit],...
         else
             newVal = descrSig.(newDescr);
         end
-        set(h.othEdit, 'String',formatNum(newVal), 'UserData',newVal);
+        set(h.othVal, 'String',formatNum(newVal), 'UserData',newVal);
         
         drawnow;
     end
@@ -293,7 +303,7 @@ set([h.xLt_edit,h.xGt_edit,h.xBt1_edit,h.xBt2_edit],...
                 descrSig = cfgData_setDescrStats(valData,stats_xVal,h,descrSig,currDescr);
                 newVal = descrSig.(currDescr);
             end
-            set(h.othEdit, 'String',formatNum(newVal), 'UserData',newVal);
+            set(h.othVal, 'String',formatNum(newVal), 'UserData',newVal);
         end
         
         drawnow;
@@ -304,26 +314,40 @@ set([h.xLt_edit,h.xGt_edit,h.xBt1_edit,h.xBt2_edit],...
 
     function cBack_filtChange(src,~)
         
-        % get new filter code
-        thrCode = zeros(3,1,'uint8');
-        thrCode(1) = h.normRevFiltBG.SelectedObject.UserData; % normal/reversed
-        thrCode(2) = h.typeFiltBG.SelectedObject.UserData;    % filter type
-        thrCode(3) = h.numFiltBG.SelectedObject.UserData;     % num. filters
-        
         % update relevant threshold preference
         switch src.Tag
-            case 'normRevFiltBG', thrPref.thrCode(1) = thrCode(1);
-            case 'typeFiltBG',    thrPref.thrCode(2) = thrCode(2);
-            case 'numFiltBG',     thrPref.thrCode(3) = thrCode(3);
+            case 'normRevFiltBG'
+                thrPref.thrCode(1) = h.normRevFiltBG.SelectedObject.UserData; % normal/reversed
+            case 'typeFiltBG'
+                thrPref.thrCode(2) = h.typeFiltBG.SelectedObject.UserData;    % filter type
+            case 'numFiltBG'
+                thrPref.thrCode(3) = h.numFiltBG.SelectedObject.UserData;     % num. filters
+                
+                % if switching num. filters, 'x>' value to '<=x' location (unless rev. abs. filt)
+                if ~(thrPref.thrCode(1) == 2 && thrPref.thrCode(2) == 1)
+                    if thrPref.thrCode(3) == 2 % switched to double
+                        thrPref.thrVals(2,1) = thrPref.thrVals(1,2);
+                        thrPref.thrVals(1,2) = nan;
+                        set(h.xGt_edit,'String','','UserData',[]);
+                        set(h.xBt1_edit,'String',formatNum(thrPref.thrVals(2,1)),...
+                            'UserData',thrPref.thrVals(2,1));
+                    else % switched to single
+                        thrPref.thrVals(1,2) = thrPref.thrVals(2,1);
+                        thrPref.thrVals(2,1) = nan;
+                        set(h.xGt_edit,'String',formatNum(thrPref.thrVals(1,2)),...
+                            'UserData',thrPref.thrVals(1,2));
+                        set(h.xBt1_edit,'String','','UserData',[]);
+                    end
+                end
         end
         
         % set the images correctly, enable/disable filter value options
-        cfgData_config_thrPanel(h,thrCode);
-        
+        cfgData_config_thrPanel(h,thrPref.thrCode);
+        canUpdateThr;
     end
 
     function cBack_filtValEdit(src,~)
-       
+        
         % check for valid strings
         valString = strcmpi(src.String,{'inf','max','-inf','min'});
         if any(valString(1:2))
@@ -351,23 +375,64 @@ set([h.xLt_edit,h.xGt_edit,h.xBt1_edit,h.xBt2_edit],...
         else
             % make sure new value is between lower/upper bounds, then update thrPref
             switch src.Tag
-                case 'f1_lEdit'
-                    ub = min(thrPref.thrVals(2:4));
-                    newVal = min([newVal; ub-eps(ub)]);
+                case 'xLt_edit'
                     thrPref.thrVals(1,1) = newVal;
-                case 'f1_hEdit'
-                    lb = max(thrPref.thrVals(1));
-                    ub = min(thrPref.thrVals(3:4));
-                    newVal = max([min([newVal; ub]); lb]);
-                    thrPref.thrVals(1,1) = newVal;
-                case 'f2_lEdit'
-                    lb = max(thrPref.thrVals(1:2));
-                    ub = min(thrPref.thrVals(4));
-                case 'f2_hEdit'
-                    lb = max(thrPref.thrVals(1:3));
-                    newVal = max([newVal; lb+eps(lb)]);
+                    if newVal >= thrPref.thrVals(2), h.xBt1_edit.String = ''; end
+                    if newVal >= thrPref.thrVals(3), h.xBt2_edit.String = ''; end
+                    if newVal >= thrPref.thrVals(4), h.xGt_edit.String = ''; end
+                case 'xBt1_edit'
+                    thrPref.thrVals(2,1) = newVal;
+                    if newVal <= thrPref.thrVals(1), h.xLt_edit.String = ''; end
+                    if newVal >= thrPref.thrVals(3), h.xBt2_edit.String = ''; end
+                    if newVal >= thrPref.thrVals(4), h.xGt_edit.String = ''; end
+                case 'xBt2_edit'
                     thrPref.thrVals(2,2) = newVal;
+                    if newVal <= thrPref.thrVals(1), h.xLt_edit.String = ''; end
+                    if newVal <= thrPref.thrVals(2), h.xBt1_edit.String = ''; end
+                    if newVal >= thrPref.thrVals(3), h.xGt_edit.String = ''; end
+                case 'xGt_edit'
+                    thrPref.thrVals(1,2) = newVal;
+                    if newVal <= thrPref.thrVals(1), h.xLt_edit.String = ''; end
+                    if newVal <= thrPref.thrVals(2), h.xBt1_edit.String = ''; end
+                    if newVal <= thrPref.thrVals(4), h.xBt2_edit.String = ''; end
             end
+            
+            % update string
+            set(src,'String',formatNum(newVal),'UserData',newVal);
+            canUpdateThr;
+        end
+    end
+
+%% ========================================================================
+% additional functions
+
+    function canUpdateThr
+        % function to check if can update threshold preview
+
+        canUpdate = true;
+        editNames = {'xLt_edit'; 'xBt1_edit'; 'xBt2_edit'; 'xGt_edit'};
+        editInd = [1;2;4;3];
+        
+        for inc = 1:4
+            currEdit = editNames{inc};
+            
+            if strcmpi(h.(currEdit).Enable,'on')
+                if any(strcmpi(h.(currEdit).String,{'','nan'}))
+                    set(h.(currEdit),'String','','UserData',[]);
+                    thrPref.thrVals(editInd(inc)) = nan;
+                    canUpdate = false;  
+                end
+            else
+                thrPref.thrVals(editInd(inc)) = nan;
+            end
+        end
+        
+        if canUpdate
+            h.updateBut.Enable = 'on';
+            h.doneBut.Enable = 'on';
+        else
+            h.updateBut.Enable = 'off';
+            h.doneBut.Enable = 'off';
         end
     end
 
