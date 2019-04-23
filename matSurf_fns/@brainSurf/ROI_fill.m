@@ -31,6 +31,7 @@ if nargin < 3 || isempty(midPt)
                 midPt = nMidPt(clPt);
             end
         end
+    end
 end
 
 % create index to record which points have been visited, search won't
