@@ -62,7 +62,11 @@ if thrPref.numCmaps == 2
 
     % add context menu
     set([h.cm_pMinEdit,h.cm_pMaxEdit],'UIContextMenu',h.cpMenu);
-
+    
+    % add hand pointer
+    enterFcn = @(fig,~) set(fig, 'Pointer', 'hand');
+    iptSetPointerBehavior(h.nCmAx, enterFcn);
+    
 end
 
 %--------------------------------------------
