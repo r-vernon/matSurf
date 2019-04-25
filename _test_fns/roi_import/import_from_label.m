@@ -1,4 +1,11 @@
 
+% set current path
+if exist('/storage/matSurf','file')
+    cPath = '/storage/matSurf';
+else
+    cPath = '/scratch/home/r/rv519/matSurf';
+end
+
 % save handles as h, surface as vol
 
 % h.brainPatch.EdgeColor = 'k';
@@ -13,13 +20,11 @@
 %     ones(length(st)*2,1), vol.nVert, vol.nVert);
 
 % load in vol
-% vol = load('/scratch/home/r/rv519/matSurf/_test_fns/roi_import/vol.mat');
-vol = load('/storage/matSurf/_test_fns/roi_import/vol.mat');
+vol = load([cPath,'/_test_fns/roi_import/vol.mat']);
 vol = vol.R3517_rh_inf;
 
 % % load in ROI
-% % roiExp = load('/scratch/home/r/rv519/matSurf/_test_fns/roi_import/RH_testROI.mat');
-% roiExp = load('/storage/matSurf/_test_fns/roi_import/RH_testROI.mat');
+roiExp = load([cPath,'/_test_fns/roi_import/RH_testROI.mat']);
 % roiExp = roiExp.R3517_rh_ROIs;
 % 
 % % get all and selected vertices
@@ -28,14 +33,13 @@ vol = vol.R3517_rh_inf;
 % selVert = roiExp.ROIs.selVert{1};
 
 % load in label
-% fid = fopen('/scratch/home/r/rv519/matSurf/_test_fns/roi_import/RH_testROI.label','r') ;
-fid = fopen('/storage/matSurf/_test_fns/roi_import/RH_testROI.label','r') ;
+fid = fopen([cPath,'/_test_fns/roi_import/RH_testROI.label'],'r') ;
 fgets(fid);
 nV = fscanf(fid,'%d\n',1);
 roiLab = fscanf(fid, '%d %*f %*f %*f %*f\n',[1 nV])' +1;
 fclose(fid);
 
-clearvars st w fid nV;
+clearvars st w fid nV cPath;
 
 %%
 
@@ -60,19 +64,24 @@ eCoords = vol.TR.Points(unE,:);
 nE = numel(unE);
 e(:) = unE_idx;
 
-% create adjacency matrix and number of connections for each vertex
+% get indices to slot into square matrices
+idx = sub2ind([nE,nE],[e(:,1);e(:,2)],[e(:,2);e(:,1)]);
+
+% create adjacency matrix
 adjMat = false(nE);
-adjMat(sub2ind([nE,nE],[e(:,1);e(:,2)],[e(:,2);e(:,1)])) = 1;
+adjMat(idx) = 1;
+
+% create distance matrix that stores length of all edges
+w = sqrt(sum(bsxfun(@minus,vol.TR.Points(e(:,1),:),vol.TR.Points(e(:,2),:)).^2,2));
+distMat = nan(nE);
+distMat(idx) = [w; w];
+
+% get number of connections for each vertex
 nCon = sum(adjMat)';
 
-%%
-
 % make a graph
-w = sqrt(sum(bsxfun(@minus,vol.TR.Points(e(:,1),:),vol.TR.Points(e(:,2),:)).^2,2));
 g2 = graph(e(:,1),e(:,2),w);
 figure; plot(g2,'Layout','force');
-
-clearvars w;
 
 %% break boundary points into sections of continuity
 
@@ -155,9 +164,13 @@ while ~isempty(toVis)
         pathSect(ps_idx) = nan;
         ps_idx = ps_idx +1;
     
-        % save out vis and toVis as copies so don't backtrack
-        tmpVis = vis;
+        % create tmp version of toVis
         tmptoVis = currPnt;
+        
+        % create index to store points found in breadth-first search
+        haveVis = false(nE,1);
+        
+        break; % tmp break so can implement code
         
         while ~isempty(tmptoVis)
             
@@ -167,7 +180,7 @@ while ~isempty(toVis)
             % - mod(x-1,nRows)+1 is like ind2sub but rows only
             % - unique does what it says on the tin...
             currN = unique(mod(find(adjMat(:,tmptoVis))-1,nE)+1);
-            currN(tmpVis(currN)) = []; 
+            currN(vis(currN)) = []; 
             
             % test if found a breakpoint
             nxt_bp = currN(bp_idx(currN)==1);
@@ -185,7 +198,7 @@ while ~isempty(toVis)
             else
                 % mark points added to list as visited so they don't get added again
                 % then update toVis with current neighbours neighbours
-                tmpVis(currN) = true;
+                vis(currN) = true;
                 tmptoVis = currN;
             end
         end
