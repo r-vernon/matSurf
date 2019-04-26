@@ -43,54 +43,73 @@ clearvars st w fid nV cPath;
 
 %%
 
-% find all boundary points (will be points that have at least one
-% connection outside ROI, can find with xor)
+% find all boundary points 
+% (will be points that have at least one connection outside ROI, can find with xor)
 toKeep = false(vol.nVert,1);
 toKeep(roiLab) = true;
 e = edges(vol.TR);
-tmpBoundPts = intersect(e(xor(toKeep(e(:,1)),toKeep(e(:,2))),:),roiLab);
+boundPts = intersect(e(xor(toKeep(e(:,1)),toKeep(e(:,2))),:),roiLab,'sorted');
 
-% get only edges connecting boundary points
+% keep only the edges that connect boundary points
 toKeep(:) = 0;
-toKeep(tmpBoundPts) = true;
+toKeep(boundPts) = true;
 e(~all(toKeep(e),2),:) = [];
 
-% grab the weights for each edge
-% w = sqrt(sum(bsxfun(@minus,vol.TR.Points(e(:,1),:),vol.TR.Points(e(:,2),:)).^2,2));
+% get number of connections for each boundary point
+nCon = nonzeros(accumarray(e(:),1,[],[],[],1));
 
-% relabel vertices so they're 1:n just to make life easier
-[unE,~,unE_idx] = unique(e);
-eCoords = vol.TR.Points(unE,:);
-nE = numel(unE);
-e(:) = unE_idx;
+% extract points with only a single connection (will be added back in later)
+singPnts_idx = (nCon == 1);
+if any(singPnts_idx)
+    
+    % get the single points
+    singPnts = boundPts(singPnts_idx);
+    
+    % get the edge rows containing single points
+    spE_idx = ismember(e,singPnts);
+    spE_row = any(spE_idx,2);
+    
+    % get the single point edges, and indices for those edges
+    % (transposing so each edge is seperate column)
+    spE = e(spE_row,:)';
+    spE_idx = spE_idx(spE_row,:)';
+    
+    % store (col1) the point each singPnt connects to and (col2) the singPnt
+    toAdd = [spE(~spE_idx), spE(spE_idx)];
 
-% get indices to slot into square matrices
-idx = sub2ind([nE,nE],[e(:,1);e(:,2)],[e(:,2);e(:,1)]);
+    % delete all references to the single connected point
+    e(spE_row,:) = [];
+    boundPts(singPnts_idx) = [];
+    nCon(singPnts_idx) = [];
+    
+end
 
-% create adjacency matrix
-adjMat = false(nE);
-adjMat(idx) = 1;
+% get number of bound points (bps), and mapping between bps and bp indices
+nBP = numel(boundPts);
+bp2bp_idx = sparse(boundPts,ones(nBP,1),1:nBP,vol.nVert,1);
 
-% create distance matrix that stores length of all edges
-w = sqrt(sum(bsxfun(@minus,vol.TR.Points(e(:,1),:),vol.TR.Points(e(:,2),:)).^2,2));
-distMat = nan(nE);
-distMat(idx) = [w; w];
+% get lengths of all edges
+eLen = sqrt(sum(bsxfun(@minus,vol.TR.Points(e(:,1),:),vol.TR.Points(e(:,2),:)).^2,2));
 
-% get number of connections for each vertex
-nCon = sum(adjMat)';
+% relabel bound points in edge list so they're 1:n (just to make life easier)
+e = full(bp2bp_idx(e));
+
+% create adjacency matrix and distance matrix (storing length of all edges)
+adjMat  = sparse([e(:,1);e(:,2)], [e(:,2);e(:,1)], ones(2*size(e,1),1,'logical'), nBP, nBP);
+distMat = sparse([e(:,1);e(:,2)], [e(:,2);e(:,1)], [eLen; eLen], nBP, nBP);
 
 % make a graph
-g2 = graph(e(:,1),e(:,2),w);
+g2 = graph(e(:,1),e(:,2),eLen);
 figure; plot(g2,'Layout','force');
 
 %% break boundary points into sections of continuity
 
 % preallocate some useful stuff..
-bp_idx = false(nE,1);     % index of which points are break (branching) points
-vis = false(nE,1);        % which nodes have been visited
-toVis = nan;              % next point to be visited
-pathSect = zeros(2*nE,1); % store the path sections
-ps_idx = 1;               % index into pathSect
+brkPnt_idx = false(nBP,1);  % index of which points are break (branching) points
+vis = false(nBP,1);         % which nodes have been visited
+toVis = nan;                % next point to be visited
+pathRoute = zeros(2*nBP,1); % store the path route
+pathRoute_idx = 1;          % index into pathSect
 
 %--------------------------------------------------------------------------
 
@@ -109,23 +128,22 @@ toDel = ~any(adjPts_twoCon,2);
 twoCon(toDel) = [];
 adjPts(toDel,:) = [];
 adjPts_twoCon(toDel,:) = [];
-clearvars toDel;
 
 % create index into twoCon
-tc_idx = zeros(nE,1);
-tc_idx(twoCon) = 1:numel(twoCon);
+twoCon_idx = zeros(nBP,1);
+twoCon_idx(twoCon) = 1:numel(twoCon);
 
 %--------------------------------------------------------------------------
 % find the break points between sections
 
-if numel(twoCon)==nE % case where all points must be two connected so forms simple loop
+if numel(twoCon) == nBP % case where all points must be two connected so forms simple loop
     
     currPnt = twoCon(1); % arbitrary choice as no breaks!
     
 else
     
     % get the points where only one of the adjacent points is two-connected
-    % temp transposing so ends up reading across rows when index shortly
+    % transposing so each pair of adj. points is stored in a column
     adjPts_oneCon = xor(adjPts_twoCon(:,1),adjPts_twoCon(:,2));
     brkPnts = adjPts(adjPts_oneCon,:)';
     
@@ -134,12 +152,12 @@ else
     brkPnts = brkPnts(~adjPts_twoCon(adjPts_oneCon,:)');
     
     % set broken points index
-    bp_idx(brkPnts) = 1;
+    brkPnt_idx(brkPnts) = 1;
     
     % set the first non-two connected point as visited
     vis(brkPnts(1)) = 1;
-    pathSect(1) = brkPnts(1);
-    ps_idx = ps_idx +1;
+    pathRoute(1) = brkPnts(1);
+    pathRoute_idx = pathRoute_idx +1;
     
     % take the point that connects to this break as starting point
     currPnt = twoCon(find(adjPts_oneCon,1));
@@ -149,185 +167,93 @@ end
 % mark starting point as visited and add to path
 
 vis(currPnt) = 1;
-pathSect(ps_idx) = currPnt;
-ps_idx = ps_idx +1;
+pathRoute(pathRoute_idx) = currPnt;
+pathRoute_idx = pathRoute_idx +1;
 
-%--------------------------------------------------------------------------
+%% loop until visited all possible points around path
 
-% loop until visited all possible points
 while ~isempty(toVis)
     
-    % check if at breakpoint, if we are, do breadth first search until reach new breakpoint
-    if bp_idx(currPnt)
-        
-        % mark that we've found breakpoint with nan
-        pathSect(ps_idx) = nan;
-        ps_idx = ps_idx +1;
+    if currPnt==65, break; end
     
-        % create tmp version of toVis
-        tmptoVis = currPnt;
+    % check if at breakpoint (a point where multiple poss. paths exist)
+    if brkPnt_idx(currPnt)
         
-        % create index to store points found in breadth-first search
-        haveVis = false(nE,1);
-        
-        break; % tmp break so can implement code
-        
-        while ~isempty(tmptoVis)
-            
-            % get all neighbours of current point(s)
-            % (deleting any that have already been visited)
-            % - find gets all the neighbours
-            % - mod(x-1,nRows)+1 is like ind2sub but rows only
-            % - unique does what it says on the tin...
-            currN = unique(mod(find(adjMat(:,tmptoVis))-1,nE)+1);
-            currN(vis(currN)) = []; 
-            
-            % test if found a breakpoint
-            nxt_bp = currN(bp_idx(currN)==1);
-            if ~isempty(nxt_bp)
-                
-                % get the next two-connected point from break point
-                currPnt = find(adjMat(:,nxt_bp)&tc_idx);
-                
-                % set all to visited and move on
-                vis([nxt_bp,currPnt]) = 1;
-                pathSect(ps_idx:ps_idx+1) = [nxt_bp,currPnt];
-                ps_idx = ps_idx +2;
-                break;
-                
-            else
-                % mark points added to list as visited so they don't get added again
-                % then update toVis with current neighbours neighbours
-                vis(currN) = true;
-                tmptoVis = currN;
-            end
-        end
-    end
+        % save the curr. point as start of break and first point to vis
+        bpSt = currPnt;
+        bpToVis = currPnt;
 
+        % create index to store points found in breadth-first search
+        haveVis_idx = false(nBP,1);
+        
+        % flag to mark whether reached end of breakpoint or not
+        bpEnd_found = false;
+        
+        % do breadth first search until reach new breakpoint
+        while ~isempty(bpToVis)
+            
+            % get all unique neighbours of curr. point(s), deleting those already visited
+            % (find gets all neighbours, mod(x-1,nRows)+1 like rows only ind2sub)
+            currN = unique(mod(find(adjMat(:,bpToVis))-1,nBP)+1);
+            currN(vis(currN)) = [];
+            
+            % test if reached end breakpoint (i.e. got back to path...)
+            if ~bpEnd_found, bpEnd = currN(brkPnt_idx(currN)==1);
+                if numel(bpEnd)==1
+                    
+                    % mark bpEnd as found, so don't have to run this bit again
+                    bpEnd_found = true;
+                    
+                    % set next two-connected point from break point as currPnt
+                    currPnt = find(adjMat(:,bpEnd) & twoCon_idx);
+                    
+                    % set end breakpoint and its adj. twoCon pnt as visited
+                    vis([bpEnd,currPnt]) = 1;
+                    
+                    % delete the breakpoint from curr. neighbours so don't re-visit it
+                    currN(currN==bpEnd) = [];
+                    
+                end
+            end
+            
+            % set new points as next to explore, marking them visited so don't backtrack
+            bpToVis = currN;
+            vis(currN) = true;    
+            haveVis_idx(currN) = true;
+        end
+        
+        % get all points in the break that were visited (excl. start/end)
+        haveVis = find(haveVis_idx);
+  
+        % get all possible paths, adding on btSt and bpEnd
+        %allPaths = perms(haveVis);
+        %allPaths = [bpSt(ones(size(allPaths,1),1)), allPaths, bpEnd(ones(size(allPaths,1),1))];
+
+    end
+    
     % get index for current point
-    cp_idx = tc_idx(currPnt);
-    if cp_idx == 0
+    currPnt_idx = twoCon_idx(currPnt);
+    if currPnt_idx == 0
         % finished path
         break; 
     end
     
     % find next viable point
-    nxtPnt = adjPts(cp_idx,:);
+    nxtPnt = adjPts(currPnt_idx,:);
     nxtPnt(vis(nxtPnt)) = [];
     
     % add next point to path and set as current point
     currPnt = nxtPnt;
     vis(currPnt) = 1;
-    pathSect(ps_idx) = currPnt;
-    ps_idx = ps_idx +1;
+    pathRoute(pathRoute_idx) = currPnt;
+    pathRoute_idx = pathRoute_idx +1;
     
 end
 
 % remove extra points
-pathSect(ps_idx:end) = [];
+pathRoute(pathRoute_idx:end) = [];
 
 
-%%
-% pick a vertex and run with it
-
-prevPnt = 67;
-stPnt = 66;
-
-vis = false(nE,1);
-vis([prevPnt,stPnt]) = 1;
-
-toVis = stPnt;
-prevN = stPnt;
-
-% do breadth first search to find next two-connected point
-while ~isempty(toVis)
-    
-    % get all neighbours of current point(s)
-    % - find gets all the neighbours
-    % - mod(x-1,nRows)+1 is like ind2sub but rows only
-    % - unique does what it says on the tin...
-    currN = unique(mod(find(adjMat(:,toVis))-1,nE)+1);
-    
-    % delete any that have already been visited
-    currN(vis(currN)) = [];
-    
-    % test if back on track
-    nCurrN = numel(currN);
-    if numel(prevN) == 1 && numel(currN) == 1
-        endPnt = prevN;
-        break;
-    else
-        prevN = currN;
-    end
-    
-    % mark points added to list as visited so they don't get added again
-    vis(currN) = true;
-    
-    % update toVis with current neighbours neighbours
-    toVis = currN;
-    
-end
-
-vis([prevPnt,stPnt,endPnt]) = 0;
-visPts = find(vis);
-
-% deal with singular points (removing them for now)
-singPt = find(nCon(visPts) == 1);
-if ~isempty(singPt)
-    toAdd = zeros(numel(singPt),2);
-    toAdd(:,1) = mod(find(adjMat(:,visPts(singPt)))-1,nE)+1;
-    toAdd(:,2) = visPts(singPt);
-    visPts(singPt) = [];
-end
-
-allPaths = perms(visPts);
-apSz = size(allPaths);
-
-allPaths = [repmat(stPnt,apSz(1),1),allPaths,repmat(endPnt,apSz(1),1)];
-apSz(2) = apSz(2) +2;
-visPts = [stPnt; endPnt; visPts];
-
-for ii = 1:numel(visPts)
-    
-    currPt = visPts(ii);
-    
-    [ri,ci] = find(allPaths==currPt);
-    ri = [ri; ri];
-    ci = [ci-1; ci+1];
-    
-    toDel = (ci < 1) | (ci > apSz(2));
-    ri(toDel) = []; 
-    ci(toDel) = [];
-    idx = sub2ind(apSz,ri,ci);
-    
-    badPath = true(apSz);
-    badPath(idx) = ismember(allPaths(idx),find(adjMat(:,currPt)));
-    badPath = any(~badPath,2);
-    
-    allPaths(badPath,:) = [];
-    apSz = size(allPaths);
-    
-    if apSz(1) == 1, break, end
-end
-
-% if there's more than one path left (which should never happen...) take
-% the one with shortest overall distance
-if apSz(1) > 1
-    allDist = zeros(apSz(1),1);
-    for ii = 1:apSz(1)
-        allDist(ii) = sum(sqrt(sum((eCoords(allPaths(ii,2:end),:)-eCoords(allPaths(ii,1:end-1),:)).^2,2)));
-    end
-    [~,toKeep] = min(allDist);
-    allPaths = allPaths(toKeep,:);
-end
-
-% add singular points back in
-if ~isempty(singPt)
-    for ii = 1:size(toAdd,1)
-        idx = find(allPaths==toAdd(ii,1));
-        allPaths = [allPaths(1:idx),toAdd(ii,2),allPaths(idx:end)];
-    end
-end
 
 
 
