@@ -44,7 +44,6 @@ if numel(allVert) > 0.5*currVol.nVert
     
     % save out as new allVert
     allVert = find(tmp);
-    clearvars tmp;
 end
 
 %--------------------------------------------------------------------------

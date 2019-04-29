@@ -27,7 +27,7 @@ if nargin < 3 || isempty(midPt)
             if isempty(nMidPt)
                 midPt = bPts(randi(numel(bPts,1)));
             else
-                [~,clPt] = min(sqrt(sum(bsxfun(@minus,obj.TR.Points(nMidPt,:),boundCent),2).^2));
+                [~,clPt] = min(sqrt(sum(bsxfun(@minus,obj.TR.Points(nMidPt,:),boundCent).^2,2)));
                 midPt = nMidPt(clPt);
             end
         end
