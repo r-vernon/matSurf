@@ -8,8 +8,6 @@ end
 
 % save handles as h, surface as vol
 
-% h.brainPatch.EdgeColor = 'k';
-
 % % create graph
 % st = edges(vol.TR);
 % w = sqrt(sum(bsxfun(@minus,vol.TR.Points(st(:,1),:),vol.TR.Points(st(:,2),:)).^2,2));
@@ -25,8 +23,8 @@ vol = vol.R3517_rh_inf;
 
 % % load in ROI
 roiExp = load([cPath,'/_test_fns/roi_import/RH_testROI.mat']);
-% roiExp = roiExp.R3517_rh_ROIs;
-% 
+roiExp = roiExp.R3517_rh_ROIs;
+
 % % get all and selected vertices
 % allVert = roiExp.ROIs.allVert{1};
 % allVert(isnan(allVert)) = [];
@@ -40,6 +38,15 @@ roiLab = fscanf(fid, '%d %*f %*f %*f %*f\n',[1 nV])' +1;
 fclose(fid);
 
 clearvars st w fid nV cPath;
+
+%{
+
+h.brainPatch.EdgeColor = 'k';
+
+v2mark = vol.TR.Points(14720,:);
+tmpPlot = line(h.xForm,v2mark(:,1),v2mark(:,2),v2mark(:,3),...
+    'Color','red','LineStyle','none','Marker','.');
+%}
 
 %%
 
@@ -55,34 +62,57 @@ toKeep(:) = 0;
 toKeep(boundPts) = true;
 e(~all(toKeep(e),2),:) = [];
 
-% get number of connections for each boundary point
+%%
+
+toKeep(:) = 0;
+toKeep(roiLab) = true;
+
+T = vol.TR.ConnectivityList;
+
+[ri1,ci1] = find(T==13764);
+[ri2,ci2] = find(T==13742);
+test = T(intersect(ri1,ri2),:);
+
+T_bp = sum(toKeep(T),2);
+T = T(T_bp==2,:);
+
+e2 = [T(:,1:2); T(:,2:3); T(:,[1,3])];
+e2(~all(toKeep(e2),2),:) = [];
+e2 = unique(sort(e2,2),'rows');
+
+[ri,ci] = find(e2==13764);
+e2(ri,:)
+
+%%
+
+% get number of connections for each boundary point (aka vertex degree)
 nCon = nonzeros(accumarray(e(:),1,[],[],[],1));
 
 % extract points with only a single connection (will be added back in later)
-singPnts_idx = (nCon == 1);
-if any(singPnts_idx)
-    
-    % get the single points
-    singPnts = boundPts(singPnts_idx);
-    
-    % get the edge rows containing single points
-    spE_idx = ismember(e,singPnts);
-    spE_row = any(spE_idx,2);
-    
-    % get the single point edges, and indices for those edges
-    % (transposing so each edge is seperate column)
-    spE = e(spE_row,:)';
-    spE_idx = spE_idx(spE_row,:)';
-    
-    % store (col1) the point each singPnt connects to and (col2) the singPnt
-    toAdd = [spE(~spE_idx), spE(spE_idx)];
-
-    % delete all references to the single connected point
-    e(spE_row,:) = [];
-    boundPts(singPnts_idx) = [];
-    nCon(singPnts_idx) = [];
-    
-end
+% singPnts_idx = (nCon == 1);
+% if any(singPnts_idx)
+%     
+%     % get the single points
+%     singPnts = boundPts(singPnts_idx);
+%     
+%     % get the edge rows containing single points
+%     spE_idx = ismember(e,singPnts);
+%     spE_row = any(spE_idx,2);
+%     
+%     % get the single point edges, and indices for those edges
+%     % (transposing so each edge is seperate column)
+%     spE = e(spE_row,:)';
+%     spE_idx = spE_idx(spE_row,:)';
+%     
+%     % store (col1) the point each singPnt connects to and (col2) the singPnt
+%     toAdd = [spE(~spE_idx), spE(spE_idx)];
+% 
+%     % delete all references to the single connected point
+%     e(spE_row,:) = [];
+%     boundPts(singPnts_idx) = [];
+%     nCon(singPnts_idx) = [];
+%     
+% end
 
 % get number of bound points (bps), and mapping between bps and bp indices
 nBP = numel(boundPts);
@@ -101,6 +131,14 @@ distMat = sparse([e(:,1);e(:,2)], [e(:,2);e(:,1)], [eLen; eLen], nBP, nBP);
 % make a graph
 g2 = graph(e(:,1),e(:,2),eLen);
 figure; plot(g2,'Layout','force');
+
+g3 = minspantree(g2);
+figure; plot(g3,'Layout','force');
+
+% g3 = rmnode(graph(e(:,1),e(:,2)),24);
+% figure; plot(g3,'Layout','force');
+% 
+% test = dfsearch(g3,24,'allevents');
 
 %% break boundary points into sections of continuity
 

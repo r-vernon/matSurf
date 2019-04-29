@@ -57,6 +57,9 @@ while ~isempty(toVis) % while there's points to be visited
     % - unique does what it says on the tin...
     currN = unique(mod(find(adjMat(:,toVis))-1,obj.nVert)+1);
     
+    tmp = find(currN==13764,1);
+    if ~isempty(tmp), break; end
+    
     % delete any that have already been visited
     currN(vis(currN)) = [];
     
