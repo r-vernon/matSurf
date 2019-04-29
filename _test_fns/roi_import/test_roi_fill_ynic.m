@@ -44,14 +44,28 @@ test = zeros(obj.nVert,1);
 test(bPts) = 1;
 toTest = setdiff(1:obj.nVert,bPts)';
 
+
+sPathTree = shortestpathtree(obj.G,endPt,'Method','positive','OutputForm','vector');
+
+h = waitbar(0,'prcoe');
+
 for ii = 1:numel(toTest)
     
     stPnt = toTest(ii);
     
     % calculate shortest path from start to furtherst point
     % only saving whether boundary point or not
-    sPath = ismember(shortestpath(obj.G,stPnt,endPt),bPts);
+    %sPath = ismember(shortestpath(obj.G,stPnt,endPt),bPts);
     
+    inc = obj.nVert;
+    sPath = zeros(1,obj.nVert,'uint32');
+    sPath(inc) = stPnt;
+    while sPathTree(sPath(inc))~= 0
+        inc = inc - 1;
+        sPath(inc) = sPathTree(sPath(inc+1));
+    end
+    sPath = ismember(sPath(end:-1:inc),bPts);
+        
     % delete any repeated adjacent points (e.g. travelling across boundary)
     sPath(diff(sPath)==0) = [];
     
@@ -59,7 +73,13 @@ for ii = 1:numel(toTest)
     pt_inBound = mod(sum(sPath),2);
     
     test(stPnt) = pt_inBound;
+    
+    if ~mod(ii,1000)
+        waitbar(ii/numel(toTest));
+    end
 end
+
+allCoords = obj.TR.Points(test==1,:);
 
 %%
 
