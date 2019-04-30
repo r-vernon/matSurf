@@ -245,7 +245,7 @@ classdef brainSurf < handle
         
         % -----------------------------------------------------------------
         
-        [allVert] = ROI_fill(obj,bPts,midPt)
+        [allVert] = ROI_fill(obj,bPts)
         % function to flood fill an ROI
         
         % -----------------------------------------------------------------
