@@ -11,6 +11,69 @@ obj = obj.R3517_rh_inf;
 
 bPts = bPts(end:-1:1);
 
+%%
+
+if exist('tmpPlot','var')
+    delete(tmpPlot);
+end
+
+% get all points adjacent to boundary
+adjMat = logical(adjacency(obj.G));
+bpAdj = unique(mod(find(adjMat(:,bPts))-1,obj.nVert)+1);
+
+% create index of bp adjacent ponts (for faster verson of intersect)
+bpAdj_idx = false(obj.nVert,1);
+bpAdj_idx(bpAdj) = 1; % want adj. points...
+bpAdj_idx(bPts)  = 0; % ... but not those that are also BPs
+
+% find furthest point from centre of boundary (so unlikely to be in bound!)
+boundCent = mean(obj.TR.Points(bPts,:));
+[~,furthPnt] = max(sqrt(sum(bsxfun(@minus,obj.TR.Points,boundCent).^2,2)));
+
+% do depth first search from furthest pnt, first 1st BP and take prev. pnt
+dfEP = dfsearch(obj.G,furthPnt);
+dfEP = dfEP(find(ismember(dfEP,bPts),1)-1);
+
+% create index of which points to visit, which to be visited
+toVis = dfEP;
+vis = false(obj.nVert,1);
+vis(dfEP) = 1;
+
+% do search around boundary to find all outer limits
+while ~isempty(toVis)
+    toVis = unique(mod(find(adjMat(:,toVis))-1,obj.nVert)+1);
+    toVis(vis(toVis)) = [];          % delete already visited vertices
+    toVis = toVis(bpAdj_idx(toVis)); % only keep bpAdj vertices
+    vis(toVis) = 1;                  % mark as visited
+end
+outsideBP = find(vis);
+
+% now to breadth first search starting from boundary to fill in
+toVis = bPts;
+vis(:) = false;
+vis([outsideBP;bPts]) = 1;
+while ~isempty(toVis)
+    toVis = unique(mod(find(adjMat(:,toVis))-1,obj.nVert)+1);
+    toVis(vis(toVis)) = [];
+    vis(toVis) = 1;
+end
+vis(outsideBP) = 0;
+insideBP = find(vis);
+
+allCoords = obj.TR.Points(insideBP,:);
+
+tmpPlot = line(h.xForm,allCoords(:,1),allCoords(:,2),...
+    allCoords(:,3),'Color','red','LineStyle','none','Marker','.');
+
+
+
+
+
+
+
+
+
+
 %% initial processing on boundary points
  
 % find and extract points where bound reverses on itself (single connected BPs)
@@ -26,10 +89,6 @@ nBP = numel(bPts);
 
 %%
 
-% find furthest point from centre of boundary (will be end point)
-boundCent = mean(obj.TR.Points(bPts,:));
-[~,endPt] = max(sqrt(sum(bsxfun(@minus,obj.TR.Points,boundCent).^2,2)));
-
 % pick random boundary adjacent point
 stPnt = [];
 inc = 1;
@@ -44,10 +103,10 @@ test = zeros(obj.nVert,1);
 test(bPts) = 1;
 toTest = setdiff(1:obj.nVert,bPts)';
 
-
+sPath = zeros(obj.nVert,1,'uint32');
 sPathTree = shortestpathtree(obj.G,endPt,'Method','positive','OutputForm','vector');
 
-h = waitbar(0,'prcoe');
+wb = waitbar(0,'processing');
 
 for ii = 1:numel(toTest)
     
@@ -58,19 +117,19 @@ for ii = 1:numel(toTest)
     %sPath = ismember(shortestpath(obj.G,stPnt,endPt),bPts);
     
     inc = obj.nVert;
-    sPath = zeros(1,obj.nVert,'uint32');
+    sPath(:) = 0;
     sPath(inc) = stPnt;
     while sPathTree(sPath(inc))~= 0
         inc = inc - 1;
         sPath(inc) = sPathTree(sPath(inc+1));
     end
-    sPath = ismember(sPath(end:-1:inc),bPts);
+    sPath_idx = ismember(sPath(end:-1:inc),bPts);
         
     % delete any repeated adjacent points (e.g. travelling across boundary)
-    sPath(diff(sPath)==0) = [];
+    sPath_idx(diff(sPath_idx)==0) = [];
     
     % test if in boundary
-    pt_inBound = mod(sum(sPath),2);
+    pt_inBound = mod(sum(sPath_idx),2);
     
     test(stPnt) = pt_inBound;
     
@@ -80,6 +139,11 @@ for ii = 1:numel(toTest)
 end
 
 allCoords = obj.TR.Points(test==1,:);
+
+close(wb);
+
+tmpPlot = line(h.xForm,allCoords(:,1),allCoords(:,2),...
+    allCoords(:,3),'Color','red','LineStyle','none','Marker','.');
 
 %%
 
