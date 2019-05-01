@@ -13,9 +13,7 @@ bPts = bPts(end:-1:1);
 
 %%
 
-if exist('tmpPlot','var')
-    delete(tmpPlot);
-end
+if exist('tmpPlot','var'), delete(tmpPlot); end
 
 % get all points adjacent to boundary
 adjMat = logical(adjacency(obj.G));
