@@ -7,7 +7,14 @@ function [allVert] = ROI_fill(obj,bPts)
 
 % create a graph in which all ROI boundary nodes have been deleted
 % bin it's connected components ('islands' of nodes)
-[bins,binSizes] = conncomp(rmnode(obj.G,bPts));
+if nargout('conncomp') == 2
+    [bins,binSizes] = conncomp(rmnode(obj.G,bPts));
+else
+    % some versions of conncomp don't allow 2 output args so calc binSizes manually
+    bins = conncomp(rmnode(obj.G,bPts));
+    binSizes = accumarray(bins(:), 1);
+    binSizes = binSizes(:)';
+end
 
 % test if only one bin - in which case ROI not closed
 if numel(binSizes) == 1
